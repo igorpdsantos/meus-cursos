@@ -1,4 +1,13 @@
 require('dotenv').config();
+
+// Sem a string de conexão, o mongoose e o MongoStore quebram com um erro ilegível bem
+// mais adiante. Melhor parar aqui e dizer o que fazer.
+if (!process.env.CONNECTIONSTRING) {
+  console.error('CONNECTIONSTRING não encontrada. Copie o modelo e preencha com a sua URI:');
+  console.error('  cp .env.example .env');
+  process.exit(1);
+}
+
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');

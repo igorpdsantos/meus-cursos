@@ -3225,7 +3225,7 @@ window.CONTEUDO = [
         "n": 2,
         "titulo": "__dirname: a pasta deste arquivo, não a de onde você rodou",
         "secao": "ESSENCIAL",
-        "codigo": "console.log('__dirname :', __dirname);      // .../Node/src/03-arquivos-com-fs\nconsole.log('__filename:', __filename);     // .../01-path-e-dirname.js\nconsole.log('cwd       :', process.cwd());  // a pasta do terminal — pode ser QUALQUER uma\n// Rodar `node Node/src/03-arquivos-com-fs/01-path-e-dirname.js` de casa muda o cwd,\n// mas não muda o __dirname. Por isso caminho de projeto sempre parte de __dirname."
+        "codigo": "console.log('__dirname :', __dirname);      // .../Node/src/03-arquivos-com-fs\nconsole.log('__filename:', __filename);     // .../01-path-e-dirname.js\nconsole.log('cwd       :', process.cwd());  // a pasta do terminal — pode ser QUALQUER uma\n// Rodar `node node/src/03-arquivos-com-fs/01-path-e-dirname.js` de casa muda o cwd,\n// mas não muda o __dirname. Por isso caminho de projeto sempre parte de __dirname."
        },
        {
         "n": 3,

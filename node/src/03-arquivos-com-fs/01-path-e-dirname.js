@@ -24,7 +24,7 @@ console.log('Separador deste sistema:', JSON.stringify(path.sep));
 console.log('__dirname :', __dirname);      // .../Node/src/03-arquivos-com-fs
 console.log('__filename:', __filename);     // .../01-path-e-dirname.js
 console.log('cwd       :', process.cwd());  // a pasta do terminal — pode ser QUALQUER uma
-// Rodar `node Node/src/03-arquivos-com-fs/01-path-e-dirname.js` de casa muda o cwd,
+// Rodar `node node/src/03-arquivos-com-fs/01-path-e-dirname.js` de casa muda o cwd,
 // mas não muda o __dirname. Por isso caminho de projeto sempre parte de __dirname.
 
 // ─── 3) resolve devolve caminho absoluto ───
