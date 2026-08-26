@@ -3,7 +3,7 @@
 Estudos de programação com **documentação que roda**: cada exemplo abre com um terminal do
 lado, você aperta ▶ e vê a saída — igual à do `node`, mas dentro do navegador.
 
-### 👉 **[Abrir a documentação interativa](https://igorpds-fullstack.github.io/meus-cursos/)**
+### 👉 **[Abrir a documentação interativa](https://igorpdsantos.github.io/meus-cursos/)**
 
 Dois cursos, em sequência:
 
@@ -53,7 +53,7 @@ até a agenda completa com login, senha criptografada, CRUD e CSRF.
 
 ## Como estudar
 
-**Pelo site** (recomendado): [abra a documentação](https://igorpds-fullstack.github.io/meus-cursos/)
+**Pelo site** (recomendado): [abra a documentação](https://igorpdsantos.github.io/meus-cursos/)
 ou dê duplo clique em [`docs/index.html`](docs/index.html). Não precisa instalar nada.
 
 Cada exemplo é editável: mude o código, rode de novo, e `↺ original` volta ao que era. Suas
