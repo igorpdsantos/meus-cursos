@@ -15,7 +15,7 @@
 // ─── 1) Conectar, e falhar direito quando o banco está fora ───
 const mongoose = require('mongoose');   // npm install mongoose
 
-// A URI de verdade vem do .env: mongodb+srv://usuario:senha@cluster.mongodb.net
+// A URI de verdade vem do .env: mongodb+srv://<usuario>:<senha>@<cluster>.mongodb.net
 // Aqui apontamos para um MongoDB que não existe, só para ver o erro que aparece.
 mongoose
   .connect('mongodb://127.0.0.1:27017', { dbName: 'cursojs01', serverSelectionTimeoutMS: 700 })
@@ -28,7 +28,7 @@ mongoose
 
 // ─── 2) O dbName não está na URI ───
 const enderecos = [
-  'mongodb+srv://igor:senha@cluster0.mongodb.net/?retryWrites=true',   // o que o Atlas te dá
+  'mongodb+srv://igor:senha@cluster0.exemplo.net/?retryWrites=true',   // no Atlas o host acaba em .mongodb.net
   'mongodb://127.0.0.1:27017/loja',                                    // com banco no fim
 ];
 
@@ -101,7 +101,7 @@ console.log('crua     → mongodb+srv://igor:' + senha + '@cluster... (URI invá
 console.log('escapada → mongodb+srv://igor:' + encodeURIComponent(senha) + '@cluster...');
 
 try {
-  new URL('mongodb+srv://igor:' + senha + '@cluster0.mongodb.net');
+  new URL('mongodb+srv://igor:' + senha + '@cluster0.exemplo.net');
 } catch (erro) {
   console.log('O que o Node diz:', erro.message);
 }

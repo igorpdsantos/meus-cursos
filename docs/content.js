@@ -1,7 +1,7 @@
 /* GERADO por docs/build.mjs — não edite à mão. Edite os .js em <CURSO>/src/ e rode o build. */
 window.CONTEUDO = [
  {
-  "slug": "JS",
+  "slug": "javascript",
   "titulo": "JavaScript",
   "selo": "JS",
   "subtitulo": "A linguagem",
@@ -19,7 +19,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-let-const-var",
-      "arquivo": "JS/src/01-fundamentos/01-let-const-var.js",
+      "arquivo": "javascript/src/01-fundamentos/01-let-const-var.js",
       "comando": "node src/01-fundamentos/01-let-const-var.js",
       "titulo": "let, const e var",
       "sessao": 1,
@@ -68,7 +68,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-strings",
-      "arquivo": "JS/src/01-fundamentos/02-strings.js",
+      "arquivo": "javascript/src/01-fundamentos/02-strings.js",
       "comando": "node src/01-fundamentos/02-strings.js",
       "titulo": "Strings: tratamento de texto",
       "sessao": 1,
@@ -136,7 +136,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "03-numeros",
-      "arquivo": "JS/src/01-fundamentos/03-numeros.js",
+      "arquivo": "javascript/src/01-fundamentos/03-numeros.js",
       "comando": "node src/01-fundamentos/03-numeros.js",
       "titulo": "Números: Math e Number",
       "sessao": 1,
@@ -204,7 +204,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "04-split-e-join",
-      "arquivo": "JS/src/01-fundamentos/04-split-e-join.js",
+      "arquivo": "javascript/src/01-fundamentos/04-split-e-join.js",
       "comando": "node src/01-fundamentos/04-split-e-join.js",
       "titulo": "split e join — texto vira lista, lista vira texto",
       "sessao": 7,
@@ -281,7 +281,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-arrays",
-      "arquivo": "JS/src/02-arrays-e-objetos/01-arrays.js",
+      "arquivo": "javascript/src/02-arrays-e-objetos/01-arrays.js",
       "comando": "node src/02-arrays-e-objetos/01-arrays.js",
       "titulo": "Arrays: criar, buscar e ordenar",
       "sessao": 2,
@@ -344,7 +344,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-copiar-e-cortar",
-      "arquivo": "JS/src/02-arrays-e-objetos/02-copiar-e-cortar.js",
+      "arquivo": "javascript/src/02-arrays-e-objetos/02-copiar-e-cortar.js",
       "comando": "node src/02-arrays-e-objetos/02-copiar-e-cortar.js",
       "titulo": "Copiar e cortar arrays: slice, splice e spread",
       "sessao": 5,
@@ -406,7 +406,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "03-desestruturacao",
-      "arquivo": "JS/src/02-arrays-e-objetos/03-desestruturacao.js",
+      "arquivo": "javascript/src/02-arrays-e-objetos/03-desestruturacao.js",
       "comando": "node src/02-arrays-e-objetos/03-desestruturacao.js",
       "titulo": "Desestruturação de objetos e arrays",
       "sessao": 2,
@@ -468,7 +468,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "04-object-freeze",
-      "arquivo": "JS/src/02-arrays-e-objetos/04-object-freeze.js",
+      "arquivo": "javascript/src/02-arrays-e-objetos/04-object-freeze.js",
       "comando": "node src/02-arrays-e-objetos/04-object-freeze.js",
       "titulo": "Object.freeze — travar o conteúdo do objeto",
       "sessao": 7,
@@ -536,7 +536,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "05-object-keys-values-entries",
-      "arquivo": "JS/src/02-arrays-e-objetos/05-object-keys-values-entries.js",
+      "arquivo": "javascript/src/02-arrays-e-objetos/05-object-keys-values-entries.js",
       "comando": "node src/02-arrays-e-objetos/05-object-keys-values-entries.js",
       "titulo": "Object.keys, values e entries",
       "sessao": 7,
@@ -604,7 +604,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "06-object-assign",
-      "arquivo": "JS/src/02-arrays-e-objetos/06-object-assign.js",
+      "arquivo": "javascript/src/02-arrays-e-objetos/06-object-assign.js",
       "comando": "node src/02-arrays-e-objetos/06-object-assign.js",
       "titulo": "Object.assign — juntar objetos",
       "sessao": 7,
@@ -681,7 +681,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-for",
-      "arquivo": "JS/src/03-controle-de-fluxo/01-for.js",
+      "arquivo": "javascript/src/03-controle-de-fluxo/01-for.js",
       "comando": "node src/03-controle-de-fluxo/01-for.js",
       "titulo": "Repetir com for: for...of, for clássico e for...in",
       "sessao": 3,
@@ -743,7 +743,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-while",
-      "arquivo": "JS/src/03-controle-de-fluxo/02-while.js",
+      "arquivo": "javascript/src/03-controle-de-fluxo/02-while.js",
       "comando": "node src/03-controle-de-fluxo/02-while.js",
       "titulo": "Repetir com while: while, do...while, break e continue",
       "sessao": 3,
@@ -805,7 +805,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "03-try-catch",
-      "arquivo": "JS/src/03-controle-de-fluxo/03-try-catch.js",
+      "arquivo": "javascript/src/03-controle-de-fluxo/03-try-catch.js",
       "comando": "node src/03-controle-de-fluxo/03-try-catch.js",
       "titulo": "Tratar erro: try, catch e finally",
       "sessao": 3,
@@ -870,7 +870,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-funcoes-e-parametros",
-      "arquivo": "JS/src/04-funcoes/01-funcoes-e-parametros.js",
+      "arquivo": "javascript/src/04-funcoes/01-funcoes-e-parametros.js",
       "comando": "node src/04-funcoes/01-funcoes-e-parametros.js",
       "titulo": "Funções e parâmetros",
       "sessao": 4,
@@ -932,7 +932,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-escopo",
-      "arquivo": "JS/src/04-funcoes/02-escopo.js",
+      "arquivo": "javascript/src/04-funcoes/02-escopo.js",
       "comando": "node src/04-funcoes/02-escopo.js",
       "titulo": "Escopo: quem enxerga quem",
       "sessao": 4,
@@ -988,7 +988,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "03-closures",
-      "arquivo": "JS/src/04-funcoes/03-closures.js",
+      "arquivo": "javascript/src/04-funcoes/03-closures.js",
       "comando": "node src/04-funcoes/03-closures.js",
       "titulo": "Closures",
       "sessao": 4,
@@ -1044,7 +1044,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "04-callbacks",
-      "arquivo": "JS/src/04-funcoes/04-callbacks.js",
+      "arquivo": "javascript/src/04-funcoes/04-callbacks.js",
       "comando": "node src/04-funcoes/04-callbacks.js",
       "titulo": "Callbacks",
       "sessao": 4,
@@ -1106,7 +1106,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "05-factory-functions",
-      "arquivo": "JS/src/04-funcoes/05-factory-functions.js",
+      "arquivo": "javascript/src/04-funcoes/05-factory-functions.js",
       "comando": "node src/04-funcoes/05-factory-functions.js",
       "titulo": "Factory Functions",
       "sessao": 4,
@@ -1162,7 +1162,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "06-recursao",
-      "arquivo": "JS/src/04-funcoes/06-recursao.js",
+      "arquivo": "javascript/src/04-funcoes/06-recursao.js",
       "comando": "node src/04-funcoes/06-recursao.js",
       "titulo": "Recursão",
       "sessao": 4,
@@ -1233,7 +1233,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-foreach",
-      "arquivo": "JS/src/05-transformar-listas/01-foreach.js",
+      "arquivo": "javascript/src/05-transformar-listas/01-foreach.js",
       "comando": "node src/05-transformar-listas/01-foreach.js",
       "titulo": "forEach",
       "sessao": 5,
@@ -1295,7 +1295,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-filter",
-      "arquivo": "JS/src/05-transformar-listas/02-filter.js",
+      "arquivo": "javascript/src/05-transformar-listas/02-filter.js",
       "comando": "node src/05-transformar-listas/02-filter.js",
       "titulo": "filter — escolher itens",
       "sessao": 5,
@@ -1363,7 +1363,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "03-map",
-      "arquivo": "JS/src/05-transformar-listas/03-map.js",
+      "arquivo": "javascript/src/05-transformar-listas/03-map.js",
       "comando": "node src/05-transformar-listas/03-map.js",
       "titulo": "map — transformar itens",
       "sessao": 5,
@@ -1431,7 +1431,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "04-reduce",
-      "arquivo": "JS/src/05-transformar-listas/04-reduce.js",
+      "arquivo": "javascript/src/05-transformar-listas/04-reduce.js",
       "comando": "node src/05-transformar-listas/04-reduce.js",
       "titulo": "reduce — resumir a lista em um valor",
       "sessao": 5,
@@ -1501,7 +1501,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "05-encadeando",
-      "arquivo": "JS/src/05-transformar-listas/05-encadeando.js",
+      "arquivo": "javascript/src/05-transformar-listas/05-encadeando.js",
       "comando": "node src/05-transformar-listas/05-encadeando.js",
       "titulo": "Encadeando filter, map e reduce",
       "sessao": 5,
@@ -1572,7 +1572,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-settimeout-setinterval",
-      "arquivo": "JS/src/06-assincrono/01-settimeout-setinterval.js",
+      "arquivo": "javascript/src/06-assincrono/01-settimeout-setinterval.js",
       "comando": "node src/06-assincrono/01-settimeout-setinterval.js",
       "titulo": "setTimeout e setInterval",
       "sessao": 3,
@@ -1634,7 +1634,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-promises",
-      "arquivo": "JS/src/06-assincrono/02-promises.js",
+      "arquivo": "javascript/src/06-assincrono/02-promises.js",
       "comando": "node src/06-assincrono/02-promises.js",
       "titulo": "Promise — o valor que ainda não chegou",
       "sessao": 7,
@@ -1704,7 +1704,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "03-async-await",
-      "arquivo": "JS/src/06-assincrono/03-async-await.js",
+      "arquivo": "javascript/src/06-assincrono/03-async-await.js",
       "comando": "node src/06-assincrono/03-async-await.js",
       "titulo": "async e await — Promise escrita de cima para baixo",
       "sessao": 7,
@@ -1774,7 +1774,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "04-promise-combinadores",
-      "arquivo": "JS/src/06-assincrono/04-promise-combinadores.js",
+      "arquivo": "javascript/src/06-assincrono/04-promise-combinadores.js",
       "comando": "node src/06-assincrono/04-promise-combinadores.js",
       "titulo": "Promise.all, allSettled, race e any",
       "sessao": 9,
@@ -1851,7 +1851,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-iife",
-      "arquivo": "JS/src/07-extras/01-iife.js",
+      "arquivo": "javascript/src/07-extras/01-iife.js",
       "comando": "node src/07-extras/01-iife.js",
       "titulo": "IIFE — função que se executa sozinha",
       "sessao": 4,
@@ -1901,7 +1901,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-constructor-functions",
-      "arquivo": "JS/src/07-extras/02-constructor-functions.js",
+      "arquivo": "javascript/src/07-extras/02-constructor-functions.js",
       "comando": "node src/07-extras/02-constructor-functions.js",
       "titulo": "Constructor functions e o caminho até class",
       "sessao": 4,
@@ -1952,7 +1952,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "03-geradoras",
-      "arquivo": "JS/src/07-extras/03-geradoras.js",
+      "arquivo": "javascript/src/07-extras/03-geradoras.js",
       "comando": "node src/07-extras/03-geradoras.js",
       "titulo": "Funções geradoras (function*)",
       "sessao": 4,
@@ -2020,7 +2020,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "04-geradoras-quando-usar",
-      "arquivo": "JS/src/07-extras/04-geradoras-quando-usar.js",
+      "arquivo": "javascript/src/07-extras/04-geradoras-quando-usar.js",
       "comando": "node src/07-extras/04-geradoras-quando-usar.js",
       "titulo": "Geradoras: quando usar (e quando não)",
       "sessao": 6,
@@ -2089,7 +2089,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "05-define-property",
-      "arquivo": "JS/src/07-extras/05-define-property.js",
+      "arquivo": "javascript/src/07-extras/05-define-property.js",
       "comando": "node src/07-extras/05-define-property.js",
       "titulo": "Object.defineProperty e defineProperties",
       "sessao": 7,
@@ -2158,7 +2158,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "06-getters-e-setters",
-      "arquivo": "JS/src/07-extras/06-getters-e-setters.js",
+      "arquivo": "javascript/src/07-extras/06-getters-e-setters.js",
       "comando": "node src/07-extras/06-getters-e-setters.js",
       "titulo": "get e set dentro de defineProperty",
       "sessao": 7,
@@ -2226,7 +2226,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "07-descritores",
-      "arquivo": "JS/src/07-extras/07-descritores.js",
+      "arquivo": "javascript/src/07-extras/07-descritores.js",
       "comando": "node src/07-extras/07-descritores.js",
       "titulo": "getOwnPropertyDescriptor e getOwnPropertyDescriptors",
       "sessao": 7,
@@ -2295,7 +2295,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "08-prototype",
-      "arquivo": "JS/src/07-extras/08-prototype.js",
+      "arquivo": "javascript/src/07-extras/08-prototype.js",
       "comando": "node src/07-extras/08-prototype.js",
       "titulo": "prototype e a cadeia de protótipos",
       "sessao": 8,
@@ -2363,7 +2363,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "09-heranca-e-delegacao",
-      "arquivo": "JS/src/07-extras/09-heranca-e-delegacao.js",
+      "arquivo": "javascript/src/07-extras/09-heranca-e-delegacao.js",
       "comando": "node src/07-extras/09-heranca-e-delegacao.js",
       "titulo": "Herança (que na verdade é delegação)",
       "sessao": 8,
@@ -2432,7 +2432,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "10-composicao-e-mixins",
-      "arquivo": "JS/src/07-extras/10-composicao-e-mixins.js",
+      "arquivo": "javascript/src/07-extras/10-composicao-e-mixins.js",
       "comando": "node src/07-extras/10-composicao-e-mixins.js",
       "titulo": "Composição e mixins com prototype",
       "sessao": 8,
@@ -2500,7 +2500,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "11-tres-formas-de-criar-objetos",
-      "arquivo": "JS/src/07-extras/11-tres-formas-de-criar-objetos.js",
+      "arquivo": "javascript/src/07-extras/11-tres-formas-de-criar-objetos.js",
       "comando": "node src/07-extras/11-tres-formas-de-criar-objetos.js",
       "titulo": "Factory, constructor function e class",
       "sessao": 8,
@@ -2577,7 +2577,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-class-basico",
-      "arquivo": "JS/src/08-classes/01-class-basico.js",
+      "arquivo": "javascript/src/08-classes/01-class-basico.js",
       "comando": "node src/08-classes/01-class-basico.js",
       "titulo": "class: o básico",
       "sessao": 8,
@@ -2645,7 +2645,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-heranca-com-extends",
-      "arquivo": "JS/src/08-classes/02-heranca-com-extends.js",
+      "arquivo": "javascript/src/08-classes/02-heranca-com-extends.js",
       "comando": "node src/08-classes/02-heranca-com-extends.js",
       "titulo": "Herança com extends e super",
       "sessao": 8,
@@ -2713,7 +2713,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "03-sobrescrever-metodos",
-      "arquivo": "JS/src/08-classes/03-sobrescrever-metodos.js",
+      "arquivo": "javascript/src/08-classes/03-sobrescrever-metodos.js",
       "comando": "node src/08-classes/03-sobrescrever-metodos.js",
       "titulo": "Sobrescrever métodos do pai",
       "sessao": 8,
@@ -2781,7 +2781,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "04-metodos-estaticos",
-      "arquivo": "JS/src/08-classes/04-metodos-estaticos.js",
+      "arquivo": "javascript/src/08-classes/04-metodos-estaticos.js",
       "comando": "node src/08-classes/04-metodos-estaticos.js",
       "titulo": "Métodos de instância e estáticos",
       "sessao": 9,
@@ -2852,14 +2852,14 @@ window.CONTEUDO = [
   ]
  },
  {
-  "slug": "Node",
+  "slug": "node",
   "titulo": "Node",
   "selo": "N",
   "subtitulo": "JavaScript no servidor",
   "ordem": 2,
   "cor": "#6ee7a8",
   "resumo": "A mesma linguagem, fora do navegador: módulos, npm, arquivos, Express, MongoDB e sessão. Aqui o JavaScript ganha porta, rota e banco de dados.",
-  "depoisDe": "JS",
+  "depoisDe": "javascript",
   "exigencia": "Continua o curso de JavaScript. A linguagem é a mesma — o que muda é onde ela roda e o que ela passa a alcançar: disco, rede e banco de dados.",
   "temas": [
    {
@@ -2871,7 +2871,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-commonjs-vs-esm",
-      "arquivo": "Node/src/01-modulos/01-commonjs-vs-esm.js",
+      "arquivo": "node/src/01-modulos/01-commonjs-vs-esm.js",
       "comando": "node src/01-modulos/01-commonjs-vs-esm.js",
       "titulo": "CommonJS vs ES Modules",
       "sessao": 1,
@@ -2945,7 +2945,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-package-json",
-      "arquivo": "Node/src/02-npm/01-package-json.js",
+      "arquivo": "node/src/02-npm/01-package-json.js",
       "comando": "node src/02-npm/01-package-json.js",
       "titulo": "package.json — a identidade do projeto",
       "sessao": 1,
@@ -3008,7 +3008,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-scripts-e-nodemon",
-      "arquivo": "Node/src/02-npm/02-scripts-e-nodemon.js",
+      "arquivo": "node/src/02-npm/02-scripts-e-nodemon.js",
       "comando": "node src/02-npm/02-scripts-e-nodemon.js",
       "titulo": "Scripts do npm e o nodemon",
       "sessao": 1,
@@ -3071,7 +3071,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "03-dependencias-e-versoes",
-      "arquivo": "Node/src/02-npm/03-dependencias-e-versoes.js",
+      "arquivo": "node/src/02-npm/03-dependencias-e-versoes.js",
       "comando": "node src/02-npm/03-dependencias-e-versoes.js",
       "titulo": "dependencies, devDependencies e versão",
       "sessao": 1,
@@ -3134,7 +3134,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "04-variaveis-de-ambiente",
-      "arquivo": "Node/src/02-npm/04-variaveis-de-ambiente.js",
+      "arquivo": "node/src/02-npm/04-variaveis-de-ambiente.js",
       "comando": "node src/02-npm/04-variaveis-de-ambiente.js",
       "titulo": "Variáveis de ambiente e o .env",
       "sessao": 4,
@@ -3159,7 +3159,7 @@ window.CONTEUDO = [
         "n": 3,
         "titulo": "O que o dotenv faz, sem mistério",
         "secao": "ESSENCIAL",
-        "codigo": "const { writeFileSync, mkdtempSync, readFileSync } = require('node:fs');\nconst { join } = require('node:path');\nconst { tmpdir } = require('node:os');\n\nconst pasta = mkdtempSync(join(tmpdir(), 'env-'));\nwriteFileSync(join(pasta, '.env'), [\n  'MONGODB_URI=mongodb+srv://user:senha@cluster.mongodb.net',\n  'SESSION_SECRET=algo-bem-aleatorio',\n].join('\\n'));\n\nfor (const linha of readFileSync(join(pasta, '.env'), 'utf8').split('\\n').filter(Boolean)) {\n  const [chave, ...resto] = linha.split('=');\n  process.env[chave] = resto.join('=');                 // é isto que o dotenv faz: lê e copia\n}\n\nconsole.log('Segredo da sessão  :', process.env.SESSION_SECRET);\nconsole.log('Banco             :', process.env.MONGODB_URI.slice(0, 20) + '...');\n// Na vida real: require('dotenv').config();"
+        "codigo": "const { writeFileSync, mkdtempSync, readFileSync } = require('node:fs');\nconst { join } = require('node:path');\nconst { tmpdir } = require('node:os');\n\nconst pasta = mkdtempSync(join(tmpdir(), 'env-'));\nwriteFileSync(join(pasta, '.env'), [\n  'MONGODB_URI=mongodb+srv://user:senha@cluster0.exemplo.net',\n  'SESSION_SECRET=algo-bem-aleatorio',\n].join('\\n'));\n\nfor (const linha of readFileSync(join(pasta, '.env'), 'utf8').split('\\n').filter(Boolean)) {\n  const [chave, ...resto] = linha.split('=');\n  process.env[chave] = resto.join('=');                 // é isto que o dotenv faz: lê e copia\n}\n\nconsole.log('Segredo da sessão  :', process.env.SESSION_SECRET);\nconsole.log('Banco             :', process.env.MONGODB_URI.slice(0, 20) + '...');\n// Na vida real: require('dotenv').config();"
        },
        {
         "n": 4,
@@ -3206,7 +3206,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-path-e-dirname",
-      "arquivo": "Node/src/03-arquivos-com-fs/01-path-e-dirname.js",
+      "arquivo": "node/src/03-arquivos-com-fs/01-path-e-dirname.js",
       "comando": "node src/03-arquivos-com-fs/01-path-e-dirname.js",
       "titulo": "path e __dirname — montar caminhos que não quebram",
       "sessao": 3,
@@ -3269,7 +3269,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-ler-e-escrever",
-      "arquivo": "Node/src/03-arquivos-com-fs/02-ler-e-escrever.js",
+      "arquivo": "node/src/03-arquivos-com-fs/02-ler-e-escrever.js",
       "comando": "node src/03-arquivos-com-fs/02-ler-e-escrever.js",
       "titulo": "fs — ler e escrever arquivos",
       "sessao": 3,
@@ -3341,7 +3341,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-servidor-e-rotas",
-      "arquivo": "Node/src/04-express/01-servidor-e-rotas.js",
+      "arquivo": "node/src/04-express/01-servidor-e-rotas.js",
       "comando": "node src/04-express/01-servidor-e-rotas.js",
       "titulo": "Servidor e rotas com Express",
       "sessao": 1,
@@ -3410,7 +3410,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-params-query-body",
-      "arquivo": "Node/src/04-express/02-params-query-body.js",
+      "arquivo": "node/src/04-express/02-params-query-body.js",
       "comando": "node src/04-express/02-params-query-body.js",
       "titulo": "req.params, req.query e req.body",
       "sessao": 2,
@@ -3479,7 +3479,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "03-router-e-controllers",
-      "arquivo": "Node/src/04-express/03-router-e-controllers.js",
+      "arquivo": "node/src/04-express/03-router-e-controllers.js",
       "comando": "node src/04-express/03-router-e-controllers.js",
       "titulo": "Router e Controllers — separar rota de lógica",
       "sessao": 2,
@@ -3542,7 +3542,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "04-views-com-ejs",
-      "arquivo": "Node/src/04-express/04-views-com-ejs.js",
+      "arquivo": "node/src/04-express/04-views-com-ejs.js",
       "comando": "node src/04-express/04-views-com-ejs.js",
       "titulo": "Views com EJS",
       "sessao": 3,
@@ -3605,7 +3605,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "05-arquivos-estaticos",
-      "arquivo": "Node/src/04-express/05-arquivos-estaticos.js",
+      "arquivo": "node/src/04-express/05-arquivos-estaticos.js",
       "comando": "node src/04-express/05-arquivos-estaticos.js",
       "titulo": "Arquivos estáticos com express.static",
       "sessao": 3,
@@ -3668,7 +3668,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "06-middlewares",
-      "arquivo": "Node/src/04-express/06-middlewares.js",
+      "arquivo": "node/src/04-express/06-middlewares.js",
       "comando": "node src/04-express/06-middlewares.js",
       "titulo": "Middlewares — a fila por onde toda requisição passa",
       "sessao": 4,
@@ -3746,7 +3746,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-conexao-com-mongoose",
-      "arquivo": "Node/src/05-mongodb/01-conexao-com-mongoose.js",
+      "arquivo": "node/src/05-mongodb/01-conexao-com-mongoose.js",
       "comando": "node src/05-mongodb/01-conexao-com-mongoose.js",
       "titulo": "Conectando no MongoDB com Mongoose",
       "sessao": 4,
@@ -3759,13 +3759,13 @@ window.CONTEUDO = [
         "n": 1,
         "titulo": "Conectar, e falhar direito quando o banco está fora",
         "secao": "ESSENCIAL",
-        "codigo": "const mongoose = require('mongoose');   // npm install mongoose\n\n// A URI de verdade vem do .env: mongodb+srv://usuario:senha@cluster.mongodb.net\n// Aqui apontamos para um MongoDB que não existe, só para ver o erro que aparece.\nmongoose\n  .connect('mongodb://127.0.0.1:27017', { dbName: 'cursojs01', serverSelectionTimeoutMS: 700 })\n  .then(() => console.log('Servidor pode subir: banco no ar.'))\n  .catch((erro) => {\n    console.log('Falha ao conectar no MongoDB:', erro.message);\n    console.log('Aqui o server.js faria process.exit(1) — melhor nem subir.');\n  });\n// Um servidor de pé sem banco só serve para dar erro 500 na cara de cada visitante."
+        "codigo": "const mongoose = require('mongoose');   // npm install mongoose\n\n// A URI de verdade vem do .env: mongodb+srv://<usuario>:<senha>@<cluster>.mongodb.net\n// Aqui apontamos para um MongoDB que não existe, só para ver o erro que aparece.\nmongoose\n  .connect('mongodb://127.0.0.1:27017', { dbName: 'cursojs01', serverSelectionTimeoutMS: 700 })\n  .then(() => console.log('Servidor pode subir: banco no ar.'))\n  .catch((erro) => {\n    console.log('Falha ao conectar no MongoDB:', erro.message);\n    console.log('Aqui o server.js faria process.exit(1) — melhor nem subir.');\n  });\n// Um servidor de pé sem banco só serve para dar erro 500 na cara de cada visitante."
        },
        {
         "n": 2,
         "titulo": "O dbName não está na URI",
         "secao": "ESSENCIAL",
-        "codigo": "const enderecos = [\n  'mongodb+srv://igor:senha@cluster0.mongodb.net/?retryWrites=true',   // o que o Atlas te dá\n  'mongodb://127.0.0.1:27017/loja',                                    // com banco no fim\n];\n\nfor (const uri of enderecos) {\n  const caminho = new URL(uri).pathname.replace('/', '');\n  console.log(caminho || '(nenhum)', '←', uri.slice(0, 42) + '...');\n}\nconsole.log('\\nSem `{ dbName }`, o Mongoose grava num banco chamado \"test\" — e você jura que sumiu.');\nconsole.log('Por isso: mongoose.connect(uri, { dbName: process.env.MONGODB_DBNAME })');"
+        "codigo": "const enderecos = [\n  'mongodb+srv://igor:senha@cluster0.exemplo.net/?retryWrites=true',   // no Atlas o host acaba em .mongodb.net\n  'mongodb://127.0.0.1:27017/loja',                                    // com banco no fim\n];\n\nfor (const uri of enderecos) {\n  const caminho = new URL(uri).pathname.replace('/', '');\n  console.log(caminho || '(nenhum)', '←', uri.slice(0, 42) + '...');\n}\nconsole.log('\\nSem `{ dbName }`, o Mongoose grava num banco chamado \"test\" — e você jura que sumiu.');\nconsole.log('Por isso: mongoose.connect(uri, { dbName: process.env.MONGODB_DBNAME })');"
        },
        {
         "n": 3,
@@ -3795,7 +3795,7 @@ window.CONTEUDO = [
         "n": 7,
         "titulo": "Senha com caractere especial precisa ser escapada",
         "secao": "PEGADINHAS",
-        "codigo": "const senha = 'p@ss:word/2026';\n\nconsole.log('crua     → mongodb+srv://igor:' + senha + '@cluster... (URI inválida)');\nconsole.log('escapada → mongodb+srv://igor:' + encodeURIComponent(senha) + '@cluster...');\n\ntry {\n  new URL('mongodb+srv://igor:' + senha + '@cluster0.mongodb.net');\n} catch (erro) {\n  console.log('O que o Node diz:', erro.message);\n}\n// @ : / e ? têm significado dentro da URI. Senha com esses caracteres vira \"Invalid\n// connection string\" ou, pior, \"bad auth\" — e você jura que a senha está certa."
+        "codigo": "const senha = 'p@ss:word/2026';\n\nconsole.log('crua     → mongodb+srv://igor:' + senha + '@cluster... (URI inválida)');\nconsole.log('escapada → mongodb+srv://igor:' + encodeURIComponent(senha) + '@cluster...');\n\ntry {\n  new URL('mongodb+srv://igor:' + senha + '@cluster0.exemplo.net');\n} catch (erro) {\n  console.log('O que o Node diz:', erro.message);\n}\n// @ : / e ? têm significado dentro da URI. Senha com esses caracteres vira \"Invalid\n// connection string\" ou, pior, \"bad auth\" — e você jura que a senha está certa."
        }
       ],
       "resumo": [
@@ -3809,7 +3809,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-schema-e-model",
-      "arquivo": "Node/src/05-mongodb/02-schema-e-model.js",
+      "arquivo": "node/src/05-mongodb/02-schema-e-model.js",
       "comando": "node src/05-mongodb/02-schema-e-model.js",
       "titulo": "Schema e Model do Mongoose",
       "sessao": 4,
@@ -3881,7 +3881,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-sessao-e-cookies",
-      "arquivo": "Node/src/06-sessao-e-seguranca/01-sessao-e-cookies.js",
+      "arquivo": "node/src/06-sessao-e-seguranca/01-sessao-e-cookies.js",
       "comando": "node src/06-sessao-e-seguranca/01-sessao-e-cookies.js",
       "titulo": "Sessão e cookies",
       "sessao": 4,
@@ -3944,7 +3944,7 @@ window.CONTEUDO = [
      },
      {
       "slug": "02-mensagens-flash",
-      "arquivo": "Node/src/06-sessao-e-seguranca/02-mensagens-flash.js",
+      "arquivo": "node/src/06-sessao-e-seguranca/02-mensagens-flash.js",
       "comando": "node src/06-sessao-e-seguranca/02-mensagens-flash.js",
       "titulo": "Mensagens flash e Post/Redirect/Get",
       "sessao": 4,
@@ -4016,7 +4016,7 @@ window.CONTEUDO = [
     "topicos": [
      {
       "slug": "01-webpack-e-babel",
-      "arquivo": "Node/src/07-extras/01-webpack-e-babel.js",
+      "arquivo": "node/src/07-extras/01-webpack-e-babel.js",
       "comando": "node src/07-extras/01-webpack-e-babel.js",
       "titulo": "webpack e Babel — empacotando o frontend",
       "sessao": 4,

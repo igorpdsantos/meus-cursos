@@ -17,36 +17,36 @@ Trilha 2 · Node         a mesma linguagem no servidor: npm, Express, MongoDB, s
 
 ## Os cursos
 
-### [JavaScript](JS/README.md) · 43 tópicos · 8 temas
+### [JavaScript](javascript/README.md) · 43 tópicos · 8 temas
 
 A linguagem, do zero ao protótipo. Cada arquivo é um tópico fechado.
 
 | Tema | Assuntos |
 |---|---|
-| [01-fundamentos](JS/src/01-fundamentos/) | `let`/`const`/`var`, strings, números, `split` e `join` |
-| [02-arrays-e-objetos](JS/src/02-arrays-e-objetos/) | arrays, `slice`/`splice`, desestruturação, `freeze`, `keys`/`values`/`entries`, `assign` |
-| [03-controle-de-fluxo](JS/src/03-controle-de-fluxo/) | `for`, `while`, `try/catch` |
-| [04-funcoes](JS/src/04-funcoes/) | parâmetros, escopo, closures, callbacks, factory functions, recursão |
-| [05-transformar-listas](JS/src/05-transformar-listas/) | `forEach`, `filter`, `map`, `reduce` e encadeamento |
-| [06-assincrono](JS/src/06-assincrono/) | `setTimeout`, Promises, `async/await`, combinadores (`all`, `race`…) |
-| [07-extras](JS/src/07-extras/) | IIFE, constructor functions, geradoras, `defineProperty`, getters/setters, prototype, herança, mixins |
-| [08-classes](JS/src/08-classes/) | `class`, `extends`/`super`, sobrescrita de métodos, métodos estáticos |
+| [01-fundamentos](javascript/src/01-fundamentos/) | `let`/`const`/`var`, strings, números, `split` e `join` |
+| [02-arrays-e-objetos](javascript/src/02-arrays-e-objetos/) | arrays, `slice`/`splice`, desestruturação, `freeze`, `keys`/`values`/`entries`, `assign` |
+| [03-controle-de-fluxo](javascript/src/03-controle-de-fluxo/) | `for`, `while`, `try/catch` |
+| [04-funcoes](javascript/src/04-funcoes/) | parâmetros, escopo, closures, callbacks, factory functions, recursão |
+| [05-transformar-listas](javascript/src/05-transformar-listas/) | `forEach`, `filter`, `map`, `reduce` e encadeamento |
+| [06-assincrono](javascript/src/06-assincrono/) | `setTimeout`, Promises, `async/await`, combinadores (`all`, `race`…) |
+| [07-extras](javascript/src/07-extras/) | IIFE, constructor functions, geradoras, `defineProperty`, getters/setters, prototype, herança, mixins |
+| [08-classes](javascript/src/08-classes/) | `class`, `extends`/`super`, sobrescrita de métodos, métodos estáticos |
 
-### [Node](Node/README.md) · 18 tópicos · 7 temas · 9 projetos
+### [Node](node/README.md) · 18 tópicos · 7 temas · 9 projetos
 
 A mesma linguagem fora do navegador — disco, rede e banco de dados.
 
 | Tema | Assuntos |
 |---|---|
-| [01-modulos](Node/src/01-modulos/) | CommonJS (`require`) vs ESM (`import`) |
-| [02-npm](Node/src/02-npm/) | `package.json`, scripts, nodemon, versionamento `^`, `.env` e `process.env` |
-| [03-arquivos-com-fs](Node/src/03-arquivos-com-fs/) | `path.resolve`, `__dirname`, ler/escrever/listar arquivos |
-| [04-express](Node/src/04-express/) | rotas, params/query/body, Router e controllers, views com EJS, estáticos, middlewares |
-| [05-mongodb](Node/src/05-mongodb/) | conexão com Mongoose, schema, model e validação |
-| [06-sessao-e-seguranca](Node/src/06-sessao-e-seguranca/) | sessão, cookies e mensagens flash |
-| [07-extras](Node/src/07-extras/) | webpack e Babel para empacotar o frontend |
+| [01-modulos](node/src/01-modulos/) | CommonJS (`require`) vs ESM (`import`) |
+| [02-npm](node/src/02-npm/) | `package.json`, scripts, nodemon, versionamento `^`, `.env` e `process.env` |
+| [03-arquivos-com-fs](node/src/03-arquivos-com-fs/) | `path.resolve`, `__dirname`, ler/escrever/listar arquivos |
+| [04-express](node/src/04-express/) | rotas, params/query/body, Router e controllers, views com EJS, estáticos, middlewares |
+| [05-mongodb](node/src/05-mongodb/) | conexão com Mongoose, schema, model e validação |
+| [06-sessao-e-seguranca](node/src/06-sessao-e-seguranca/) | sessão, cookies e mensagens flash |
+| [07-extras](node/src/07-extras/) | webpack e Babel para empacotar o frontend |
 
-Mais os **[projetos das aulas](Node/README.md#projetos-das-aulas)** — do primeiro `app.get`
+Mais os **[projetos das aulas](node/README.md#projetos-das-aulas)** — do primeiro `app.get`
 até a agenda completa com login, senha criptografada, CRUD e CSRF.
 
 ---
@@ -63,9 +63,9 @@ Atalhos: `⌘K` busca por tópico ou exemplo · `◐` troca claro/escuro.
 **Pelo terminal**, se preferir:
 
 ```bash
-node JS/src/06-assincrono/03-async-await.js       # qualquer tópico de JavaScript
+node javascript/src/06-assincrono/03-async-await.js       # qualquer tópico de JavaScript
 
-cd Node && npm install                            # uma vez: express, ejs, mongoose…
+cd node && npm install                            # uma vez: express, ejs, mongoose…
 node src/04-express/06-middlewares.js             # qualquer tópico de Node
 ```
 
@@ -76,8 +76,8 @@ node src/04-express/06-middlewares.js             # qualquer tópico de Node
 | Pasta | O que é |
 |---|---|
 | [`docs/`](docs/) | o site de documentação — HTML puro, sem build, publicado no GitHub Pages |
-| [`JS/`](JS/README.md) | curso de JavaScript: teoria em `JS/src/` |
-| [`Node/`](Node/README.md) | curso de Node: teoria em `Node/src/`, projetos nas pastas numeradas |
+| [`javascript/`](javascript/README.md) | curso de JavaScript: teoria em `javascript/src/` |
+| [`node/`](node/README.md) | curso de Node: teoria em `node/src/`, projetos nas pastas numeradas |
 | [`CLAUDE.md`](CLAUDE.md) | o padrão que todo curso segue, para quando for acrescentar tópico |
 
 Cada curso segue o mesmo formato:
@@ -94,6 +94,17 @@ Todo arquivo de tópico abre com **o que é / quando usar / quando não usar**, 
 já resolvidos em três seções (`ESSENCIAL`, `NA PRÁTICA`, `PEGADINHAS`) e fecha com um resumo.
 Cada bloco é autossuficiente: roda copiado e colado, sem depender de nada acima dele.
 
+### Como as coisas são nomeadas
+
+Pasta e arquivo de tópico sempre em minúsculas, sem acento, com hífen: `05-conteudos-estaticos`.
+
+Já o **código de cada curso segue a convenção do próprio ecossistema**, não uma regra
+inventada aqui — a ideia é que o formato visto no estudo seja o mesmo dos projetos de
+verdade. Em Node, `LoginModel.js` com maiúscula porque exporta uma classe, e
+`homeController.js` com minúscula porque exporta funções soltas. Em Python seria
+`snake_case`; em React, `PascalCase` no componente. A tabela completa está no
+[CLAUDE.md](CLAUDE.md#como-nomear-pasta-e-arquivo).
+
 ---
 
 ## Rodando os projetos
@@ -101,7 +112,7 @@ Cada bloco é autossuficiente: roda copiado e colado, sem depender de nada acima
 Nenhum `node_modules` está no repositório. Em qualquer projeto:
 
 ```bash
-cd Node/projetoagenda
+cd node/08-projeto-agenda
 npm install
 cp .env.example .env    # preencha com a sua string de conexão do MongoDB
 npm start

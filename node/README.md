@@ -1,6 +1,6 @@
 # Node
 
-> Trilha 2 de 2. Vem depois de **[JavaScript](../JS/README.md)** — Node não é outra linguagem,
+> Trilha 2 de 2. Vem depois de **[JavaScript](../javascript/README.md)** — Node não é outra linguagem,
 > é o mesmo JavaScript rodando fora do navegador. Função, objeto, array, `async/await` e
 > desestruturação são exatamente os de lá.
 
@@ -10,7 +10,7 @@ quando não usar, traz os exemplos resolvidos e fecha com um resumo do que levar
 ## Como rodar
 
 ```bash
-cd Node && npm install                            # uma vez: express, ejs, mongoose, session, flash
+cd node && npm install                            # uma vez: express, ejs, mongoose, session, flash
 node src/04-express/01-servidor-e-rotas.js        # um tópico qualquer
 node ../docs/build.mjs                            # atualiza o site depois de mexer em src/
 ```
@@ -34,7 +34,7 @@ A documentação legível é o site em `docs/` — abra `docs/index.html` no nav
 Nenhum vem com `node_modules` no repositório. Para rodar qualquer um:
 
 ```bash
-cd Node/<projeto>
+cd node/<projeto>
 npm install
 npm start          # ou: node server.js
 ```
@@ -48,8 +48,8 @@ npm start          # ou: node server.js
 | [04-views](04-views/) | páginas renderizadas no servidor com EJS, em vez de HTML escrito na mão. | express · ejs |
 | [05-conteudos-estaticos](05-conteudos-estaticos/) | CSS, imagem e JS servidos crus pela pasta `public/`. | express · ejs · static |
 | [06-webpack-e-middleware](06-webpack-e-middleware/) | a virada: middlewares, MongoDB, sessão, flash e build de frontend. | express · mongoose · session · webpack |
-| [api-rest](api-rest/) | uma API que devolve JSON, com ESLint e a estrutura MVC separada. | express · eslint |
-| [projetoagenda](projetoagenda/) | **projeto final** — cadastro, login com senha criptografada, CRUD de contatos e proteção contra CSRF. | express · mongoose · bcryptjs · csurf · helmet · webpack |
+| [07-api-rest](07-api-rest/) | uma API que devolve JSON, com ESLint e a estrutura MVC separada. | express · eslint |
+| [08-projeto-agenda](08-projeto-agenda/) | **projeto final** — cadastro, login com senha criptografada, CRUD de contatos e proteção contra CSRF. | express · mongoose · bcryptjs · csurf · helmet · webpack |
 
 Os projetos que falam com banco precisam de um `.env`. Cada um traz um `.env.example`:
 copie para `.env` e preencha com a sua string de conexão do MongoDB.

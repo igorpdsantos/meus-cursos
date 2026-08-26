@@ -1,6 +1,6 @@
 # Cursos — Regras do Repositório
 
-Repositório de estudos. Cada curso vive em sua própria pasta na raiz (`JS/`, `Python/`, `SQL/`...).
+Repositório de estudos. Cada curso vive em sua própria pasta na raiz (`javascript/`, `python/`, `sql/`...).
 Este arquivo define o padrão que **todo** curso segue. Não altere o padrão sem pedido explícito.
 
 ## Estrutura de um curso
@@ -17,10 +17,37 @@ Este arquivo define o padrão que **todo** curso segue. Não altere o padrão se
 ```
 
 - Pastas e arquivos numerados (`01-`, `02-`) para manter a ordem de aprendizado.
-- Nomes em minúsculas, sem acento, separados por hífen.
 - Um arquivo por tópico. Se um tópico ficar com mais de ~120 linhas, quebre em dois.
 - A numeração das pastas é a **trilha de aprendizado**: um tema só pode depender do que
   vem antes dele. Tópico que não cabe na trilha vai para `07-extras`.
+- Projetos de aula ficam na raiz do curso, numerados na mesma trilha
+  (`00-aula-express/`, `07-api-rest/`, `08-projeto-agenda/`). Cada um é um projeto
+  independente, com o seu `package.json`, o seu `.gitignore` e o seu `npm install`.
+
+## Como nomear pasta e arquivo
+
+**A regra geral, que vale em todo curso:** pasta e arquivo de tópico em minúsculas,
+sem acento, separados por hífen (`kebab-case`). `05-conteudos-estaticos`, não
+`05 - Conteúdos Estáticos`.
+
+Fora disso, **o código de cada curso segue a convenção do próprio ecossistema** — não a
+deste repositório. O objetivo é que o aprendiz veja aqui o mesmo formato que vai encontrar
+em qualquer projeto de verdade lá fora. Forçar um padrão único no repositório inteiro
+deixaria tudo uniforme e todo mundo errado.
+
+| Curso | Pastas | Arquivos de código | Exemplo |
+|---|---|---|---|
+| **Todos** | `kebab-case` | tópico da trilha em `kebab-case` | `src/04-express/06-middlewares.js` |
+| **JavaScript** | `kebab-case` | `kebab-case` | `03-async-await.js` |
+| **Node / Express** | `kebab-case` | `PascalCase` se o arquivo exporta uma classe ou um model; `camelCase` para o resto | `models/LoginModel.js`, `controllers/homeController.js`, `routes/homeRoutes.js` |
+| **TypeScript** | `kebab-case` | igual ao Node; tipo e interface em `PascalCase` dentro do arquivo | `services/userService.ts`, `models/User.ts` |
+| **React** | `kebab-case` | `PascalCase` para componente (arquivo e função com o mesmo nome); `camelCase` para hook (`use…`) e utilitário | `components/CardProduto.jsx`, `hooks/useCarrinho.js` |
+| **Python** | `snake_case` | `snake_case` — é o que a PEP 8 manda | `validacao_cpf.py` |
+
+Documento na raiz do curso é `MAIÚSCULO.md`: `README.md`, `HISTORICO.md`, `CLAUDE.md`.
+
+Curso novo que não esteja na tabela: acrescente a linha dele aqui antes de criar o
+primeiro arquivo.
 
 ## Padrão de cada arquivo de código
 

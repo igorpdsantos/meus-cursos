@@ -33,7 +33,7 @@ const { tmpdir } = require('node:os');
 
 const pasta = mkdtempSync(join(tmpdir(), 'env-'));
 writeFileSync(join(pasta, '.env'), [
-  'MONGODB_URI=mongodb+srv://user:senha@cluster.mongodb.net',
+  'MONGODB_URI=mongodb+srv://user:senha@cluster0.exemplo.net',
   'SESSION_SECRET=algo-bem-aleatorio',
 ].join('\n'));
 

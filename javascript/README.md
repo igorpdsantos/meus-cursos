@@ -6,7 +6,7 @@ usar, traz os exemplos resolvidos e fecha com um resumo do que levar para a vida
 ## Como rodar
 
 ```bash
-node JS/src/01-fundamentos/01-let-const-var.js   # um tópico qualquer
+node javascript/src/01-fundamentos/01-let-const-var.js   # um tópico qualquer
 node docs/build.mjs                              # atualiza o site depois de mexer em src/
 ```
 
@@ -132,7 +132,7 @@ O molde de objetos do JS moderno.
 
 ## Depois deste curso
 
-A trilha continua em **[Node](../Node/README.md)**: a mesma linguagem rodando fora do
+A trilha continua em **[Node](../node/README.md)**: a mesma linguagem rodando fora do
 navegador — módulos, npm, Express, MongoDB e sessão. Tudo que está aqui vale lá; o que muda
 é o lugar onde o código roda e o que ele passa a alcançar (disco, rede e banco de dados).
 

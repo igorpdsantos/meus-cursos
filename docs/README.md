@@ -55,7 +55,7 @@ mesmo assim, o `app.js` traz uma imitação enxuta dos módulos internos:
 | `__dirname`, `process.cwd()` | caminho de mentira (`/Users/igor/Cursos/...`), só para a saída ficar realista |
 
 Não é encenação: `node docs/comparar.mjs` roda cada bloco **duas vezes** — no Node de verdade,
-com as bibliotecas instaladas em `Node/`, e aqui no sandbox — e compara as duas saídas. Hoje
+com as bibliotecas instaladas em `node/`, e aqui no sandbox — e compara as duas saídas. Hoje
 125 dos 130 blocos de Node saem idênticos; as exceções imprimem caminho de arquivo ou nome de
 usuário, que no site são fictícios.
 
@@ -63,11 +63,11 @@ Um exemplo que peça algo fora dessa lista (`child_process`, por exemplo) não q
 mostra um aviso **ⓘ** com o comando para rodar de verdade no seu terminal.
 
 Isso é o site. No seu computador, os arquivos em `<CURSO>/src/**` rodam com o Node de verdade:
-`node Node/src/04-express/06-middlewares.js`.
+`node node/src/04-express/06-middlewares.js`.
 
 ## Atualizar depois de mexer no código
 
-Os arquivos em `<CURSO>/src/**` (hoje `JS/` e `Node/`) são a única fonte da verdade.
+Os arquivos em `<CURSO>/src/**` (hoje `JS/` e `node/`) são a única fonte da verdade.
 Depois de adicionar ou editar um tópico, regenere o conteúdo do site:
 
 ```
@@ -84,7 +84,7 @@ editar à mão aqui.
 
 ```
 node docs/testar.mjs      # todo bloco roda? (não precisa de npm install)
-node docs/comparar.mjs    # o site mostra a mesma saída que o node? (precisa do npm install em Node/)
+node docs/comparar.mjs    # o site mostra a mesma saída que o node? (precisa do npm install em node/)
 ```
 
 Passa **todos** os blocos do site pelo mesmo sandbox do navegador e lista o que quebrou.

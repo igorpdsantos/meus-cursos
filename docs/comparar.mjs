@@ -2,7 +2,7 @@
  * Confere se o site mostra a MESMA saída que o `node` daria.
  * Rodar: node docs/comparar.mjs [filtro]      (ex.: node docs/comparar.mjs 04-express)
  *
- * Roda cada bloco duas vezes: uma no Node de verdade (com as bibliotecas de `Node/`, então
+ * Roda cada bloco duas vezes: uma no Node de verdade (com as bibliotecas de `node/`, então
  * precisa de `npm install` lá) e outra no sandbox do navegador, extraído do `app.js`.
  * Depois compara as duas saídas, linha por linha.
  *

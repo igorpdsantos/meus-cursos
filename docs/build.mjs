@@ -15,7 +15,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 // A trilha é sequencial: Node só faz sentido depois de JavaScript, porque Node É JavaScript
 // — só que rodando fora do navegador. `depoisDe` é o que o site mostra como pré-requisito.
 const CURSOS = {
-  JS: {
+  javascript: {
     titulo: 'JavaScript',
     selo: 'JS',
     subtitulo: 'A linguagem',
@@ -25,7 +25,7 @@ const CURSOS = {
       'O mesmo JavaScript que roda no navegador e no servidor.',
     depoisDe: null,
   },
-  Node: {
+  node: {
     titulo: 'Node',
     selo: 'N',
     subtitulo: 'JavaScript no servidor',
@@ -33,7 +33,7 @@ const CURSOS = {
     cor: '#6ee7a8',
     resumo: 'A mesma linguagem, fora do navegador: módulos, npm, arquivos, Express, ' +
       'MongoDB e sessão. Aqui o JavaScript ganha porta, rota e banco de dados.',
-    depoisDe: 'JS',
+    depoisDe: 'javascript',
     exigencia: 'Continua o curso de JavaScript. A linguagem é a mesma — o que muda é onde ' +
       'ela roda e o que ela passa a alcançar: disco, rede e banco de dados.',
   },
@@ -42,22 +42,22 @@ const CURSOS = {
 // ─── Aparência de cada tema (só cosmético; tema novo cai no padrão) ───
 // A chave pode ser `<curso>/<tema>` ou só `<tema>` (vale para qualquer curso).
 const TEMAS = {
-  'JS/01-fundamentos':       { titulo: 'Fundamentos',        icone: '◆', cor: '#f2c14e', resumo: 'Variáveis, texto e número — a base de tudo.' },
-  'JS/02-arrays-e-objetos':  { titulo: 'Arrays e Objetos',   icone: '▤', cor: '#5ec8d8', resumo: 'Guardar e acessar coleções de dados.' },
-  'JS/03-controle-de-fluxo': { titulo: 'Controle de Fluxo',  icone: '⇄', cor: '#b48ef0', resumo: 'Repetir, decidir e lidar com erro.' },
-  'JS/04-funcoes':           { titulo: 'Funções',            icone: 'ƒ', cor: '#6ee7a8', resumo: 'Dar nome a um pedaço de lógica e reaproveitar.' },
-  'JS/05-transformar-listas':{ titulo: 'Transformar Listas', icone: '≡', cor: '#ff9e6d', resumo: 'filter, map e reduce — o trio do dia a dia.' },
-  'JS/06-assincrono':        { titulo: 'Assíncrono',         icone: '◷', cor: '#79c0ff', resumo: 'Código que roda depois, sem travar o resto.' },
-  'JS/07-extras':            { titulo: 'Extras e Legado',    icone: '◇', cor: '#8b95a8', resumo: 'Bom conhecer, raro escrever hoje.' },
-  'JS/08-classes':           { titulo: 'Classes',            icone: '⬢', cor: '#f78fb3', resumo: 'O molde de objetos do JS moderno.' },
+  'javascript/01-fundamentos':       { titulo: 'Fundamentos',        icone: '◆', cor: '#f2c14e', resumo: 'Variáveis, texto e número — a base de tudo.' },
+  'javascript/02-arrays-e-objetos':  { titulo: 'Arrays e Objetos',   icone: '▤', cor: '#5ec8d8', resumo: 'Guardar e acessar coleções de dados.' },
+  'javascript/03-controle-de-fluxo': { titulo: 'Controle de Fluxo',  icone: '⇄', cor: '#b48ef0', resumo: 'Repetir, decidir e lidar com erro.' },
+  'javascript/04-funcoes':           { titulo: 'Funções',            icone: 'ƒ', cor: '#6ee7a8', resumo: 'Dar nome a um pedaço de lógica e reaproveitar.' },
+  'javascript/05-transformar-listas':{ titulo: 'Transformar Listas', icone: '≡', cor: '#ff9e6d', resumo: 'filter, map e reduce — o trio do dia a dia.' },
+  'javascript/06-assincrono':        { titulo: 'Assíncrono',         icone: '◷', cor: '#79c0ff', resumo: 'Código que roda depois, sem travar o resto.' },
+  'javascript/07-extras':            { titulo: 'Extras e Legado',    icone: '◇', cor: '#8b95a8', resumo: 'Bom conhecer, raro escrever hoje.' },
+  'javascript/08-classes':           { titulo: 'Classes',            icone: '⬢', cor: '#f78fb3', resumo: 'O molde de objetos do JS moderno.' },
 
-  'Node/01-modulos':            { titulo: 'Módulos',            icone: '▤', cor: '#6ee7a8', resumo: 'Quebrar o programa em arquivos: require, module.exports e os módulos internos.' },
-  'Node/02-npm':                { titulo: 'npm',                icone: '⬢', cor: '#f2c14e', resumo: 'package.json, dependências e scripts.' },
-  'Node/03-arquivos-com-fs':    { titulo: 'Arquivos com fs',    icone: '🗀', cor: '#5ec8d8', resumo: 'Ler, escrever e percorrer pastas no disco.' },
-  'Node/04-express':            { titulo: 'Express',            icone: '⇄', cor: '#b48ef0', resumo: 'Servidor, rotas, views e middlewares.' },
-  'Node/05-mongodb':            { titulo: 'MongoDB',            icone: '◍', cor: '#79c0ff', resumo: 'Conectar no banco e salvar dados com Model.' },
-  'Node/06-sessao-e-seguranca': { titulo: 'Sessão e Segurança', icone: '⚿', cor: '#f78fb3', resumo: 'Session, flash, CSRF e Helmet.' },
-  'Node/07-extras':             { titulo: 'Extras',             icone: '◇', cor: '#8b95a8', resumo: 'Bom conhecer: fora da trilha do curso.' },
+  'node/01-modulos':            { titulo: 'Módulos',            icone: '▤', cor: '#6ee7a8', resumo: 'Quebrar o programa em arquivos: require, module.exports e os módulos internos.' },
+  'node/02-npm':                { titulo: 'npm',                icone: '⬢', cor: '#f2c14e', resumo: 'package.json, dependências e scripts.' },
+  'node/03-arquivos-com-fs':    { titulo: 'Arquivos com fs',    icone: '🗀', cor: '#5ec8d8', resumo: 'Ler, escrever e percorrer pastas no disco.' },
+  'node/04-express':            { titulo: 'Express',            icone: '⇄', cor: '#b48ef0', resumo: 'Servidor, rotas, views e middlewares.' },
+  'node/05-mongodb':            { titulo: 'MongoDB',            icone: '◍', cor: '#79c0ff', resumo: 'Conectar no banco e salvar dados com Model.' },
+  'node/06-sessao-e-seguranca': { titulo: 'Sessão e Segurança', icone: '⚿', cor: '#f78fb3', resumo: 'Session, flash, CSRF e Helmet.' },
+  'node/07-extras':             { titulo: 'Extras',             icone: '◇', cor: '#8b95a8', resumo: 'Bom conhecer: fora da trilha do curso.' },
 };
 
 const PADRAO = { icone: '●', cor: '#8b95a8' };
