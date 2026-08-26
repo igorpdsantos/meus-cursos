@@ -1,0 +1,16 @@
+# node_modules nunca vai para o repositório: npm install traz de volta
+node_modules/
+
+# Segredos deste projeto (versione o .env.example, não o .env)
+.env
+.env.*
+!.env.example
+
+# Build gerado pelo webpack
+public/assets/
+dist/
+
+# Logs e lixo do sistema
+*.log
+npm-debug.log*
+.DS_Store

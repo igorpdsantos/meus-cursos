@@ -1,0 +1,38 @@
+body {
+  font-family: system-ui, sans-serif;
+  background: #14161c;
+  color: #e6e9ef;
+  margin: 0;
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.container h1 {
+  font-size: 28px;
+  line-height: 1.3;
+}
+
+.flash {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border-left: 4px solid;
+}
+
+.flash--sucesso {
+  background: #12301f;
+  border-color: #3fb950;
+}
+
+.flash--erro {
+  background: #3a1518;
+  border-color: #f85149;
+}
+
+.visitas {
+  color: #8b95a8;
+  font-size: 14px;
+}

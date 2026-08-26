@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 06 — webpack e middleware</title>
+</head>
+
+<body>
+
+  <section class="container">
+    <h1>Lorem ipsum dolor sit amet</h1>
+
+    <!-- Mensagens flash: aparecem UMA vez e somem no próximo carregamento -->
+    <% sucessos.forEach((msg) => { %>
+      <p class="flash flash--sucesso"><%= msg %></p>
+    <% }); %>
+    <% erros.forEach((msg) => { %>
+      <p class="flash flash--erro"><%= msg %></p>
+    <% }); %>
+
+    <form action="/" method="POST">
+      <label for="nome">Nome:</label>
+      <input type="text" id="nome" name="nome">
+      <button type="submit">Enviar</button>
+    </form>
+
+    <!-- Dado de SESSÃO: ao contrário do flash, não some — vai somando a cada visita -->
+    <p class="visitas">Você abriu esta página <%= visitas %> vez(es).</p>
+  </section>
+
+  <!-- Caminho ABSOLUTO: com "./" o script quebraria em rota aninhada tipo /produtos/1 -->
+  <script src="/assets/js/bundle.js"></script>
+</body>
+
+</html>

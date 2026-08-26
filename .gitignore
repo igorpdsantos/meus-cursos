@@ -1,0 +1,60 @@
+# ─── Dependências ─────────────────────────────────────────────
+# Nunca versionadas. Para trazer de volta: cd <projeto> && npm install
+node_modules/
+jspm_packages/
+.pnp
+.pnp.js
+
+# ─── Segredos ─────────────────────────────────────────────────
+# Senha de banco, string de conexão, segredo de sessão.
+# O que deve ser versionado é o .env.example, sem valores reais.
+.env
+.env.*
+!.env.example
+
+# ─── Build gerado ─────────────────────────────────────────────
+# Saída do webpack: sai do frontend/, entra em public/assets/
+public/assets/
+dist/
+build/
+.cache/
+.parcel-cache/
+
+# ─── Logs ─────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ─── Sistema operacional ──────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+# ─── Editores ─────────────────────────────────────────────────
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+
+# ─── Testes e cobertura ───────────────────────────────────────
+coverage/
+.nyc_output/
+*.lcov
+
+# ─── Temporários ──────────────────────────────────────────────
+tmp/
+temp/
+*.tmp
+*.pid
+*.seed

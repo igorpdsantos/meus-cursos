@@ -1,0 +1,17 @@
+<% const grupos = [
+  { mensagens: locals.errors || [], classe: 'alert-danger' },
+  { mensagens: locals.success || [], classe: 'alert-success' }
+]; %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <% grupos.forEach(function(grupo) { %>
+      <% grupo.mensagens.forEach(function(mensagem) { %>
+        <div class="alert <%= grupo.classe %> alert-dismissible fade show" role="alert">
+          <%= mensagem %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+      <% }); %>
+    <% }); %>
+  </div>
+</div>

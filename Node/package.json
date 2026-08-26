@@ -1,0 +1,18 @@
+{
+  "name": "curso-node",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Teoria do curso de Node: cada arquivo de src/ é um tópico que roda sozinho, com as bibliotecas de verdade.",
+  "scripts": {
+    "docs": "node ../docs/build.mjs",
+    "conferir": "node ../docs/comparar.mjs"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "connect-flash": "^0.1.1",
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mongoose": "^9.9.3"
+  }
+}

@@ -1,0 +1,11 @@
+# Dependências: npm install nas pastas dos projetos
+node_modules/
+
+# Segredos
+.env
+.env.*
+!.env.example
+
+# Lixo do sistema / editor
+.DS_Store
+*.log

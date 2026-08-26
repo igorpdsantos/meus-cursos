@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cursos · Documentação interativa</title>
+<meta name="description" content="Documentação interativa dos estudos: teoria, exemplos reais e terminal integrado que roda o código de verdade.">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23f5d76e'/><text x='16' y='23' font-size='16' font-family='monospace' font-weight='bold' text-anchor='middle' fill='%2317181c'>{ }</text></svg>">
+</head>
+<body>
+
+<aside id="lateral">
+  <div class="marca">
+    <div class="marca-linha">
+      <div class="logo">{ }</div>
+      <div>
+        <h1>Meus Cursos</h1>
+        <p>JavaScript → Node</p>
+      </div>
+    </div>
+  </div>
+  <button class="busca-btn" id="abrir-busca">
+    <span>⌕</span><span>Buscar tópico ou exemplo…</span><kbd>⌘K</kbd>
+  </button>
+  <nav id="arvore"></nav>
+  <div class="progresso">
+    <div class="anel">
+      <svg width="38" height="38"><circle class="trilha" cx="19" cy="19" r="16"></circle>
+        <circle class="arco" id="arco" cx="19" cy="19" r="16" stroke-dasharray="100.5" stroke-dashoffset="100.5"></circle></svg>
+      <span id="pct">0%</span>
+    </div>
+    <div class="progresso-txt">
+      <strong id="prog-n">0 de 0 tópicos</strong>
+      <small>marque conforme estudar</small>
+    </div>
+  </div>
+</aside>
+<div id="veu"></div>
+
+<div id="conteudo">
+  <header class="faixa">
+    <button class="btn icone" id="abrir-menu" title="Menu">☰</button>
+    <div class="trilha-nav" id="trilha"></div>
+    <div class="faixa-acoes">
+      <button class="btn icone" id="tema-btn" title="Alternar tema">◐</button>
+      <a class="btn" href="#/" id="ir-inicio">Início</a>
+    </div>
+  </header>
+  <main id="palco"></main>
+</div>
+
+<div id="paleta">
+  <div class="paleta-caixa">
+    <input id="busca-input" type="text" placeholder="Buscar por tópico, exemplo ou conceito…" autocomplete="off" spellcheck="false">
+    <div id="resultados"></div>
+    <div class="paleta-pe">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navegar</span><span><kbd>↵</kbd> abrir</span><span><kbd>esc</kbd> fechar</span>
+    </div>
+  </div>
+</div>
+
+<script src="content.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

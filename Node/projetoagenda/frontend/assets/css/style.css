@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
+
+:root {
+  --primary-color: rgb(17, 86, 102);
+  --primary-color-darker: rgb(9, 48, 56);
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* Faixa branca do conteúdo, como no layout da agenda */
+.conteudo-principal {
+  background: #fff;
+}
+
+.titulo-pagina {
+  font-weight: 300;
+  letter-spacing: -1px;
+}
+
+/* Tabela de contatos: linhas leves, sem bordas grossas */
+.tabela-contatos td,
+.tabela-contatos th {
+  padding: 1rem 0.75rem;
+  vertical-align: middle;
+}
+
+/* Página 404 */
+.erro-codigo {
+  font-size: clamp(5rem, 20vw, 10rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--primary-color);
+}

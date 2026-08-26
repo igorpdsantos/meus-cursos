@@ -1,0 +1,3 @@
+# O site é estático e feito à mão; só content.js é gerado (e vai para o repo).
+.DS_Store
+*.log
