@@ -56,6 +56,10 @@ function realcar(codigo) {
 const marcarCodigo = (t) => esc(t).replace(/`([^`]+)`/g, '<code>$1</code>');
 
 /* ═══ Inspeção de valores (imita a saída do node) ════════════════ */
+/* O node lê o estado de uma Promise por dentro do V8; no navegador isso não existe. Então o
+   sandbox entrega ao exemplo uma Promise instrumentada, que anota o próprio estado aqui. */
+const ESTADO_PROMESSA = new WeakMap();
+
 function inspecionar(v, prof = 0, vistos = new Set()) {
   if (typeof v === 'string') return prof === 0 ? v : `'${v.replace(/'/g, "\\'")}'`;
   if (typeof v === 'number' || typeof v === 'boolean' || v === null || v === undefined) return String(v);
@@ -63,6 +67,12 @@ function inspecionar(v, prof = 0, vistos = new Set()) {
   if (typeof v === 'symbol') return v.toString();
   if (typeof v === 'function') return v.name ? `[Function: ${v.name}]` : '[Function (anonymous)]';
   if (v instanceof Error) return `${v.name}: ${v.message}`;
+  if (v instanceof Promise) {
+    const reg = ESTADO_PROMESSA.get(v);
+    if (!reg || reg.estado === 'pendente') return 'Promise { <pending> }';
+    const dentro = inspecionar(reg.valor, prof + 1, new Set(vistos).add(v));
+    return reg.estado === 'rejeitada' ? `Promise { <rejected> ${dentro} }` : `Promise { ${dentro} }`;
+  }
   if (vistos.has(v)) return '[Circular *1]';
   if (prof > 4) return Array.isArray(v) ? '[Array]' : '[Object]';
 
@@ -98,9 +108,15 @@ function inspecionar(v, prof = 0, vistos = new Set()) {
   }
 
   const curto = `${abre} ${itens.join(', ')} ${fecha}`;
-  if (curto.length <= 72 && !curto.includes('\n')) return curto;
-  const recuo = '  '.repeat(prof + 1);
-  return `${abre}\n${itens.map((i) => recuo + i.replace(/\n/g, '\n' + recuo)).join(',\n')}\n${'  '.repeat(prof)}${fecha}`;
+  // Mesma conta do util.inspect do node para decidir se cabe numa linha só: soma os itens,
+  // o recuo do nível, as vírgulas e uma folga fixa, contra uma largura de 80 colunas.
+  const largura = 2 * itens.length + prof * 2 + abre.length + 10
+    + itens.reduce((soma, i) => soma + i.length, 0);
+  if (largura <= 80 && !curto.includes('\n')) return curto;
+  // O filho é montado com recuo relativo (um nível) e o pai empurra o dele por cima —
+  // se o filho já viesse com o recuo absoluto, os dois se somariam e o aninhado sairia torto.
+  const recuo = '  ';
+  return `${abre}\n${itens.map((i) => recuo + i.replace(/\n/g, '\n' + recuo)).join(',\n')}\n${fecha}`;
 }
 
 /** Colore a saída já pronta: textos, números e literais. */
@@ -710,6 +726,16 @@ const TETO_TIMER = 2500;  // encurta esperas longas para o feedback ser rápido
 function executar(codigo, aoLinha, aoFim, contexto = {}) {
   let vivo = true, tardio = false, pendentes = 0, parcial = '', intervalos = new Set(), falhou = false;
   let relogioFim = null;
+
+  // No node, cada bloco roda num processo novo. Aqui todos dividem a mesma página, então um
+  // exemplo que cria variável global sem querer (`Antiga('x')` sem `new`, que faz o `this`
+  // virar o global) contaminaria o próximo. Guardamos a lista de antes para limpar no fim —
+  // durante a execução o global sujo continua visível, porque é justamente a lição do exemplo.
+  const globaisAntes = new Set(Object.getOwnPropertyNames(globalThis));
+  const limparGlobais = () => {
+    for (const chave of Object.getOwnPropertyNames(globalThis))
+      if (!globaisAntes.has(chave)) { try { delete globalThis[chave]; } catch {} }
+  };
   const emitir = (tipo, txt) => { if (vivo) aoLinha({ tipo, txt, tardio }); };
 
   // Um fluxo só, igual ao stdout do node: a linha fecha no \n, venha de onde vier.
@@ -721,17 +747,62 @@ function executar(codigo, aoLinha, aoFim, contexto = {}) {
   };
   const descarregar = () => { if (parcial) { emitir('log', parcial); parcial = ''; } };
 
+  // ── Fila de saída ────────────────────────────────────────────────
+  // Normalmente é síncrona e não muda nada. Ela só espera quando o exemplo imprime uma
+  // Promise que o sandbox não criou — a de uma função `async`, que nasce da Promise interna
+  // do motor e não dá para instrumentar. O estado dela só se descobre deixando o laço de
+  // microtarefas dar uma volta, e aí a linha teria que sair fora de ordem. Por isso as
+  // linhas seguintes esperam na fila até essa sondagem terminar.
+  const naoObservada = (x) => x instanceof Promise && !ESTADO_PROMESSA.has(x);
+  let filaSaida = [], bombeando = false;
+
+  // Uma Promise já assentada avisa o `.then` na PRIMEIRA microtarefa; uma que ainda vai
+  // assentar avisa depois. É essa diferença de ordem que revela o estado no momento do log.
+  const sondarPromessa = (promessa, pronto) => {
+    const reg = { estado: 'pendente', valor: undefined };
+    let volta = 0;
+    promessa.then(
+      (valor) => { if (volta === 0) { reg.estado = 'cumprida'; reg.valor = valor; } },
+      (erro) => { if (volta === 0) { reg.estado = 'rejeitada'; reg.valor = erro; } },
+    );
+    queueMicrotask(() => { volta = 1; });
+    queueMicrotask(() => queueMicrotask(() => { ESTADO_PROMESSA.set(promessa, reg); pronto(); }));
+  };
+
+  const despachar = (valores, correr) => { filaSaida.push({ valores, correr }); if (!bombeando) bombear(); };
+
+  function bombear() {
+    bombeando = true;
+    while (filaSaida.length) {
+      const tarefa = filaSaida[0];
+      const alvo = tarefa.valores?.find(naoObservada);
+      if (alvo) {
+        bombeando = false;
+        pendentes++;
+        sondarPromessa(alvo, () => { pendentes--; bombear(); talvezEncerrar(); });
+        return;
+      }
+      filaSaida.shift();
+      tarefa.correr();
+    }
+    bombeando = false;
+  }
+
   const encerrar = (motivo) => {
     if (!vivo) return;
     vivo = false; clearTimeout(relogioFim);
     intervalos.forEach(clearInterval);
+    limparGlobais();
     aoFim({ falhou, motivo });
   };
   const talvezEncerrar = () => {
     if (!vivo) return;
     clearTimeout(relogioFim);
     // espera um tique: código pode agendar novos timers dentro do callback
-    relogioFim = setTimeout(() => { if (pendentes === 0) { descarregar(); encerrar(null); } }, 60);
+    relogioFim = setTimeout(() => {
+      // intervalo vivo é saída que ainda vai vir: só fecha quando o exemplo der clearInterval
+      if (pendentes === 0 && intervalos.size === 0) { descarregar(); encerrar(null); }
+    }, 60);
   };
 
   const proteger = (fn) => (...a) => {
@@ -748,15 +819,18 @@ function executar(codigo, aoLinha, aoFim, contexto = {}) {
 
   const caixa = {
     console: {
-      log: (...a) => escrever(a.map((x) => inspecionar(x)).join(' ') + '\n'),
+      log: (...a) => despachar(a, () => escrever(a.map((x) => inspecionar(x)).join(' ') + '\n')),
       info: (...a) => caixa.console.log(...a),
       warn: (...a) => caixa.console.log(...a),
       debug: (...a) => caixa.console.log(...a),
-      error: (...a) => { descarregar(); falhou = true; emitir('erro', a.map((x) => inspecionar(x)).join(' ')); },
-      table: (d) => escrever((d && typeof d === 'object' ? montarTabela(d) : inspecionar(d)) + '\n'),
+      error: (...a) => despachar(a, () => {
+        descarregar(); falhou = true; emitir('erro', a.map((x) => inspecionar(x)).join(' '));
+      }),
+      table: (d) => despachar([d], () => escrever((d && typeof d === 'object' ? montarTabela(d) : inspecionar(d)) + '\n')),
     },
     process: {
-      stdout: { write: (s) => { escrever(String(s)); return true; } },
+      // passa pela mesma fila do console, senão furaria a ordem quando há sondagem em curso
+      stdout: { write: (s) => { despachar(null, () => escrever(String(s))); return true; } },
       argv: ['node', arquivoAbs],
       env: { USER: 'igor', HOME: '/Users/igor', SHELL: '/bin/zsh' },
       cwd: () => cursoAbs,
@@ -774,8 +848,24 @@ function executar(codigo, aoLinha, aoFim, contexto = {}) {
       intervalos.add(id); return id;
     },
     clearTimeout: (id) => { clearTimeout(id); if (id != null) { pendentes = Math.max(0, pendentes - 1); talvezEncerrar(); } },
-    clearInterval: (id) => { clearInterval(id); intervalos.delete(id); },
+    clearInterval: (id) => { clearInterval(id); intervalos.delete(id); talvezEncerrar(); },
     queueMicrotask,
+    // Promise que anota o próprio estado, para o console.log imprimir
+    // `Promise { 42 }` como o node, em vez de `{}`.
+    // O species volta a ser a Promise nativa: sem isso, cada `.then` criaria outra
+    // promessa observada, que se registraria de novo, sem fim.
+    Promise: class extends Promise {
+      static get [Symbol.species]() { return Promise; }
+      constructor(executor) {
+        super(executor);
+        const reg = { estado: 'pendente', valor: undefined };
+        ESTADO_PROMESSA.set(this, reg);
+        this.then(
+          (valor) => { reg.estado = 'cumprida'; reg.valor = valor; },
+          (erro) => { reg.estado = 'rejeitada'; reg.valor = erro; },
+        );
+      }
+    },
   };
   const { http, buscar } = moduloHttp(caixa.setTimeout);
   const ejs = moduloEjs(fs);
@@ -793,10 +883,11 @@ function executar(codigo, aoLinha, aoFim, contexto = {}) {
     // dependem disso (Object.freeze que falha calado, `this` quando se esquece o `new`).
     const fn = new Function(
       'console', 'process', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval', 'queueMicrotask',
-      'require', '__dirname', '__filename', 'fetch', codigo,
+      'Promise', 'require', '__dirname', '__filename', 'fetch', codigo,
     );
     fn(caixa.console, caixa.process, caixa.setTimeout, caixa.setInterval, caixa.clearTimeout,
-       caixa.clearInterval, caixa.queueMicrotask, requerir, path.dirname(arquivoAbs), arquivoAbs, buscar);
+       caixa.clearInterval, caixa.queueMicrotask, caixa.Promise,
+       requerir, path.dirname(arquivoAbs), arquivoAbs, buscar);
     descarregar();
   } catch (e) {
     descarregar();

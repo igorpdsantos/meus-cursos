@@ -53,11 +53,22 @@ mesmo assim, o `app.js` traz uma imitação enxuta dos módulos internos:
 | `mongoose` | Schema, model, validação, ValidationError e CastError |
 | `require('./arquivo.js')` | carrega arquivo escrito pelo próprio exemplo, com `module.exports` |
 | `__dirname`, `process.cwd()` | caminho de mentira (`/Users/igor/Cursos/...`), só para a saída ficar realista |
+| `Promise` | instrumentada, para o `console.log` imprimir `Promise { 42 }` como o node, e não `{}` |
 
 Não é encenação: `node docs/comparar.mjs` roda cada bloco **duas vezes** — no Node de verdade,
 com as bibliotecas instaladas em `node/`, e aqui no sandbox — e compara as duas saídas. Hoje
-125 dos 130 blocos de Node saem idênticos; as exceções imprimem caminho de arquivo ou nome de
-usuário, que no site são fictícios.
+**nenhum dos 446 blocos diverge**. O relatório separa em quatro grupos, porque nem toda
+diferença é defeito:
+
+| Grupo | O que quer dizer |
+|---|---|
+| ✓ igual | o site mostra exatamente o que o node mostra — todo o resto |
+| ~ instável | o próprio node muda de saída a cada rodada, então não há o que comparar — 3 a 5 blocos, os que medem tempo em ms ou sorteiam |
+| ⌨ só terminal | usa módulo que o navegador não tem, e o site avisa em vez de fingir — 2 blocos |
+| ≠ diferente | divergência de verdade, para investigar — **nenhum** |
+
+Para não acusar o site à toa, o comparador roda o node mais cinco vezes antes de apontar
+diferença: se o node não repete a própria saída, o bloco entra em *instável*.
 
 Um exemplo que peça algo fora dessa lista (`child_process`, por exemplo) não quebra: o terminal
 mostra um aviso **ⓘ** com o comando para rodar de verdade no seu terminal.
@@ -67,7 +78,7 @@ Isso é o site. No seu computador, os arquivos em `<CURSO>/src/**` rodam com o N
 
 ## Atualizar depois de mexer no código
 
-Os arquivos em `<CURSO>/src/**` (hoje `JS/` e `node/`) são a única fonte da verdade.
+Os arquivos em `<CURSO>/src/**` (hoje `javascript/` e `node/`) são a única fonte da verdade.
 Depois de adicionar ou editar um tópico, regenere o conteúdo do site:
 
 ```
