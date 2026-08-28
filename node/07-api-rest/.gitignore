@@ -14,3 +14,7 @@ dist/
 *.log
 npm-debug.log*
 .DS_Store
+
+# Imagens enviadas em tempo de execução: a pasta fica, o conteúdo não
+uploads/*
+!uploads/.gitkeep
