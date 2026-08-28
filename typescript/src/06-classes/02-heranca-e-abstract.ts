@@ -3,7 +3,8 @@
  * Sessão 6 · Rodar: node --experimental-transform-types src/06-classes/02-heranca-e-abstract.ts
  *
  * O QUE É: `extends` faz uma classe herdar campos e métodos de outra. `abstract` marca a
- *          classe que não pode ser instanciada e o método que a filha é obrigada a escrever.
+ *          classe que só serve para ser estendida — nunca instanciada — e o método ou campo
+ *          que ela deixa como contrato para a filha cumprir.
  * QUANDO USAR: quando as classes são mesmo variações de uma coisa só (formas de
  *              pagamento, tipos de funcionário) e compartilham comportamento de verdade.
  * QUANDO NÃO USAR: para reaproveitar código. Herança amarra os dois para sempre — quando
@@ -71,6 +72,15 @@ for (const pagamento of [new Pix(200), new Cartao(200, 1), new Cartao(200, 3)])
 
 // @ts-expect-error — Cannot create an instance of an abstract class.
 console.log(new MeioDePagamento(200));
+
+console.log('\nClasse abstrata é a classe que você NUNCA chama direto: `new MeioDePagamento`');
+console.log('é erro. Ela existe só para ser estendida — é meia classe, e a outra metade cada');
+console.log('filha completa. "Meio de pagamento" sozinho não é nada: o que existe no mundo é');
+console.log('pix, cartão, boleto.');
+console.log('\nE o método abstrato é só um CONTRATO: na mãe existe a assinatura (o nome, o que');
+console.log('entra, o que sai) e mais nada. Cada filha é obrigada a escrever o corpo, e escreve');
+console.log('do jeito dela — o Pix devolve taxa zero, o Cartão calcula por parcela. O contrato');
+console.log('não manda no COMO; manda em existir e em bater a assinatura.');
 
 // ─── 3) A filha é obrigada a cumprir o contrato ───
 abstract class Relatorio {
@@ -152,9 +162,45 @@ carrinho.length = 0;
 
 console.log('\nA pergunta é "É UM?", não "preciso dos métodos dele?". Carrinho não é lista.');
 
+// ─── 6) Atributo abstrato: o contrato também vale para dado ───
+// Não é só método. A mãe pode exigir um CAMPO e usá-lo, sem saber o valor de ninguém.
+abstract class Documento {
+  abstract readonly extensao: string;              // contrato: a filha declara o valor
+  abstract readonly tamanhoMaximoMb: number;
+
+  aceitar(nomeDoArquivo: string, mb: number): string {
+    if (!nomeDoArquivo.endsWith(this.extensao)) return `recusado: ${nomeDoArquivo} não é ${this.extensao}`;
+    if (mb > this.tamanhoMaximoMb) return `recusado: ${mb}MB passa de ${this.tamanhoMaximoMb}MB`;
+    return `aceito: ${nomeDoArquivo}`;
+  }
+}
+
+class Foto extends Documento {
+  readonly extensao = '.jpg';                      // cada filha preenche do seu jeito
+  readonly tamanhoMaximoMb = 5;
+}
+
+class Contrato extends Documento {
+  readonly extensao = '.pdf';
+  readonly tamanhoMaximoMb = 20;
+}
+
+console.log(new Foto().aceitar('perfil.jpg', 2));
+console.log(new Foto().aceitar('perfil.jpg', 9));
+console.log(new Contrato().aceitar('acordo.pdf', 12));
+console.log(new Contrato().aceitar('acordo.jpg', 1));
+
+// @ts-expect-error — Non-abstract class 'Anexo' incorrectly implements inherited abstract member.
+class Anexo extends Documento { readonly extensao = '.zip'; }
+console.log('faltou `tamanhoMaximoMb`, e o erro é na classe:', typeof Anexo);
+
+console.log('\nO `aceitar` na mãe usa `this.extensao` sem saber qual é — ele confia no');
+console.log('contrato. Método abstrato, atributo abstrato: a mesma ideia. A mãe diz O QUE');
+console.log('tem que existir; a filha diz QUAL é.');
+
 // ═══ PEGADINHAS ═══
 
-// ─── 6) `super()` antes de qualquer `this` ───
+// ─── 7) `super()` antes de qualquer `this` ───
 class Base {
   constructor(protected nome: string) {}
 }

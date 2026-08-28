@@ -21,13 +21,13 @@ node ../docs/build.mjs                               # atualiza o site depois de
 **Não existe passo de build.** O Node 22.18+ roda `.ts` direto: ele apaga os tipos e executa o
 JavaScript que sobra. Nada de `ts-node`, nada de `tsc` antes de rodar.
 
-Cinco tópicos pedem uma flag a mais — o cabeçalho de cada arquivo diz o comando exato:
+Seis tópicos pedem uma flag a mais — o cabeçalho de cada arquivo diz o comando exato:
 
 ```bash
 node --experimental-transform-types src/03-montar-tipos/03-intersection-e-enum.ts
 ```
 
-São o tópico de `enum` e os quatro de classes, que usam propriedade de parâmetro no
+São o tópico de `enum` e os cinco de classes, que usam propriedade de parâmetro no
 construtor (`constructor(private nome: string)`). Essas duas construções não são tipo: viram
 código de verdade, e o modo padrão do Node só sabe APAGAR, não traduzir. Quem decide isso não
 é a mão: o `docs/build.mjs` tenta apagar os tipos de cada arquivo e põe a flag no comando de
@@ -59,22 +59,29 @@ de salvar e o que o JavaScript só descobre quando chega na linha.
 | [03-montar-tipos](src/03-montar-tipos/) | 3 | união e literais, `type` × `interface`, intersection e `enum` |
 | [04-funcoes](src/04-funcoes/) | 2 | parâmetro e retorno, sobrecarga e `this` tipado |
 | [05-estreitar-tipos](src/05-estreitar-tipos/) | 2 | type guards, `as` e tipagem estrutural |
-| [06-classes](src/06-classes/) | 4 | modificadores de acesso, herança e `abstract`, `implements`, `static` e getters |
-| [07-generics](src/07-generics/) | 4 | o básico, restrições com `extends`, `keyof`/`typeof`, utility types |
-| [08-extras](src/08-extras/) | 2 | decorators, bibliotecas de fora e declaration files |
+| [06-classes](src/06-classes/) | 5 | modificadores de acesso, herança e `abstract`, `implements`, `static` e getters, relações entre classes |
+| [07-generics](src/07-generics/) | 5 | o básico, restrições com `extends`, `keyof`/`typeof`, utility types, generics em interfaces e tipos |
+| [08-extras](src/08-extras/) | 5 | decorators (dois tópicos), bibliotecas de fora, módulos e namespaces, do TS ao navegador |
 
 A trilha é sequencial: um tema só depende do que vem antes dele.
 
 ## Como este curso foi montado
 
 O conteúdo segue o [curso de TypeScript do Luiz Otávio Miranda](https://github.com/luizomf/cursojstypescript),
-reorganizado na trilha deste repositório: as 63 aulas viraram 24 tópicos agrupados por
+reorganizado na trilha deste repositório: as 71 aulas viraram 29 tópicos agrupados por
 assunto, em vez da ordem cronológica das aulas.
 
 Duas escolhas se afastam do original, e ficam registradas aqui:
 
-- **Sem webpack e sem `ts-node`.** O curso original é de 2020, quando rodar TypeScript exigia
-  build. Hoje o Node roda `.ts` sozinho, e o build só entra em projeto de frontend.
+- **Sem webpack e sem `ts-node` no repositório.** O curso original é de 2020, quando rodar
+  TypeScript exigia build. Hoje o Node roda `.ts` sozinho, e o build só entra em projeto de
+  frontend — que é o assunto do tópico
+  [do TypeScript ao navegador](src/08-extras/05-do-typescript-ao-navegador.ts): ele mostra o
+  `tsc`, o `webpack.config.js` e o tsconfig do front, sem montar um projeto de webpack aqui.
+- **`namespace` mostrado pelo que ele vira.** A sintaxe `namespace` não roda com
+  `node arquivo.ts` — e ela é a forma antiga, aposentada pelo `import`. O tópico
+  [módulos e namespaces](src/08-extras/04-modulos-e-namespaces.ts) mostra o código do
+  namespace e roda a função que o `tsc` gera no lugar dele, que é o que explica o custo dele.
 - **Decorators sem a sintaxe `@`.** A `@` não roda em `node arquivo.ts`, e o formato legado
   (`experimentalDecorators`) foi substituído pelo padrão do TypeScript 5. O tópico ensina o
   mecanismo — a função que embrulha —, mostra a sintaxe e explica os dois formatos.

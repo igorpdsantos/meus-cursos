@@ -6,7 +6,8 @@
  *          campo de uma classe. E a propriedade de parâmetro, que declara o campo no
  *          próprio construtor.
  * QUANDO USAR: `private` por padrão em tudo que é detalhe interno; abra em `public` só o
- *              que a classe promete a quem usa.
+ *              que a classe promete a quem usa; `protected` em classe feita para ser
+ *              estendida, no que a filha precisa e o mundo não.
  * QUANDO NÃO USAR: não confunda com segurança. `private` é conferência de compilação; o
  *                  `#campo` do JavaScript é o que existe de verdade rodando.
  */
@@ -89,6 +90,12 @@ console.log(bruno.salarioBase);
 console.log('\n`private` a filha também não vê. `protected` é o meio-termo: fechado para');
 console.log('fora, aberto para a herança. Use quando a subclasse PRECISA daquilo.');
 
+console.log('\nPor isso `protected` só aparece onde há herança: em superclasse, em classe');
+console.log('abstrata, em base de framework — código escrito para ser ESTENDIDO. Numa classe');
+console.log('que ninguém estende, `protected` é `private` com uma promessa a mais: você');
+console.log('está dizendo "quem herdar daqui pode contar com isto", e aí não dá para mudar');
+console.log('sem quebrar as filhas. Sem filhas à vista, escreva `private`.');
+
 // ═══ NA PRÁTICA ═══
 
 // ─── 4) `private` na prática: guardar o invariante ───
@@ -166,7 +173,8 @@ console.log('\n`private` é combinado entre você e o compilador. Ele organiza o
 console.log('documenta a intenção — não esconde dado de ninguém em tempo de execução.');
 
 // ─── Resumo ───
-// 1. `public` (padrão) abre, `private` fecha, `protected` abre só para as filhas.
+// 1. `public` (padrão) abre, `private` fecha, `protected` abre só para as filhas —
+//    ou seja: `protected` é para superclasse, para classe pensada para ser estendida.
 // 2. `readonly` deixa ler e proíbe atribuir depois do construtor.
 // 3. Modificador no parâmetro do construtor cria o campo e atribui — sem repetir três vezes.
 // 4. Comece tudo `private` e abra só o que a classe promete.

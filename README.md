@@ -53,7 +53,7 @@ A mesma linguagem fora do navegador — disco, rede e banco de dados.
 Mais os **[projetos das aulas](node/README.md#projetos-das-aulas)** — do primeiro `app.get`
 até a agenda completa com login, senha criptografada, CRUD e CSRF.
 
-### [TypeScript](typescript/README.md) · 24 tópicos · 8 temas
+### [TypeScript](typescript/README.md) · 29 tópicos · 8 temas
 
 O mesmo JavaScript com uma camada de tipos que o compilador confere e depois joga fora.
 
@@ -64,9 +64,9 @@ O mesmo JavaScript com uma camada de tipos que o compilador confere e depois jog
 | [03-montar-tipos](typescript/src/03-montar-tipos/) | união e literais, `as const`, `type` × `interface`, intersection, `enum` |
 | [04-funcoes](typescript/src/04-funcoes/) | parâmetro opcional e com padrão, retorno, sobrecarga, `this` tipado |
 | [05-estreitar-tipos](typescript/src/05-estreitar-tipos/) | `typeof`/`in`/`instanceof`, guard `x is T`, `as` e tipagem estrutural |
-| [06-classes](typescript/src/06-classes/) | `private`/`protected`/`readonly`, herança, `abstract`, `implements`, `static`, getters |
-| [07-generics](typescript/src/07-generics/) | `<T>`, restrições com `extends`, `keyof`/`typeof`, `Partial`/`Pick`/`Omit`/`Record` |
-| [08-extras](typescript/src/08-extras/) | decorators, `@types`, `.d.ts` e bibliotecas sem tipos |
+| [06-classes](typescript/src/06-classes/) | `private`/`protected`/`readonly`, herança, `abstract`, `implements`, `static`, getters, agregação × composição |
+| [07-generics](typescript/src/07-generics/) | `<T>`, restrições com `extends`, `keyof`/`typeof`, `Partial`/`Pick`/`Omit`/`Record`, interface genérica |
+| [08-extras](typescript/src/08-extras/) | decorators, `@types`, `.d.ts`, `namespace` × módulo, `tsc` e bundler |
 
 Roda sem build: o Node 22.18+ executa `.ts` direto, apagando os tipos. Quem confere os tipos
 é o `npm run check` (`tsc --noEmit`) — e ele passa, embora os arquivos tenham erros de tipo

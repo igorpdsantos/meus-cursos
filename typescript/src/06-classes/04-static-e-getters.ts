@@ -58,6 +58,42 @@ console.log('de volta a °F:', temperatura.fahrenheit.toFixed(0));
 // @ts-expect-error — Cannot assign to 'emCelsius' because it is a read-only property.
 temperatura.emCelsius = 100;
 
+// O formato mais comum é este: o campo guardado com `_` na frente e o par `get`/`set` com
+// o nome limpo. O `_` não é regra da linguagem — é convenção para não colidir com o acessor.
+class Produto {
+  private _preco = 0;                            // o atributo de verdade, fechado
+  private _nome = '';
+
+  get preco(): number { return this._preco; }
+  set preco(valor: number) {                     // é aqui que a regra entra
+    if (valor < 0) throw new RangeError('preço não pode ser negativo');
+    this._preco = Math.round(valor * 100) / 100;
+  }
+
+  get nome(): string { return this._nome; }
+  set nome(valor: string) { this._nome = valor.trim(); }
+}
+
+const produto = new Produto();
+produto.nome = '  Caneca esmaltada ';            // quem usa escreve como se fosse campo
+produto.preco = 19.999;
+
+console.log(`"${produto.nome}" · R$ ${produto.preco.toFixed(2)}`);
+
+try {
+  produto.preco = -5;                            // e a regra roda em toda atribuição
+} catch (erro) {
+  console.log('recusado:', (erro as Error).message);
+}
+
+console.log('preço continua:', produto.preco, '· o campo guardado é `_preco`:',
+  Object.keys(produto).join(', '));
+
+console.log('\nSem o `_` isso não fecharia: `set preco(v) { this.preco = v }` chamaria o');
+console.log('próprio set para sempre. O par público é `preco`; o dado mora em `_preco`.');
+console.log('É o encapsulamento em uma linha — trocar um campo `public` por get/set depois');
+console.log('não quebra ninguém, porque de fora a escrita continua sendo `produto.preco = 10`.');
+
 // ─── 3) Construtor privado e fábrica estática ───
 // Só a própria classe pode dar `new`. Quem está de fora passa pela fábrica, que valida.
 class Cpf {
@@ -192,6 +228,7 @@ console.log('Se custa caro ou tem efeito, use um método com nome de verbo: `cal
 // ─── Resumo ───
 // 1. `static` pertence à classe: constante, contador e fábrica. Ali `this` é a classe.
 // 2. `get`/`set` são métodos com cara de propriedade — bons para valor derivado.
+//    A convenção: campo `private _nome`, acessores `get nome`/`set nome` mexendo nele.
 // 3. `get` sem `set` é propriedade só de leitura, e o tsc cobra.
 // 4. Construtor `private` + fábrica estática obriga a criação a passar pela validação.
 // 5. Fábricas com nome substituem o construtor de seis parâmetros que ninguém decora.

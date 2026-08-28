@@ -124,9 +124,31 @@ salvar.aoClicar(() => console.log('arrow: aqui `this` não é o botão, é o de 
 console.log('\nRegra: `function` quando você precisa do `this` de quem chamou; arrow quando');
 console.log('você quer justamente o `this` de fora (dentro de um método de classe, por exemplo).');
 
+// ─── 6) `this` como tipo de retorno: a cadeia que sobrevive à herança ───
+// Devolver `this` (e não o nome da classe) faz o método continuar servindo na filha.
+class Consulta {
+  protected partes: string[] = [];
+
+  onde(condicao: string): this { this.partes.push(`WHERE ${condicao}`); return this; }
+  ordenarPor(campo: string): this { this.partes.push(`ORDER BY ${campo}`); return this; }
+  montar(): string { return ['SELECT *', ...this.partes].join(' '); }
+}
+
+class ConsultaPaginada extends Consulta {
+  limite(quantos: number): this { this.partes.push(`LIMIT ${quantos}`); return this; }
+}
+
+// Porque `onde` devolve `this`, e não `Consulta`, o `limite` continua acessível na cadeia.
+const sql = new ConsultaPaginada().onde('ativo = 1').ordenarPor('nome').limite(10).montar();
+console.log(sql);
+
+console.log('\nSe `onde` devolvesse `Consulta`, a cadeia perderia a filha no primeiro método —');
+console.log('e `.limite(10)` viraria erro de compilação. `this` como tipo é "a classe de quem');
+console.log('chamou", seja ela qual for.');
+
 // ═══ PEGADINHAS ═══
 
-// ─── 6) A implementação não confere as assinaturas ───
+// ─── 7) A implementação não confere as assinaturas ───
 function formatar(valor: string): string;
 function formatar(valor: number): string;
 // A implementação promete `string` para os dois casos — mas quem garante é você.
@@ -155,6 +177,6 @@ console.log('uma união larga, e ali dentro a conferência afrouxa. Escreva pouc
 // 1. Sobrecarga = várias assinaturas + uma implementação; só as assinaturas são chamáveis.
 // 2. Ela vale quando o TIPO DO RETORNO muda conforme o argumento — senão, use união.
 // 3. As assinaturas somem no JavaScript gerado: são declaração pura.
-// 4. `this: T` é um parâmetro falso que tipa o dono da função e não entra na chamada.
+// 4. `this: T` tipa o dono da função sem entrar na chamada; `: this` no retorno encadeia.
 // 5. Arrow function não tem `this` próprio; `function` tem. É o que decide qual usar.
 // 6. Dentro da implementação a conferência afrouxa — mantenha esse corpo curto.

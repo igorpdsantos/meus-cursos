@@ -69,6 +69,33 @@ Fora da trilha, mas aparece em projeto de verdade.
 - `08-extras/01-decorators.ts` — Decorators
 - `08-extras/02-bibliotecas-e-types.ts` — Bibliotecas de fora e declaration files
 
+## Sessão 9 — 28/08/2026
+
+Fechando as aulas do curso original que ainda não tinham lugar na trilha: relações entre
+classes, generics em tipos, o resto dos decoradores, módulos e o caminho até o navegador.
+
+- `04-funcoes/02-overload-e-this.ts` — bloco novo: `this` como tipo de retorno (cadeia fluente)
+- `06-classes/05-relacoes-entre-classes.ts` — pilares da POO, associação, agregação,
+  composição e inversão de dependência
+- `07-generics/05-generics-em-interfaces-e-tipos.ts` — `Array`/`Promise`/`Map` como generics,
+  interface e type alias genéricos, generic com intersection
+- `08-extras/03-decorators-por-dentro.ts` — quando o decorator roda, fábrica, ordem de
+  aplicação, decorator de propriedade e de parâmetro
+- `08-extras/04-modulos-e-namespaces.ts` — namespace, `/// <reference>`, módulo de hoje,
+  JavaScript importado no TypeScript
+- `08-extras/05-do-typescript-ao-navegador.ts` — `tsc`, opções de build, bundler, tsconfig do
+  front e a validação de formulário tipada
+
+E quatro explicações que faltavam, acrescentadas em tópicos que já existiam:
+
+- `03-montar-tipos/02-alias-e-interface.ts` — `type` × `interface`: o que só cada um faz e a
+  regra prática para escolher
+- `06-classes/01-modificadores-de-acesso.ts` — `protected` é para superclasse, para classe
+  escrita para ser estendida
+- `06-classes/02-heranca-e-abstract.ts` — classe abstrata como classe que nunca se instancia,
+  método abstrato como contrato e o bloco novo de atributo abstrato
+- `06-classes/04-static-e-getters.ts` — a convenção `private _preco` com `get preco`/`set preco`
+
 ## Infraestrutura acrescentada nesta leva
 
 O `docs/` aprendeu a lidar com `.ts` sem ganhar dependência nenhuma:

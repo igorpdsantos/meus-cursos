@@ -98,6 +98,36 @@ console.log(linha(['PARA QUÊ', 'USE', 'POR QUÊ']));
 console.log(linha(['─'.repeat(22), '─'.repeat(10), '─'.repeat(44)]));
 for (const l of escolha) console.log(linha(l));
 
+// O que só a interface faz: entrar em `implements`, e se reabrir para ganhar campo depois.
+interface Cliente { nome: string }
+interface Cliente { desde: number }              // a mesma interface, aberta de novo
+class ClientePessoaFisica implements Cliente {   // `implements` só aceita interface
+  nome: string;
+  desde: number;
+  constructor(nome: string, desde: number) { this.nome = nome; this.desde = desde; }
+}
+console.log('\nsó interface:', JSON.stringify(new ClientePessoaFisica('Ana', 2021)));
+
+// O que só o `type` faz: apelidar o que NÃO é objeto, e derivar de outro tipo.
+type FormaDePagamento = 'pix' | 'cartao' | 'boleto';        // união
+type PontoNoMapa = [number, number];                         // tupla
+type ApenasNome = Pick<Cliente, 'nome'>;                     // derivado
+
+const pagamento: FormaDePagamento = 'pix';
+const local: PontoNoMapa = [-19.92, -43.94];
+const resumo: ApenasNome = { nome: 'Ana' };
+console.log('só type    :', pagamento, local.join(', '), JSON.stringify(resumo));
+
+console.log('\nO jeito de decidir em uma frase: `interface` descreve o FORMATO de um objeto e');
+console.log('fica ABERTA — quem usa pode estender e até reabrir. `type` é apelido para');
+console.log('QUALQUER tipo e fica FECHADO — em troca, é o único que compõe (união, tupla,');
+console.log('Pick, Omit, keyof).');
+console.log('\nNa prática: comece com `interface` para objeto e para o que uma classe vai');
+console.log('implementar; use `type` no instante em que aparecer união, tupla ou derivação.');
+console.log('Os dois convivem: `interface Pedido { forma: FormaDePagamento }` é o normal.');
+console.log('O que não se faz é escolher no chute e misturar os dois para a mesma ideia no');
+console.log('mesmo projeto — quem lê depois não sabe se a diferença quis dizer alguma coisa.');
+
 // ─── 5) Interface que descreve função e índice ───
 interface Formatador {
   (valor: number): string;                    // a interface descreve a chamada

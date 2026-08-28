@@ -86,9 +86,9 @@ const TEMAS = {
   'typescript/03-montar-tipos':     { titulo: 'Montar Tipos',     icone: '⧉', cor: '#f2c14e', resumo: 'Combinar tipos: união, literal, alias, interface e enum.' },
   'typescript/04-funcoes':          { titulo: 'Funções Tipadas',  icone: 'ƒ', cor: '#6ee7a8', resumo: 'Parâmetro, retorno, sobrecarga e o this tipado.' },
   'typescript/05-estreitar-tipos':  { titulo: 'Estreitar Tipos',  icone: '⇲', cor: '#b48ef0', resumo: 'De um tipo largo para o certo: type guard e assertion.' },
-  'typescript/06-classes':          { titulo: 'Classes Tipadas',  icone: '⬢', cor: '#f78fb3', resumo: 'private, herança, abstract e implements.' },
+  'typescript/06-classes':          { titulo: 'Classes Tipadas',  icone: '⬢', cor: '#f78fb3', resumo: 'private, herança, abstract, implements e as relações entre classes.' },
   'typescript/07-generics':         { titulo: 'Generics',         icone: '⌇', cor: '#ffb86c', resumo: 'Tipo que vira parâmetro: reaproveitar sem perder o tipo.' },
-  'typescript/08-extras':           { titulo: 'Extras',           icone: '◇', cor: '#8b95a8', resumo: 'Decorator e o tipo das bibliotecas de fora.' },
+  'typescript/08-extras':           { titulo: 'Extras',           icone: '◇', cor: '#8b95a8', resumo: 'Decorator, bibliotecas de fora, módulos e o build.' },
 };
 
 const PADRAO = { icone: '●', cor: '#8b95a8' };
