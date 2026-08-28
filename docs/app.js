@@ -1584,13 +1584,405 @@ function executar(codigo, aoLinha, aoFim, contexto = {}) {
   return { cancelar: () => encerrar('cancelado') };
 }
 
+/* ═══ TypeScript dentro do navegador ═════════════════════════════ */
+/* O sandbox executa JavaScript, e `new Function` não sabe o que fazer com `: string`.
+   Para o código como veio do arquivo isso já está resolvido: o `docs/build.mjs` grava
+   junto de cada bloco a versão sem tipos, feita pelo mesmo removedor que o
+   `node arquivo.ts` usa por dentro.
+
+   Só que o bloco é editável, e código editado não passou por build nenhum. É o que a
+   função abaixo resolve — ela apaga a camada de tipos aqui mesmo, na hora de rodar.
+   Não é um compilador: é um leitor que conhece o TypeScript que este curso escreve.
+   O `docs/testar.mjs` roda todo bloco pelos dois caminhos e compara a saída, então
+   qualquer divergência entre os dois aparece antes de chegar no site. */
+
+const TS_PALAVRA = /[A-Za-z0-9_$À-ɏ]/;
+const TS_MODIFICADOR = new Set(['public', 'private', 'protected', 'readonly', 'override', 'abstract']);
+// Depois destas palavras, uma `/` abre expressão regular; depois de um valor, é divisão.
+const TS_ANTES_DE_REGEX = new Set(['return', 'typeof', 'case', 'in', 'of', 'new', 'delete', 'void',
+  'instanceof', 'do', 'else', 'yield', 'await', 'throw']);
+// Depois destes, uma `{` abre objeto (ou padrão de desestruturação), não bloco de código.
+const TS_ANTES_DE_OBJETO = new Set(['(', ',', '=', ':', '[', '?', '&', '|', '+',
+  'return', 'const', 'let', 'var', 'of', 'in', 'typeof', 'case']);
+
+function tirarTipos(fonte) {
+  const n = fonte.length;
+  let saida = '';
+  let i = 0;
+  let ultimo = '';                     // último token com significado — é o que dá o contexto
+  let emImport = false;                // dentro de um `import`, `as` é renomeação, não conversão
+  let aguardandoClasse = false;        // vimos `class`: a próxima `{` é corpo de classe
+  let emHeranca = false;               // vimos `extends` de classe: o `<…>` seguinte é tipo
+  const escopos = [{ tipo: 'bloco', ternarios: 0, caso: false }];
+  const topo = () => escopos[escopos.length - 1];
+
+  const ehValor = (t) => Boolean(t) && !TS_ANTES_DE_REGEX.has(t) &&
+    (TS_PALAVRA.test(t[0]) || t === ')' || t === ']' || t === '}' || t === '"' || t === "'" || t === '`');
+
+  /** O que foi apagado vira só as quebras de linha: o erro continua apontando a linha certa. */
+  const pular = (de, ate) => { saida += fonte.slice(de, ate).replace(/[^\n]/g, ''); };
+
+  /** Índice logo depois do literal de texto (ou template) que começa em `j`. */
+  function fimLiteral(j) {
+    const aspa = fonte[j];
+    j++;
+    while (j < n) {
+      if (fonte[j] === '\\') { j += 2; continue; }
+      if (fonte[j] === aspa) return j + 1;
+      if (aspa === '`' && fonte[j] === '$' && fonte[j + 1] === '{') {   // `${ ... }` pode aninhar
+        let d = 1;
+        j += 2;
+        while (j < n && d) {
+          if (fonte[j] === '"' || fonte[j] === "'" || fonte[j] === '`') { j = fimLiteral(j); continue; }
+          if (fonte[j] === '{') d++;
+          if (fonte[j] === '}') d--;
+          j++;
+        }
+        continue;
+      }
+      j++;
+    }
+    return n;
+  }
+
+  const fimComentario = (j) => fonte[j + 1] === '/'
+    ? (fonte.indexOf('\n', j) + 1 || n)
+    : (fonte.indexOf('*/', j) + 2 || n);
+
+  /** Primeiro índice com conteúdo a partir de `j` (pula espaço e comentário). */
+  function proximo(j) {
+    while (j < n) {
+      if (/\s/.test(fonte[j])) { j++; continue; }
+      if (fonte[j] === '/' && (fonte[j + 1] === '/' || fonte[j + 1] === '*')) { j = fimComentario(j); continue; }
+      return j;
+    }
+    return n;
+  }
+
+  /** Índice depois do par `(`, `[`, `{` ou `<` que começa em `j`. */
+  function fimGrupo(j) {
+    const abre = fonte[j];
+    const fecha = { '(': ')', '[': ']', '{': '}', '<': '>' }[abre];
+    let d = 0;
+    while (j < n) {
+      const c = fonte[j];
+      if (c === '"' || c === "'" || c === '`') { j = fimLiteral(j); continue; }
+      if (c === '/' && (fonte[j + 1] === '/' || fonte[j + 1] === '*')) { j = fimComentario(j); continue; }
+      // Num `<…>`, o `>` de uma seta (`() => T`) não fecha nada.
+      if (abre === '<' && c === '=' && fonte[j + 1] === '>') { j += 2; continue; }
+      if (c === abre) d++;
+      else if (c === fecha && !--d) return j + 1;
+      j++;
+    }
+    return n;
+  }
+
+  /**
+   * Onde acaba a expressão de tipo que começa em `j`.
+   * A conta é de profundidade: `(`, `[`, `{` e `<` entram, os fechos saem. No nível de fora,
+   * `,` `;` `=` e a `{` de um corpo de função encerram. `=>` só continua o tipo quando vem
+   * logo depois de um `(...)` — é o que separa `: () => void` de `(x: T): T => x`.
+   */
+  function fimDoTipo(j) {
+    let d = 0;
+    let esperando = true;              // a próxima coisa é o começo de um tipo
+    let depoisDeGrupo = false;         // acabou de fechar um `(...)` em posição de tipo
+    while (j < n) {
+      const c = fonte[j];
+      if (/\s/.test(c)) { j++; continue; }
+      if (c === '/' && (fonte[j + 1] === '/' || fonte[j + 1] === '*')) { j = fimComentario(j); continue; }
+      if (c === '"' || c === "'" || c === '`') { j = fimLiteral(j); esperando = false; depoisDeGrupo = false; continue; }
+      // `=>` é uma seta, não um `>` fechando: precisa ser lido antes dos fechos.
+      if (c === '=' && fonte[j + 1] === '>') {
+        if (d === 0 && !depoisDeGrupo) break;
+        j += 2; esperando = true; depoisDeGrupo = false; continue;
+      }
+      if (c === '(' || c === '[' || c === '{' || c === '<') {
+        if (d === 0 && !esperando && (c === '{' || c === '(')) break;
+        d++; j++; esperando = true; depoisDeGrupo = false; continue;
+      }
+      if (c === ')' || c === ']' || c === '}' || c === '>') {
+        if (d === 0) break;
+        d--; j++; esperando = false; depoisDeGrupo = d === 0 && c === ')'; continue;
+      }
+      if (d === 0) {
+        if (c === ',' || c === ';') break;
+        if (c === '=') break;
+        if (c === '|' || c === '&' || c === '?' || c === ':') { j++; esperando = true; depoisDeGrupo = false; continue; }
+      }
+      if (TS_PALAVRA.test(c)) {
+        const inicio = j;
+        while (j < n && TS_PALAVRA.test(fonte[j])) j++;
+        // Estas palavras são operadores dentro do tipo: depois delas vem outro tipo.
+        esperando = ['as', 'satisfies', 'keyof', 'typeof', 'extends', 'infer', 'in', 'is', 'readonly', 'new']
+          .includes(fonte.slice(inicio, j));
+        depoisDeGrupo = false; continue;
+      }
+      j++; esperando = false; depoisDeGrupo = false;
+    }
+    return j;
+  }
+
+  /** `<` abre tipo genérico ou é "menor que"? Quem decide é o que vem depois do `>` que fecha. */
+  function ehGenerico(j) {
+    const fim = fimGrupo(j);
+    if (fim >= n && fonte[n - 1] !== '>') return false;
+    const dentro = fonte.slice(j + 1, fim - 1);
+    // `;` e parênteses ou chaves desemparelhados são coisa de código, não de tipo:
+    // ali o `<` era mesmo "menor que".
+    if (!dentro.trim() || dentro.includes(';')) return false;
+    const equilibrado = (a, f) => dentro.split(a).length === dentro.split(f).length;
+    if (!equilibrado('(', ')') || !equilibrado('{', '}')) return false;
+    const d = fonte[proximo(fim)];
+    return d === '(' || d === ')' || d === ',' || d === '=' || d === ';' || d === '.' || d === '{' || d === undefined;
+  }
+
+  /** `enum Status { Pendente, Pago }` → o objeto que o TypeScript gera no lugar. */
+  function traduzirEnum(j) {
+    let k = proximo(j + 4);
+    let nome = '';
+    while (k < n && TS_PALAVRA.test(fonte[k])) nome += fonte[k++];
+    const abre = proximo(k);
+    const fim = fimGrupo(abre);
+
+    const membros = [];
+    let auto = 0;
+    for (const parte of fonte.slice(abre + 1, fim - 1).split(',')) {
+      const bruto = parte.replace(/\/\/.*$/gm, '').trim();
+      if (!bruto) continue;
+      const igual = bruto.indexOf('=');
+      const chave = (igual === -1 ? bruto : bruto.slice(0, igual)).trim().replace(/^['"]|['"]$/g, '');
+      if (!chave) continue;
+      const valor = igual === -1 ? String(auto) : bruto.slice(igual + 1).trim();
+      const numerico = /^-?\d+$/.test(valor);
+      if (numerico) auto = Number(valor) + 1;
+      // Só o membro numérico ganha o mapa de volta (`Status[0] === 'Pendente'`).
+      membros.push(numerico
+        ? `E[E[${JSON.stringify(chave)}] = ${valor}] = ${JSON.stringify(chave)};`
+        : `E[${JSON.stringify(chave)}] = ${valor};`);
+    }
+    return { texto: `var ${nome}; (function (E) { ${membros.join(' ')} })(${nome} || (${nome} = {}));`, fim };
+  }
+
+  /** A construção que começa em `j` tem corpo, ou é só assinatura (sobrecarga, abstract)? */
+  function assinaturaSemCorpo(j) {
+    const abre = fonte.indexOf('(', j);
+    if (abre === -1) return -1;
+    let k = proximo(fimGrupo(abre));
+    if (fonte[k] === ':') k = proximo(fimDoTipo(k + 1));
+    return fonte[k] === ';' ? k + 1 : -1;
+  }
+
+  /** `constructor(private nome: string)` também guarda o campo: o `this.nome = nome` é gerado. */
+  function traduzirConstrutor(depoisDoNome) {
+    const abre = proximo(depoisDoNome);
+    const fim = fimGrupo(abre);
+    const params = fonte.slice(abre + 1, fim - 1);
+    const corpo = proximo(fim);
+    if (fonte[corpo] !== '{') return null;
+    const campos = [...params.matchAll(/(?:^|,)\s*(?:(?:public|private|protected)\s+(?:readonly\s+)?|readonly\s+)([A-Za-z_$][\w$]*)/g)]
+      .map((m) => m[1]);
+    return { params, campos, abre, corpo };
+  }
+
+  while (i < n) {
+    const c = fonte[i];
+
+    if (/\s/.test(c)) { saida += c; i++; continue; }
+
+    if (c === '/' && (fonte[i + 1] === '/' || fonte[i + 1] === '*')) {
+      const fim = fimComentario(i);
+      saida += fonte.slice(i, fim); i = fim; continue;
+    }
+    if (c === '"' || c === "'" || c === '`') {
+      const fim = fimLiteral(i);
+      saida += fonte.slice(i, fim); ultimo = c; i = fim; continue;
+    }
+    if (c === '/' && !ehValor(ultimo)) {                  // expressão regular, não divisão
+      let j = i + 1;
+      let emClasse = false;
+      while (j < n && (emClasse || fonte[j] !== '/')) {
+        if (fonte[j] === '\\') j++;
+        else if (fonte[j] === '[') emClasse = true;
+        else if (fonte[j] === ']') emClasse = false;
+        j++;
+      }
+      while (j + 1 < n && /[a-z]/.test(fonte[j + 1])) j++;
+      saida += fonte.slice(i, j + 1); ultimo = 'regex'; i = j + 1; continue;
+    }
+
+    if (TS_PALAVRA.test(c)) {
+      let j = i;
+      while (j < n && TS_PALAVRA.test(fonte[j])) j++;
+      const palavra = fonte.slice(i, j);
+      const depois = proximo(j);
+      const seguinte = fonte.slice(depois, depois + 8);
+
+      // ── Declarações que existem só para o compilador: somem inteiras ──
+      if (palavra === 'interface' && TS_PALAVRA.test(fonte[depois] || '')) {
+        const fim = fimGrupo(fonte.indexOf('{', j));
+        pular(i, fim); ultimo = ';'; i = fim; continue;
+      }
+      if (palavra === 'type' && TS_PALAVRA.test(fonte[depois] || '') && ultimo !== '.') {
+        let k = depois;                                 // pula o nome…
+        while (k < n && TS_PALAVRA.test(fonte[k])) k++;
+        const aposNome = proximo(k);
+        // …e o `<T = string>`, cujo `=` não é o da declaração.
+        const igual = fonte.indexOf('=', fonte[aposNome] === '<' ? fimGrupo(aposNome) : k);
+        if (igual !== -1) {
+          let fim = fimDoTipo(igual + 1);
+          if (fonte[fim] === ';') fim++;
+          pular(i, fim); ultimo = ';'; i = fim; continue;
+        }
+      }
+      if (palavra === 'declare') {
+        const chave = fonte.indexOf('{', j);
+        const ponto = fonte.indexOf(';', j);
+        const fim = chave !== -1 && (ponto === -1 || chave < ponto)
+          ? fimGrupo(chave)
+          : (ponto === -1 ? n : ponto + 1);
+        pular(i, fim); ultimo = ';'; i = fim; continue;
+      }
+      if ((palavra === 'import' || palavra === 'export') && /^type\b/.test(seguinte)) {
+        const ponto = fonte.indexOf(';', j);
+        const fim = ponto === -1 ? (fonte.indexOf('\n', j) + 1 || n) : ponto + 1;
+        pular(i, fim); ultimo = ';'; i = fim; continue;
+      }
+
+      // ── `enum` é a exceção: não some, vira objeto de verdade ──
+      if (palavra === 'enum' || (palavra === 'const' && /^enum\b/.test(seguinte))) {
+        const { texto, fim } = traduzirEnum(palavra === 'enum' ? i : depois);
+        pular(i, fim); saida += texto; ultimo = ';'; i = fim; continue;
+      }
+
+      if (palavra === 'import') emImport = true;
+      if (palavra === 'from') emImport = false;
+
+      if (palavra === 'implements') {                     // `implements A, B` some; `extends` fica
+        const chave = fonte.indexOf('{', j);
+        pular(i, chave); ultimo = ')'; i = chave; continue;
+      }
+      if ((palavra === 'as' || palavra === 'satisfies') && !emImport && ehValor(ultimo)) {
+        const fim = fimDoTipo(j);
+        pular(i, fim); i = fim; continue;                 // `ultimo` segue sendo o valor de antes
+      }
+      if (TS_MODIFICADOR.has(palavra) && (TS_PALAVRA.test(fonte[depois] || '') || fonte[depois] === '#')) {
+        if (palavra === 'abstract' && !/^class\b/.test(seguinte)) {
+          const fim = assinaturaSemCorpo(i);              // método abstrato: só a assinatura
+          if (fim !== -1) { pular(i, fim); ultimo = ';'; i = fim; continue; }
+        }
+        pular(i, depois); i = depois; continue;
+      }
+      if (palavra === 'function') {
+        const fim = assinaturaSemCorpo(i);                // sobrecarga: só a implementação fica
+        if (fim !== -1) { pular(i, fim); ultimo = ';'; i = fim; continue; }
+      }
+      if (palavra === 'this' && fonte[depois] === ':') {
+        let fim = fimDoTipo(depois + 1);            // `this: T` não é parâmetro: é anotação
+        if (fonte[proximo(fim)] === ',') fim = proximo(fim) + 1;
+        pular(i, fim); i = fim; continue;
+      }
+      if (palavra === 'constructor' && fonte[depois] === '(') {
+        const ctor = traduzirConstrutor(j);
+        if (ctor) {
+          saida += 'constructor';
+          pular(j, ctor.abre);
+          saida += '(' + tirarTipos(ctor.params) + ')';
+          pular(ctor.abre + 1 + ctor.params.length + 1, ctor.corpo);
+          saida += '{';
+
+          // Em classe filha, `this` só existe depois do `super()`: os campos entram atrás dele.
+          let corte = ctor.corpo + 1;
+          const inicio = proximo(corte);
+          if (fonte.slice(inicio, inicio + 5) === 'super' && fonte[proximo(inicio + 5)] === '(') {
+            let fim = fimGrupo(proximo(inicio + 5));
+            if (fonte[proximo(fim)] === ';') fim = proximo(fim) + 1;
+            saida += tirarTipos(fonte.slice(corte, fim));
+            corte = fim;
+          }
+          saida += ctor.campos.map((campo) => ` this.${campo} = ${campo};`).join('');
+
+          escopos.push({ tipo: 'bloco', ternarios: 0, caso: false });
+          ultimo = '{'; i = corte; continue;
+        }
+      }
+      if (palavra === 'class') aguardandoClasse = true;
+      const heranca = emHeranca;
+      emHeranca = palavra === 'extends' && aguardandoClasse;
+      if (palavra === 'case' || (palavra === 'default' && topo().tipo !== 'objeto')) topo().caso = true;
+
+      saida += palavra; ultimo = palavra; i = j;
+      // `trocar<T>(…)`, `new Caixa<string>()` — e, na herança, o `<…>` é sempre tipo.
+      if (fonte[i] === '<' && (heranca || ehGenerico(i))) {
+        const fim = fimGrupo(i);
+        pular(i, fim); i = fim;
+      }
+      continue;
+    }
+
+    if (c === '{') {
+      const tipo = aguardandoClasse ? 'classe' : (TS_ANTES_DE_OBJETO.has(ultimo) ? 'objeto' : 'bloco');
+      aguardandoClasse = false;
+      escopos.push({ tipo, ternarios: 0, caso: false });
+      saida += c; ultimo = '{'; i++; continue;
+    }
+    if (c === '(' || c === '[') { escopos.push({ tipo: 'grupo', ternarios: 0, caso: false }); saida += c; ultimo = c; i++; continue; }
+    if (c === '}' || c === ')' || c === ']') { if (escopos.length > 1) escopos.pop(); saida += c; ultimo = c; i++; continue; }
+
+    // `const trocar = <T>(x: T) => x`, `return function <T>(…)`, `f(<T>(x: T) => x)`
+    if (c === '<' && ['=', 'function', '(', ',', 'return', '=>'].includes(ultimo) && ehGenerico(i)) {
+      const fim = fimGrupo(i);
+      pular(i, fim); i = fim; continue;
+    }
+    if (c === '?') {
+      if (fonte[i + 1] === '?') { saida += '??'; ultimo = '??'; i += 2; continue; }
+      if (fonte[i + 1] === '.') { saida += '?.'; ultimo = '?.'; i += 2; continue; }
+      if (fonte[proximo(i + 1)] === ':') { pular(i, i + 1); i++; continue; }   // `nome?: string`
+      topo().ternarios++;
+      saida += c; ultimo = '?'; i++; continue;
+    }
+    if (c === '!' && ehValor(ultimo) && fonte[i + 1] !== '=') { pular(i, i + 1); i++; continue; }
+    if (c === ',' || c === ';') {
+      topo().ternarios = 0;
+      if (c === ';') emImport = false;
+      saida += c; ultimo = c; i++; continue;
+    }
+
+    if (c === ':') {
+      if (topo().ternarios > 0) { topo().ternarios--; saida += c; ultimo = c; i++; continue; }  // ternário
+      // `case 'a':` e `default:` — a `{` que vem depois abre bloco, não objeto.
+      if (topo().caso) { topo().caso = false; saida += c; ultimo = 'caso:'; i++; continue; }
+      if (topo().tipo === 'objeto') { saida += c; ultimo = c; i++; continue; }                  // chave de objeto
+      const fim = fimDoTipo(i + 1);                                                             // anotação de tipo
+      pular(i, fim); i = fim; continue;
+    }
+
+    saida += c;
+    ultimo = c === '=' && fonte[i + 1] === '>' ? '=>' : c;
+    i++;
+  }
+  return saida;
+}
+
 /** Cada bloco é autossuficiente: roda sozinho, sem nada de antes. */
-const montarExecutavel = (topico, i) => codigoDoBloco(topico, i);
+const montarExecutavel = (topico, i) => codigoDoBloco(topico, i, true);
 
 /** O arquivo inteiro, como o node rodaria. */
-const montarArquivo = (topico) => topico.blocos.map((_, i) => codigoDoBloco(topico, i)).join('\n\n');
+const montarArquivo = (topico) => topico.blocos.map((_, i) => codigoDoBloco(topico, i, true)).join('\n\n');
 const chaveEdicao = (topico, i) => `${topico.id}#${i}`;
-const codigoDoBloco = (topico, i) => edicoes[chaveEdicao(topico, i)] ?? topico.blocos[i].codigo;
+
+/**
+ * O código do bloco. Na tela (`paraRodar` falso) é o que está no arquivo, tipos e tudo.
+ * Para rodar, o TypeScript perde os tipos: se o bloco veio do arquivo, usa a versão que o
+ * build já preparou; se foi editado, tira aqui na hora.
+ */
+function codigoDoBloco(topico, i, paraRodar = false) {
+  const bloco = topico.blocos[i];
+  const editado = edicoes[chaveEdicao(topico, i)];
+  if (!paraRodar) return editado ?? bloco.codigo;
+  if (editado === undefined) return bloco.codigoJs ?? bloco.codigo;
+  return bloco.codigoJs === undefined ? editado : tirarTipos(editado);
+}
 
 /* ═══ Terminal ═══════════════════════════════════════════════════ */
 function criarTerminal(comando) {

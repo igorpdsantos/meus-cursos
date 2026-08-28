@@ -5,12 +5,14 @@ lado, você aperta ▶ e vê a saída — igual à do `node`, mas dentro do nave
 
 ### 👉 **[Abrir a documentação interativa](https://igorpdsantos.github.io/meus-cursos/)**
 
-Dois cursos, em sequência:
+Três cursos, em sequência:
 
 ```
 Trilha 1 · JavaScript   a linguagem: variável, função, lista, objeto, assíncrono, classe
         ↓
 Trilha 2 · Node         a mesma linguagem no servidor: npm, Express, banco, sessão, API
+        ↓
+Trilha 3 · TypeScript   a mesma linguagem com contrato: tipos que o editor confere antes de rodar
 ```
 
 ---
@@ -51,6 +53,25 @@ A mesma linguagem fora do navegador — disco, rede e banco de dados.
 Mais os **[projetos das aulas](node/README.md#projetos-das-aulas)** — do primeiro `app.get`
 até a agenda completa com login, senha criptografada, CRUD e CSRF.
 
+### [TypeScript](typescript/README.md) · 24 tópicos · 8 temas
+
+O mesmo JavaScript com uma camada de tipos que o compilador confere e depois joga fora.
+
+| Tema | Assuntos |
+|---|---|
+| [01-primeiros-passos](typescript/src/01-primeiros-passos/) | o que muda, anotação × inferência, `tsconfig` e `strict` |
+| [02-tipos-basicos](typescript/src/02-tipos-basicos/) | primitivos, array, tupla, objeto, `any`/`unknown`/`void`/`never`, `null` e opcional |
+| [03-montar-tipos](typescript/src/03-montar-tipos/) | união e literais, `as const`, `type` × `interface`, intersection, `enum` |
+| [04-funcoes](typescript/src/04-funcoes/) | parâmetro opcional e com padrão, retorno, sobrecarga, `this` tipado |
+| [05-estreitar-tipos](typescript/src/05-estreitar-tipos/) | `typeof`/`in`/`instanceof`, guard `x is T`, `as` e tipagem estrutural |
+| [06-classes](typescript/src/06-classes/) | `private`/`protected`/`readonly`, herança, `abstract`, `implements`, `static`, getters |
+| [07-generics](typescript/src/07-generics/) | `<T>`, restrições com `extends`, `keyof`/`typeof`, `Partial`/`Pick`/`Omit`/`Record` |
+| [08-extras](typescript/src/08-extras/) | decorators, `@types`, `.d.ts` e bibliotecas sem tipos |
+
+Roda sem build: o Node 22.18+ executa `.ts` direto, apagando os tipos. Quem confere os tipos
+é o `npm run check` (`tsc --noEmit`) — e ele passa, embora os arquivos tenham erros de tipo
+de propósito, cada um marcado com `// @ts-expect-error` e a mensagem do compilador ao lado.
+
 ---
 
 ## Como estudar
@@ -69,6 +90,9 @@ node javascript/src/06-assincrono/03-async-await.js       # qualquer tópico de 
 
 cd node && npm install                            # uma vez: express, ejs, mongoose…
 node src/04-express/06-middlewares.js             # qualquer tópico de Node
+
+node typescript/src/07-generics/01-o-basico.ts    # qualquer tópico de TypeScript, sem build
+cd typescript && npm install && npm run check     # e o tsc conferindo os tipos
 ```
 
 ---
@@ -80,6 +104,7 @@ node src/04-express/06-middlewares.js             # qualquer tópico de Node
 | [`docs/`](docs/) | o site de documentação — HTML puro, sem build, publicado no GitHub Pages |
 | [`javascript/`](javascript/README.md) | curso de JavaScript: teoria em `javascript/src/` |
 | [`node/`](node/README.md) | curso de Node: teoria em `node/src/`, projetos nas pastas numeradas |
+| [`typescript/`](typescript/README.md) | curso de TypeScript: teoria em `typescript/src/` |
 | [`CLAUDE.md`](CLAUDE.md) | o padrão que todo curso segue, para quando for acrescentar tópico |
 
 Cada curso segue o mesmo formato:

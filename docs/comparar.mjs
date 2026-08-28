@@ -30,7 +30,8 @@ const USUARIO = process.env.USER || process.env.LOGNAME || '';
 const normalizar = (txt, arquivo, i) => {
   let s = txt.replaceAll(RAIZ, RAIZ_FICTICIA)
              .replaceAll(homedir(), CASA_FICTICIA)
-             .replaceAll(`_comparando-${i}.js`, basename(arquivo));
+             .replaceAll(`_comparando-${i}.js`, basename(arquivo))
+             .replaceAll(`_comparando-${i}.ts`, basename(arquivo));
   // process.env.USER: no navegador não existe conta de sistema, e o sandbox responde "igor".
   if (USUARIO.length > 2) s = s.replaceAll(USUARIO, 'igor');
   return s;
@@ -38,7 +39,7 @@ const normalizar = (txt, arquivo, i) => {
 
 const app = readFileSync(join(AQUI, 'app.js'), 'utf8');
 const trecho = app.slice(app.indexOf('/* ═══ Inspeção de valores'), app.indexOf('/* ═══ Terminal'));
-const executar = new Function('esc', trecho + '\nreturn executar;')(String);
+const { executar } = new Function('esc', trecho + '\nreturn { executar };')(String);
 
 globalThis.window = {};
 new Function(readFileSync(join(AQUI, 'content.js'), 'utf8')).call(globalThis);
@@ -55,11 +56,16 @@ for (const curso of globalThis.window.CONTEUDO)
         // que o README manda rodar, e é o que o sandbox imita. Fora daí, __dirname e cwd
         // sairiam diferentes por culpa do teste, não do site.
         const pastaTopico = join(RAIZ, dirname(topico.arquivo));
-        const temporario = join(pastaTopico, `_comparando-${i}.js`);
+        // O temporário nasce com a extensão do próprio tópico: `.ts` o node roda tirando os
+        // tipos sozinho, e é justamente esse caminho que se quer comparar.
+        const ext = topico.arquivo.endsWith('.ts') ? 'ts' : 'js';
+        const flag = topico.comando.includes('--experimental-transform-types')
+          ? ['--experimental-transform-types', '--no-warnings'] : [];
+        const temporario = join(pastaTopico, `_comparando-${i}.${ext}`);
         const rodarNoNode = () => {
           try {
             writeFileSync(temporario, bloco.codigo);
-            return execFileSync('node', [temporario], {
+            return execFileSync('node', [...flag, temporario], {
               encoding: 'utf8', timeout: 20000, cwd: join(RAIZ, curso.slug), stdio: ['pipe', 'pipe', 'pipe'],
             });
           } catch (erro) {
@@ -76,7 +82,7 @@ for (const curso of globalThis.window.CONTEUDO)
         await new Promise((resolver) => {
           let pronto = false;
           const terminar = (fim) => { if (!pronto) { pronto = true; motivo = fim?.motivo ?? null; resolver(); } };
-          executar(bloco.codigo, (l) => linhas.push((l.tipo === 'erro' ? '[ERRO] ' : '') + l.txt),
+          executar(bloco.codigoJs ?? bloco.codigo, (l) => linhas.push((l.tipo === 'erro' ? '[ERRO] ' : '') + l.txt),
             terminar, { arquivo: topico.arquivo });
           setTimeout(terminar, 9000);
         });

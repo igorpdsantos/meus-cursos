@@ -4551,5 +4551,1650 @@ window.CONTEUDO = [
     ]
    }
   ]
+ },
+ {
+  "slug": "typescript",
+  "titulo": "TypeScript",
+  "selo": "TS",
+  "subtitulo": "JavaScript com tipos",
+  "ordem": 3,
+  "cor": "#79c0ff",
+  "resumo": "O mesmo JavaScript, com um contrato escrito: o editor avisa o erro antes de rodar. Tipos, interface, classe tipada e generics.",
+  "depoisDe": "node",
+  "exigencia": "TypeScript não é outra linguagem: é JavaScript mais uma camada de tipos que some na hora de rodar. Sem saber função, objeto, array e classe, não há o que tipar.",
+  "temas": [
+   {
+    "slug": "01-primeiros-passos",
+    "titulo": "Primeiros Passos",
+    "icone": "◆",
+    "cor": "#79c0ff",
+    "resumo": "O que o TypeScript acrescenta, como ele roda e o que o strict cobra.",
+    "topicos": [
+     {
+      "slug": "01-por-que-typescript",
+      "arquivo": "typescript/src/01-primeiros-passos/01-por-que-typescript.ts",
+      "comando": "node src/01-primeiros-passos/01-por-que-typescript.ts",
+      "titulo": "Por que TypeScript",
+      "sessao": 1,
+      "oQueE": "JavaScript com uma camada de tipos por cima. Você escreve o contrato (\"isto aqui é um número\"), o compilador confere, e na hora de rodar a camada some.",
+      "quandoUsar": "em qualquer código que outra pessoa vá mexer, ou que você vá mexer daqui a três meses — que é a mesma coisa.",
+      "quandoNaoUsar": "num script de dez linhas que roda uma vez. O tipo cobra um preço em escrita, e nesse tamanho ele não devolve.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "O erro que o JavaScript só conta depois",
+        "secao": "ESSENCIAL",
+        "codigo": "// Em JavaScript isto não estoura: soma texto com número e devolve texto.\nconst somaSolta = (a: any, b: any) => a + b;\nconsole.log('preço + frete:', somaSolta('10', 5), '← \"105\", não 15');\n\n// Com o tipo escrito, o erro para de ser uma surpresa do carrinho e vira um aviso do editor.\nconst somar = (a: number, b: number) => a + b;\nconsole.log('preço + frete:', somar(10, 5));\n\n// @ts-expect-error — Argument of type 'string' is not assignable to parameter of type 'number'.\nconsole.log('com texto   :', somar('10', 5), '← o tsc recusa; o node, que só apaga tipos, deixa passar');",
+        "codigoJs": "const somaSolta = (a, b)=>a + b;\nconsole.log('preço + frete:', somaSolta('10', 5), '← \"105\", não 15');\nconst somar = (a, b)=>a + b;\nconsole.log('preço + frete:', somar(10, 5));\nconsole.log('com texto   :', somar('10', 5), '← o tsc recusa; o node, que só apaga tipos, deixa passar');\n"
+       },
+       {
+        "n": 2,
+        "titulo": "Você já escreve tipos, mesmo sem anotar nada",
+        "secao": "ESSENCIAL",
+        "codigo": "const precoUnitario = 19.9;                      // TypeScript infere: number\nconst nomeProduto = 'Caneca';                    // infere: string\nconst itensDoCarrinho = ['Caneca', 'Caderno'];   // infere: string[]\n\nconsole.log(`${nomeProduto}: R$ ${precoUnitario.toFixed(2)}`);\nconsole.log('itens:', itensDoCarrinho.join(', '));\n\ntry {\n  // @ts-expect-error — Property 'toFixed' does not exist on type 'string'.\n  console.log(nomeProduto.toFixed(2));\n} catch (erro) {\n  console.log('nomeProduto.toFixed:', (erro as Error).message);\n}\n\nconsole.log('\\nRepare no atraso: o tsc acusa essa linha antes de você salvar; o JavaScript');\nconsole.log('só descobre quando o programa chega nela — em produção, na terça-feira.');\nconsole.log('\\nAnotar é para quando a inferência não alcança: parâmetro de função, dado que');\nconsole.log('chega de fora, variável que nasce vazia. No resto, deixe o TypeScript deduzir.');",
+        "codigoJs": "const precoUnitario = 19.9;\nconst nomeProduto = 'Caneca';\nconst itensDoCarrinho = [\n    'Caneca',\n    'Caderno'\n];\nconsole.log(`${nomeProduto}: R$ ${precoUnitario.toFixed(2)}`);\nconsole.log('itens:', itensDoCarrinho.join(', '));\ntry {\n    console.log(nomeProduto.toFixed(2));\n} catch (erro) {\n    console.log('nomeProduto.toFixed:', erro.message);\n}\nconsole.log('\\nRepare no atraso: o tsc acusa essa linha antes de você salvar; o JavaScript');\nconsole.log('só descobre quando o programa chega nela — em produção, na terça-feira.');\nconsole.log('\\nAnotar é para quando a inferência não alcança: parâmetro de função, dado que');\nconsole.log('chega de fora, variável que nasce vazia. No resto, deixe o TypeScript deduzir.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "O tipo some na hora de rodar",
+        "secao": "ESSENCIAL",
+        "codigo": "interface Entrega {\n  cidade: string;\n  prazoEmDias: number;\n}\n\nconst entrega: Entrega = { cidade: 'Belo Horizonte', prazoEmDias: 3 };\nconsole.log(`${entrega.cidade}: ${entrega.prazoEmDias} dias`);\n\n// `interface` não existe depois de compilado — não dá para perguntar por ela em tempo de execução.\nconsole.log('typeof entrega  :', typeof entrega, '← \"object\", como qualquer objeto JavaScript');\nconsole.log('sobrou algo?    :', Object.keys(entrega).join(', '), '← só os dados');\n\nconsole.log('\\nO JavaScript gerado deste bloco é o mesmo que você escreveria sem TypeScript.');\nconsole.log('Tipo é conversa entre você e o compilador; o navegador nunca fica sabendo.');",
+        "codigoJs": "const entrega = {\n    cidade: 'Belo Horizonte',\n    prazoEmDias: 3\n};\nconsole.log(`${entrega.cidade}: ${entrega.prazoEmDias} dias`);\nconsole.log('typeof entrega  :', typeof entrega, '← \"object\", como qualquer objeto JavaScript');\nconsole.log('sobrou algo?    :', Object.keys(entrega).join(', '), '← só os dados');\nconsole.log('\\nO JavaScript gerado deste bloco é o mesmo que você escreveria sem TypeScript.');\nconsole.log('Tipo é conversa entre você e o compilador; o navegador nunca fica sabendo.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Duas ferramentas, dois trabalhos",
+        "secao": "NA PRÁTICA",
+        "codigo": "const ferramentas = [\n  ['node arquivo.ts', 'APAGA os tipos e roda', 'não confere nada'],\n  ['npx tsc --noEmit', 'CONFERE os tipos', 'não roda nada'],\n  ['editor (VS Code)', 'confere enquanto você digita', 'é o mesmo tsc, ao vivo'],\n];\n\nconst largura = [20, 32, 26];\nconst linha = (colunas: string[]) => colunas.map((c, i) => c.padEnd(largura[i])).join('');\nconsole.log(linha(['COMANDO', 'O QUE FAZ', 'O QUE NÃO FAZ']));\nconsole.log(linha(['─'.repeat(18), '─'.repeat(30), '─'.repeat(24)]));\nfor (const f of ferramentas) console.log(linha(f));\n\nconsole.log('\\nÉ por isso que este arquivo roda com um erro de tipo dentro dele e não reclama:');\nconsole.log('quem reclama é o `npm run check`, e é ele que você roda antes de subir código.');",
+        "codigoJs": "const ferramentas = [\n    [\n        'node arquivo.ts',\n        'APAGA os tipos e roda',\n        'não confere nada'\n    ],\n    [\n        'npx tsc --noEmit',\n        'CONFERE os tipos',\n        'não roda nada'\n    ],\n    [\n        'editor (VS Code)',\n        'confere enquanto você digita',\n        'é o mesmo tsc, ao vivo'\n    ]\n];\nconst largura = [\n    20,\n    32,\n    26\n];\nconst linha = (colunas)=>colunas.map((c, i)=>c.padEnd(largura[i])).join('');\nconsole.log(linha([\n    'COMANDO',\n    'O QUE FAZ',\n    'O QUE NÃO FAZ'\n]));\nconsole.log(linha([\n    '─'.repeat(18),\n    '─'.repeat(30),\n    '─'.repeat(24)\n]));\nfor (const f of ferramentas)console.log(linha(f));\nconsole.log('\\nÉ por isso que este arquivo roda com um erro de tipo dentro dele e não reclama:');\nconsole.log('quem reclama é o `npm run check`, e é ele que você roda antes de subir código.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "O contrato aparece na chamada, não na leitura",
+        "secao": "NA PRÁTICA",
+        "codigo": "type ItemDoPedido = { descricao: string; quantidade: number; precoUnitario: number };\n\nfunction totalDoPedido(itens: ItemDoPedido[]): number {\n  return itens.reduce((soma, item) => soma + item.quantidade * item.precoUnitario, 0);\n}\n\nconsole.log('total:', totalDoPedido([\n  { descricao: 'Caneca', quantidade: 2, precoUnitario: 19.9 },\n  { descricao: 'Caderno', quantidade: 1, precoUnitario: 32.5 },\n]).toFixed(2));\n\n// @ts-expect-error — Property 'quantidade' is missing in type '{ descricao: string; precoUnitario: number; }'.\ntotalDoPedido([{ descricao: 'Caneca', precoUnitario: 19.9 }]);\n\nconsole.log('\\nEm JavaScript, esse item faltando vira NaN e alguém descobre no relatório do mês.');\nconsole.log('O tipo não deixa a chamada errada nem ser escrita.');",
+        "codigoJs": "function totalDoPedido(itens) {\n    return itens.reduce((soma, item)=>soma + item.quantidade * item.precoUnitario, 0);\n}\nconsole.log('total:', totalDoPedido([\n    {\n        descricao: 'Caneca',\n        quantidade: 2,\n        precoUnitario: 19.9\n    },\n    {\n        descricao: 'Caderno',\n        quantidade: 1,\n        precoUnitario: 32.5\n    }\n]).toFixed(2));\ntotalDoPedido([\n    {\n        descricao: 'Caneca',\n        precoUnitario: 19.9\n    }\n]);\nconsole.log('\\nEm JavaScript, esse item faltando vira NaN e alguém descobre no relatório do mês.');\nconsole.log('O tipo não deixa a chamada errada nem ser escrita.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "Tipo não confere nada em tempo de execução",
+        "secao": "PEGADINHAS",
+        "codigo": "type Usuario = { nome: string; idade: number };\n\n// Isto é o que chega de uma API: JSON, texto puro. O tipo é uma promessa, não uma checagem.\nconst respostaDaApi = JSON.parse('{\"nome\":\"Ana\",\"idade\":\"trinta\"}') as Usuario;\n\nconsole.log('o tipo diz  : idade é number');\nconsole.log('a realidade :', typeof respostaDaApi.idade, JSON.stringify(respostaDaApi.idade));\nconsole.log('idade + 1   :', respostaDaApi.idade + 1, '← \"trinta1\"');\n\nconsole.log('\\n`as` é você jurando para o compilador. Ele acredita e para de perguntar.');\nconsole.log('Dado que vem de fora (fetch, JSON.parse, formulário) precisa ser CONFERIDO');\nconsole.log('rodando — com `typeof`, com um type guard ou com uma biblioteca como o zod.');",
+        "codigoJs": "const respostaDaApi = JSON.parse('{\"nome\":\"Ana\",\"idade\":\"trinta\"}');\nconsole.log('o tipo diz  : idade é number');\nconsole.log('a realidade :', typeof respostaDaApi.idade, JSON.stringify(respostaDaApi.idade));\nconsole.log('idade + 1   :', respostaDaApi.idade + 1, '← \"trinta1\"');\nconsole.log('\\n`as` é você jurando para o compilador. Ele acredita e para de perguntar.');\nconsole.log('Dado que vem de fora (fetch, JSON.parse, formulário) precisa ser CONFERIDO');\nconsole.log('rodando — com `typeof`, com um type guard ou com uma biblioteca como o zod.');\n"
+       }
+      ],
+      "resumo": [
+       "TypeScript é JavaScript mais um contrato: o compilador confere, o runtime nem vê.",
+       "`node arquivo.ts` apaga os tipos e roda; quem acusa erro é `tsc` (e o editor).",
+       "Boa parte dos tipos já vem da inferência — anote onde ela não alcança.",
+       "O ganho aparece na CHAMADA: o argumento errado não chega a ser escrito.",
+       "Nada disso vale para dado que vem de fora: ali o tipo é promessa, e promessa se confere."
+      ]
+     },
+     {
+      "slug": "02-anotacao-e-inferencia",
+      "arquivo": "typescript/src/01-primeiros-passos/02-anotacao-e-inferencia.ts",
+      "comando": "node src/01-primeiros-passos/02-anotacao-e-inferencia.ts",
+      "titulo": "Anotação e inferência",
+      "sessao": 1,
+      "oQueE": "as duas formas de um valor ganhar tipo — você escreve (`: number`) ou o TypeScript deduz sozinho pelo que foi atribuído.",
+      "quandoUsar": "anote parâmetro de função, retorno de API pública e variável que nasce vazia. É onde a dedução não tem de onde tirar a resposta.",
+      "quandoNaoUsar": "em cima de um valor literal. `const preco: number = 19.9` é ruído: o TypeScript já sabia, e agora existem dois lugares para manter.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "O que a inferência já resolve sozinha",
+        "secao": "ESSENCIAL",
+        "codigo": "const quantidade = 3;                            // number\nconst descricao = 'Caderno A5';                  // string\nconst emPromocao = false;                        // boolean\nconst tags = ['papelaria', 'escritório'];        // string[]\nconst medidas = { altura: 21, largura: 15 };     // { altura: number; largura: number }\n\nconsole.log(`${quantidade}x ${descricao} — ${medidas.altura}x${medidas.largura}cm`);\nconsole.log('tags:', tags.map((t) => t.toUpperCase()).join(' · '));\nconsole.log('promoção:', emPromocao ? 'sim' : 'não');\n\n// Nenhuma linha acima tem anotação, e todas estão tipadas. Esta não passa:\n// @ts-expect-error — Type 'string' is not assignable to type 'number'.\nconsole.log(medidas.altura + ' cm', (medidas.largura = 'quinze'));",
+        "codigoJs": "const quantidade = 3;\nconst descricao = 'Caderno A5';\nconst emPromocao = false;\nconst tags = [\n    'papelaria',\n    'escritório'\n];\nconst medidas = {\n    altura: 21,\n    largura: 15\n};\nconsole.log(`${quantidade}x ${descricao} — ${medidas.altura}x${medidas.largura}cm`);\nconsole.log('tags:', tags.map((t)=>t.toUpperCase()).join(' · '));\nconsole.log('promoção:', emPromocao ? 'sim' : 'não');\nconsole.log(medidas.altura + ' cm', medidas.largura = 'quinze');\n"
+       },
+       {
+        "n": 2,
+        "titulo": "Onde a inferência não alcança: parâmetro",
+        "secao": "ESSENCIAL",
+        "codigo": "// Um parâmetro não tem valor até alguém chamar. Sem anotação, ele viraria `any` — e `any`\n// desliga a conferência exatamente no lugar por onde o dado errado entra.\nfunction calcularFrete(pesoEmKg: number, distanciaEmKm: number): number {\n  return 8 + pesoEmKg * 0.9 + distanciaEmKm * 0.15;\n}\n\nconsole.log('frete 2kg / 40km:', calcularFrete(2, 40).toFixed(2));\n\n// @ts-expect-error — Argument of type 'string' is not assignable to parameter of type 'number'.\nconsole.log('frete \"2kg\"    :', calcularFrete('2', 40).toFixed(2), '← passou: o node só apaga o tipo');\n\nconsole.log('\\nO retorno, esse sim, o TypeScript deduz: `8 + number + number` só pode dar');\nconsole.log('number. Anotar o retorno é opcional — mas ele documenta e trava a intenção.');",
+        "codigoJs": "function calcularFrete(pesoEmKg, distanciaEmKm) {\n    return 8 + pesoEmKg * 0.9 + distanciaEmKm * 0.15;\n}\nconsole.log('frete 2kg / 40km:', calcularFrete(2, 40).toFixed(2));\nconsole.log('frete \"2kg\"    :', calcularFrete('2', 40).toFixed(2), '← passou: o node só apaga o tipo');\nconsole.log('\\nO retorno, esse sim, o TypeScript deduz: `8 + number + number` só pode dar');\nconsole.log('number. Anotar o retorno é opcional — mas ele documenta e trava a intenção.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "`let` alarga, `const` estreita",
+        "secao": "ESSENCIAL",
+        "codigo": "const formaDePagamento = 'pix';                  // tipo: 'pix' — o literal, não string\nlet formaEscolhida = 'pix';                      // tipo: string — porque let pode mudar\n\nconsole.log('const:', formaDePagamento, '· let:', formaEscolhida);\n\nformaEscolhida = 'boleto';                       // permitido: qualquer string serve\nconsole.log('depois de mudar:', formaEscolhida);\n\nconst taxas = { pix: 0, boleto: 2.5, cartao: 4.9 };\nconsole.log('taxa do pix   :', taxas[formaDePagamento].toFixed(2), '← o const sabe QUAL chave é');\n\n// @ts-expect-error — Type 'string' can't be used to index type '{ pix: number; ... }'.\nconsole.log('taxa do let   :', taxas[formaEscolhida]);\n\nconsole.log('\\nÉ a diferença mais útil e menos óbvia do TypeScript: `const` guarda o valor');\nconsole.log('exato no tipo, e é isso que faz união de literais funcionar no tema 03.');",
+        "codigoJs": "const formaDePagamento = 'pix';\nlet formaEscolhida = 'pix';\nconsole.log('const:', formaDePagamento, '· let:', formaEscolhida);\nformaEscolhida = 'boleto';\nconsole.log('depois de mudar:', formaEscolhida);\nconst taxas = {\n    pix: 0,\n    boleto: 2.5,\n    cartao: 4.9\n};\nconsole.log('taxa do pix   :', taxas[formaDePagamento].toFixed(2), '← o const sabe QUAL chave é');\nconsole.log('taxa do let   :', taxas[formaEscolhida]);\nconsole.log('\\nÉ a diferença mais útil e menos óbvia do TypeScript: `const` guarda o valor');\nconsole.log('exato no tipo, e é isso que faz união de literais funcionar no tema 03.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "A variável que nasce vazia",
+        "secao": "NA PRÁTICA",
+        "codigo": "// Aqui a inferência não tem de onde tirar nada: `[]` é `never[]` e `null` é `null`.\nconst historicoDeVendas: number[] = [];\nlet clienteAtual: string | null = null;\n\nhistoricoDeVendas.push(120.5, 89.9, 240);\nclienteAtual = 'Ana Souza';\n\nconst totalVendido = historicoDeVendas.reduce((soma, v) => soma + v, 0);\nconsole.log(`${clienteAtual}: ${historicoDeVendas.length} vendas, R$ ${totalVendido.toFixed(2)}`);\n\n// @ts-expect-error — Argument of type 'string' is not assignable to parameter of type 'number'.\nhistoricoDeVendas.push('120,50');\n\nconsole.log('\\nRegra prática: se o valor inicial não conta a história toda, anote. Foi para');\nconsole.log('isso que a anotação existe — não para repetir o que já está escrito ao lado.');",
+        "codigoJs": "const historicoDeVendas = [];\nlet clienteAtual = null;\nhistoricoDeVendas.push(120.5, 89.9, 240);\nclienteAtual = 'Ana Souza';\nconst totalVendido = historicoDeVendas.reduce((soma, v)=>soma + v, 0);\nconsole.log(`${clienteAtual}: ${historicoDeVendas.length} vendas, R$ ${totalVendido.toFixed(2)}`);\nhistoricoDeVendas.push('120,50');\nconsole.log('\\nRegra prática: se o valor inicial não conta a história toda, anote. Foi para');\nconsole.log('isso que a anotação existe — não para repetir o que já está escrito ao lado.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Anotar demais atrapalha",
+        "secao": "NA PRÁTICA",
+        "codigo": "type Cliente = { nome: string; cidade: string };\n\n// Ruim: o tipo está escrito duas vezes e as duas precisam ser mantidas.\nconst clienteVerboso: { nome: string; cidade: string } = { nome: 'Bruno', cidade: 'Recife' };\n\n// Bom: o tipo tem nome, e o objeto é conferido contra ele.\nconst clienteBom: Cliente = { nome: 'Bruno', cidade: 'Recife' };\n\n// Melhor ainda quando não há contrato a cumprir: deixa deduzir.\nconst clienteSolto = { nome: 'Bruno', cidade: 'Recife' };\n\nconsole.log(clienteVerboso.cidade, clienteBom.cidade, clienteSolto.cidade);\n\n// A anotação não é decoração: é ela que faz o excesso ser recusado.\n// @ts-expect-error — Object literal may only specify known properties.\nconst clienteErrado: Cliente = { nome: 'Bruno', cidade: 'Recife', telefone: '81 9999' };\nconsole.log('mesmo recusado, o objeto existe rodando:', Object.keys(clienteErrado).length, 'chaves');",
+        "codigoJs": "const clienteVerboso = {\n    nome: 'Bruno',\n    cidade: 'Recife'\n};\nconst clienteBom = {\n    nome: 'Bruno',\n    cidade: 'Recife'\n};\nconst clienteSolto = {\n    nome: 'Bruno',\n    cidade: 'Recife'\n};\nconsole.log(clienteVerboso.cidade, clienteBom.cidade, clienteSolto.cidade);\nconst clienteErrado = {\n    nome: 'Bruno',\n    cidade: 'Recife',\n    telefone: '81 9999'\n};\nconsole.log('mesmo recusado, o objeto existe rodando:', Object.keys(clienteErrado).length, 'chaves');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`any` não é \"não sei\": é \"não confira\"",
+        "secao": "PEGADINHAS",
+        "codigo": "const respostaSolta: any = { nome: 'Ana', pedidos: 3 };\n\nconsole.log(respostaSolta.nome);\nconsole.log(respostaSolta.pedidoss);        // erro de digitação: o tsc não pia\nconsole.log('somando texto:', respostaSolta.nome * 2);\n\nconsole.log('\\nNenhuma das três linhas acima é acusada. `any` desliga o TypeScript naquele');\nconsole.log('valor E em tudo que sai dele — o erro volta a ser descoberto rodando.');\nconsole.log('Quando o tipo é mesmo desconhecido, o certo é `unknown` (tema 02).');",
+        "codigoJs": "const respostaSolta = {\n    nome: 'Ana',\n    pedidos: 3\n};\nconsole.log(respostaSolta.nome);\nconsole.log(respostaSolta.pedidoss);\nconsole.log('somando texto:', respostaSolta.nome * 2);\nconsole.log('\\nNenhuma das três linhas acima é acusada. `any` desliga o TypeScript naquele');\nconsole.log('valor E em tudo que sai dele — o erro volta a ser descoberto rodando.');\nconsole.log('Quando o tipo é mesmo desconhecido, o certo é `unknown` (tema 02).');\n"
+       }
+      ],
+      "resumo": [
+       "A maior parte do tipo vem de graça: escreveu o valor, o TypeScript deduziu.",
+       "Anote onde não há valor de onde deduzir: parâmetro, lista vazia, variável que nasce nula.",
+       "Anotar o retorno é opcional, mas trava a intenção da função.",
+       "`const x = 'pix'` guarda o literal; `let` alarga para `string`.",
+       "Anotação em cima de literal é repetição — mas é ela que recusa a chave a mais.",
+       "`any` não descreve: desliga. Prefira `unknown` e confira antes de usar."
+      ]
+     },
+     {
+      "slug": "03-tsconfig-e-strict",
+      "arquivo": "typescript/src/01-primeiros-passos/03-tsconfig-e-strict.ts",
+      "comando": "node src/01-primeiros-passos/03-tsconfig-e-strict.ts",
+      "titulo": "tsconfig e o modo strict",
+      "sessao": 1,
+      "oQueE": "o arquivo que diz ao compilador quais regras valer e para qual JavaScript gerar. `strict: true` é a linha que liga as conferências que importam.",
+      "quandoUsar": "sempre, e com `strict` ligado desde o primeiro dia do projeto.",
+      "quandoNaoUsar": "nunca desligue `strict` inteiro para calar um erro. Se precisar de folga em código antigo, desligue UMA regra e deixe anotado por quê.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "O tsconfig deste curso, comentado",
+        "secao": "ESSENCIAL",
+        "codigo": "const configuracao = [\n  ['noEmit', 'true', 'só confere; quem roda é o `node arquivo.ts`'],\n  ['target', 'ES2022', 'até onde pode ir a sintaxe moderna gerada'],\n  ['lib', 'ES2022, DOM', 'o que já existe pronto (Array, Promise, console)'],\n  ['strict', 'true', 'liga as conferências de verdade — veja o bloco 2'],\n  ['moduleDetection', 'force', 'cada arquivo com escopo próprio, sem nomes brigando'],\n  ['skipLibCheck', 'true', 'não conferir os .d.ts de dentro do node_modules'],\n];\n\nconst largura = [18, 14, 50];\nconst linha = (colunas: string[]) => colunas.map((c, i) => c.padEnd(largura[i])).join('');\nconsole.log(linha(['OPÇÃO', 'VALOR', 'PARA QUÊ']));\nconsole.log(linha(['─'.repeat(16), '─'.repeat(12), '─'.repeat(48)]));\nfor (const c of configuracao) console.log(linha(c));\n\nconsole.log('\\nO arquivo fica na raiz do curso: typescript/tsconfig.json.');\nconsole.log('Para criar um do zero num projeto novo: npx tsc --init');",
+        "codigoJs": "const configuracao = [\n    [\n        'noEmit',\n        'true',\n        'só confere; quem roda é o `node arquivo.ts`'\n    ],\n    [\n        'target',\n        'ES2022',\n        'até onde pode ir a sintaxe moderna gerada'\n    ],\n    [\n        'lib',\n        'ES2022, DOM',\n        'o que já existe pronto (Array, Promise, console)'\n    ],\n    [\n        'strict',\n        'true',\n        'liga as conferências de verdade — veja o bloco 2'\n    ],\n    [\n        'moduleDetection',\n        'force',\n        'cada arquivo com escopo próprio, sem nomes brigando'\n    ],\n    [\n        'skipLibCheck',\n        'true',\n        'não conferir os .d.ts de dentro do node_modules'\n    ]\n];\nconst largura = [\n    18,\n    14,\n    50\n];\nconst linha = (colunas)=>colunas.map((c, i)=>c.padEnd(largura[i])).join('');\nconsole.log(linha([\n    'OPÇÃO',\n    'VALOR',\n    'PARA QUÊ'\n]));\nconsole.log(linha([\n    '─'.repeat(16),\n    '─'.repeat(12),\n    '─'.repeat(48)\n]));\nfor (const c of configuracao)console.log(linha(c));\nconsole.log('\\nO arquivo fica na raiz do curso: typescript/tsconfig.json.');\nconsole.log('Para criar um do zero num projeto novo: npx tsc --init');\n"
+       },
+       {
+        "n": 2,
+        "titulo": "O que `strict: true` liga",
+        "secao": "ESSENCIAL",
+        "codigo": "// Ele não é uma regra: é o interruptor de um grupo. Estas são as três que você sente.\nconst regras = [\n  ['strictNullChecks', 'null e undefined param de valer para tudo'],\n  ['noImplicitAny', 'parâmetro sem tipo vira erro, não `any` calado'],\n  ['strictPropertyInitialization', 'campo de classe tem que nascer com valor'],\n];\n\nfor (const [nome, efeito] of regras) console.log(`${nome.padEnd(30)} ${efeito}`);\n\nconsole.log('\\nSem strict, o TypeScript vira um corretor ortográfico: ele confere se o nome');\nconsole.log('da propriedade existe, e mais nada. É a diferença entre achar bug e não achar.');",
+        "codigoJs": "const regras = [\n    [\n        'strictNullChecks',\n        'null e undefined param de valer para tudo'\n    ],\n    [\n        'noImplicitAny',\n        'parâmetro sem tipo vira erro, não `any` calado'\n    ],\n    [\n        'strictPropertyInitialization',\n        'campo de classe tem que nascer com valor'\n    ]\n];\nfor (const [nome, efeito] of regras)console.log(`${nome.padEnd(30)} ${efeito}`);\nconsole.log('\\nSem strict, o TypeScript vira um corretor ortográfico: ele confere se o nome');\nconsole.log('da propriedade existe, e mais nada. É a diferença entre achar bug e não achar.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "strictNullChecks na prática",
+        "secao": "ESSENCIAL",
+        "codigo": "// Um `find` pode não achar nada. Com strict, o TypeScript obriga a pensar nesse caso.\nconst catalogo = [{ sku: 'CAN-01', nome: 'Caneca' }, { sku: 'CAD-02', nome: 'Caderno' }];\nconst achado = catalogo.find((p) => p.sku === 'INEXISTENTE');\n\ntry {\n  // @ts-expect-error — 'achado' is possibly 'undefined'.\n  console.log('direto   :', achado.nome);\n} catch (erro) {\n  console.log('direto   :', (erro as Error).message, '← exatamente o que o strict evita');\n}\n\n// As duas saídas honestas: conferir antes, ou dar um padrão.\nif (achado) console.log('conferido:', achado.nome);\nelse console.log('conferido: produto não encontrado');\n\nconsole.log('com padrão:', achado?.nome ?? 'produto não encontrado');\n\nconsole.log('\\nSem strictNullChecks, `achado.nome` seria aceito e estouraria rodando.');\nconsole.log('É por essa regra sozinha que vale a pena ligar o strict.');",
+        "codigoJs": "const catalogo = [\n    {\n        sku: 'CAN-01',\n        nome: 'Caneca'\n    },\n    {\n        sku: 'CAD-02',\n        nome: 'Caderno'\n    }\n];\nconst achado = catalogo.find((p)=>p.sku === 'INEXISTENTE');\ntry {\n    console.log('direto   :', achado.nome);\n} catch (erro) {\n    console.log('direto   :', erro.message, '← exatamente o que o strict evita');\n}\nif (achado) console.log('conferido:', achado.nome);\nelse console.log('conferido: produto não encontrado');\nconsole.log('com padrão:', achado?.nome ?? 'produto não encontrado');\nconsole.log('\\nSem strictNullChecks, `achado.nome` seria aceito e estouraria rodando.');\nconsole.log('É por essa regra sozinha que vale a pena ligar o strict.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "noImplicitAny: o parâmetro que ninguém tipou",
+        "secao": "NA PRÁTICA",
+        "codigo": "// Sem anotação e sem strict, `desconto` seria `any` — e `any` não é conferido.\nfunction aplicarDesconto(preco: number, percentual: number): number {\n  return preco - preco * (percentual / 100);\n}\n\nconsole.log('R$ 200 com 15%:', aplicarDesconto(200, 15).toFixed(2));\n\n// @ts-expect-error — Argument of type 'string' is not assignable to parameter of type 'number'.\nconsole.log('R$ 200 com \"15\":', aplicarDesconto(200, '15').toFixed(2));\n\nconsole.log('\\nA função de callback herda o tipo do contexto e não precisa de anotação:');\nconst precos = [200, 350, 90];\nconsole.log('todos com 15%:', precos.map((p) => aplicarDesconto(p, 15).toFixed(2)).join(' · '));",
+        "codigoJs": "function aplicarDesconto(preco, percentual) {\n    return preco - preco * (percentual / 100);\n}\nconsole.log('R$ 200 com 15%:', aplicarDesconto(200, 15).toFixed(2));\nconsole.log('R$ 200 com \"15\":', aplicarDesconto(200, '15').toFixed(2));\nconsole.log('\\nA função de callback herda o tipo do contexto e não precisa de anotação:');\nconst precos = [\n    200,\n    350,\n    90\n];\nconsole.log('todos com 15%:', precos.map((p)=>aplicarDesconto(p, 15).toFixed(2)).join(' · '));\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Ligar o strict num projeto que já existe",
+        "secao": "NA PRÁTICA",
+        "codigo": "const passos = [\n  '1. Ligue `strict: true` e veja quantos erros aparecem (podem ser centenas).',\n  '2. Se for demais de uma vez, ligue uma regra por vez: strictNullChecks primeiro.',\n  '3. Conserte por arquivo, não por regra: um arquivo limpo é um arquivo confiável.',\n  '4. Nunca use `any` para calar o erro — use `unknown` e confira, ou tipe direito.',\n  '5. `// @ts-expect-error` com o motivo escrito ao lado é dívida assumida, e some sozinho',\n  '   quando o erro deixa de existir: o tsc avisa que a marcação virou mentira.',\n];\nfor (const p of passos) console.log(p);\n\n// A prova do item 5: esta linha não tem erro nenhum, e por isso a marcação seria acusada.\n// (Se você acrescentar um @ts-expect-error acima dela, o `npm run check` reclama.)\nconsole.log('\\n2 + 2 =', 2 + 2);",
+        "codigoJs": "const passos = [\n    '1. Ligue `strict: true` e veja quantos erros aparecem (podem ser centenas).',\n    '2. Se for demais de uma vez, ligue uma regra por vez: strictNullChecks primeiro.',\n    '3. Conserte por arquivo, não por regra: um arquivo limpo é um arquivo confiável.',\n    '4. Nunca use `any` para calar o erro — use `unknown` e confira, ou tipe direito.',\n    '5. `// @ts-expect-error` com o motivo escrito ao lado é dívida assumida, e some sozinho',\n    '   quando o erro deixa de existir: o tsc avisa que a marcação virou mentira.'\n];\nfor (const p of passos)console.log(p);\nconsole.log('\\n2 + 2 =', 2 + 2);\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`strict` não alcança o que vem de fora",
+        "secao": "PEGADINHAS",
+        "codigo": "const jsonDoServidor = '{\"nome\":\"Ana\",\"idade\":null}';\nconst usuario = JSON.parse(jsonDoServidor) as { nome: string; idade: number };\n\nconsole.log('o tipo promete: idade é number, nunca null');\nconsole.log('o servidor deu:', usuario.idade);\nconsole.log('idade * 2     :', usuario.idade * 2, '← 0, porque null * 2 é 0');\n\nconsole.log('\\n`JSON.parse` devolve `any`: o `as` é você assumindo a responsabilidade.');\nconsole.log('`strict` confere o código que você escreveu, não o dado que chega nele.');",
+        "codigoJs": "const jsonDoServidor = '{\"nome\":\"Ana\",\"idade\":null}';\nconst usuario = JSON.parse(jsonDoServidor);\nconsole.log('o tipo promete: idade é number, nunca null');\nconsole.log('o servidor deu:', usuario.idade);\nconsole.log('idade * 2     :', usuario.idade * 2, '← 0, porque null * 2 é 0');\nconsole.log('\\n`JSON.parse` devolve `any`: o `as` é você assumindo a responsabilidade.');\nconsole.log('`strict` confere o código que você escreveu, não o dado que chega nele.');\n"
+       }
+      ],
+      "resumo": [
+       "`tsconfig.json` na raiz do projeto; `npx tsc --init` cria um comentado.",
+       "`strict: true` desde o primeiro dia — é onde mora o valor do TypeScript.",
+       "`strictNullChecks` é a regra que mais acha bug: obriga a tratar o \"não achou\".",
+       "`noImplicitAny` fecha a porta por onde o dado errado entrava sem ninguém ver.",
+       "Em projeto antigo, ligue regra por regra e conserte arquivo por arquivo.",
+       "Nada disso confere dado de fora: JSON, formulário e fetch continuam por sua conta."
+      ]
+     }
+    ]
+   },
+   {
+    "slug": "02-tipos-basicos",
+    "titulo": "Tipos Básicos",
+    "icone": "▤",
+    "cor": "#5ec8d8",
+    "resumo": "Primitivo, array, tupla, objeto e os tipos especiais.",
+    "topicos": [
+     {
+      "slug": "01-primitivos-e-array",
+      "arquivo": "typescript/src/02-tipos-basicos/01-primitivos-e-array.ts",
+      "comando": "node src/02-tipos-basicos/01-primitivos-e-array.ts",
+      "titulo": "Primitivos e array",
+      "sessao": 2,
+      "oQueE": "os tipos que já existiam no JavaScript, agora com nome que o compilador entende: `string`, `number`, `boolean`, e a lista de qualquer um deles.",
+      "quandoUsar": "em todo lugar. São o vocabulário básico de qualquer anotação.",
+      "quandoNaoUsar": "com inicial maiúscula. `String`, `Number` e `Boolean` são os objetos embrulhados do JavaScript, quase nunca o que você quer.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "Os três primitivos do dia a dia",
+        "secao": "ESSENCIAL",
+        "codigo": "const nomeDoCliente: string = 'Ana Souza';\nconst totalDaCompra: number = 249.9;\nconst pagamentoConfirmado: boolean = true;\n\nconsole.log(`${nomeDoCliente}: R$ ${totalDaCompra.toFixed(2)}`);\nconsole.log('pago:', pagamentoConfirmado ? 'sim' : 'não');\n\n// `number` cobre inteiro, decimal, negativo e até NaN — no JavaScript é tudo o mesmo tipo.\nconst parcelas: number = 3;\nconst valorDaParcela: number = totalDaCompra / parcelas;\nconsole.log(`${parcelas}x de R$ ${valorDaParcela.toFixed(2)}`);\n\n// @ts-expect-error — Type 'number' is not assignable to type 'string'.\nconst cepErrado: string = 30110012;\nconsole.log('cep, apesar do tsc:', cepErrado, typeof cepErrado);",
+        "codigoJs": "const nomeDoCliente = 'Ana Souza';\nconst totalDaCompra = 249.9;\nconst pagamentoConfirmado = true;\nconsole.log(`${nomeDoCliente}: R$ ${totalDaCompra.toFixed(2)}`);\nconsole.log('pago:', pagamentoConfirmado ? 'sim' : 'não');\nconst parcelas = 3;\nconst valorDaParcela = totalDaCompra / parcelas;\nconsole.log(`${parcelas}x de R$ ${valorDaParcela.toFixed(2)}`);\nconst cepErrado = 30110012;\nconsole.log('cep, apesar do tsc:', cepErrado, typeof cepErrado);\n"
+       },
+       {
+        "n": 2,
+        "titulo": "Array: duas formas de escrever a mesma coisa",
+        "secao": "ESSENCIAL",
+        "codigo": "const produtos: string[] = ['Caneca', 'Caderno', 'Caneta'];\nconst precos: Array<number> = [19.9, 32.5, 4.2];\n\nconsole.log('produtos:', produtos.join(', '));\nconsole.log('mais caro:', Math.max(...precos).toFixed(2));\n\n// A vantagem aparece nos métodos: o TypeScript sabe o que sai de cada um.\nconst emCaixaAlta = produtos.map((p) => p.toUpperCase());     // string[]\nconst somaDosPrecos = precos.reduce((a, b) => a + b, 0);      // number\nconsole.log(emCaixaAlta.join(' · '), '|', somaDosPrecos.toFixed(2));\n\n// @ts-expect-error — Argument of type 'number' is not assignable to parameter of type 'string'.\nprodutos.push(42);\nconsole.log('mas o 42 entrou:', produtos.length, 'itens ← o tipo não vigia a execução');",
+        "codigoJs": "const produtos = [\n    'Caneca',\n    'Caderno',\n    'Caneta'\n];\nconst precos = [\n    19.9,\n    32.5,\n    4.2\n];\nconsole.log('produtos:', produtos.join(', '));\nconsole.log('mais caro:', Math.max(...precos).toFixed(2));\nconst emCaixaAlta = produtos.map((p)=>p.toUpperCase());\nconst somaDosPrecos = precos.reduce((a, b)=>a + b, 0);\nconsole.log(emCaixaAlta.join(' · '), '|', somaDosPrecos.toFixed(2));\nprodutos.push(42);\nconsole.log('mas o 42 entrou:', produtos.length, 'itens ← o tipo não vigia a execução');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "O tipo acompanha o que sai da lista",
+        "secao": "ESSENCIAL",
+        "codigo": "const notas: number[] = [8.5, 7, 9.2, 6.4];\n\nconst media = notas.reduce((soma, n) => soma + n, 0) / notas.length;\nconst aprovadas = notas.filter((n) => n >= 7);\nconst formatadas = notas.map((n) => n.toFixed(1));            // string[], não number[]\n\nconsole.log('média    :', media.toFixed(2));\nconsole.log('aprovadas:', aprovadas.length, 'de', notas.length);\nconsole.log('formatadas:', formatadas.join(' | '));\n\ntry {\n  // @ts-expect-error — Property 'toFixed' does not exist on type 'string'.\n  console.log(formatadas[0].toFixed(2));\n} catch (erro) {\n  console.log('toFixed  :', (erro as Error).message, '← já é string, não number');\n}\n\nconsole.log('\\n`map` trocou o tipo da lista, e o TypeScript acompanhou sem ninguém anotar.');\nconsole.log('É a inferência trabalhando dentro da cadeia de métodos.');",
+        "codigoJs": "const notas = [\n    8.5,\n    7,\n    9.2,\n    6.4\n];\nconst media = notas.reduce((soma, n)=>soma + n, 0) / notas.length;\nconst aprovadas = notas.filter((n)=>n >= 7);\nconst formatadas = notas.map((n)=>n.toFixed(1));\nconsole.log('média    :', media.toFixed(2));\nconsole.log('aprovadas:', aprovadas.length, 'de', notas.length);\nconsole.log('formatadas:', formatadas.join(' | '));\ntry {\n    console.log(formatadas[0].toFixed(2));\n} catch (erro) {\n    console.log('toFixed  :', erro.message, '← já é string, não number');\n}\nconsole.log('\\n`map` trocou o tipo da lista, e o TypeScript acompanhou sem ninguém anotar.');\nconsole.log('É a inferência trabalhando dentro da cadeia de métodos.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Lista de objetos, que é o caso real",
+        "secao": "NA PRÁTICA",
+        "codigo": "const vendas: { vendedor: string; valor: number }[] = [\n  { vendedor: 'Ana', valor: 1200 },\n  { vendedor: 'Bruno', valor: 890 },\n  { vendedor: 'Ana', valor: 430 },\n];\n\nconst porVendedor = new Map<string, number>();\nfor (const venda of vendas) porVendedor.set(venda.vendedor, (porVendedor.get(venda.vendedor) ?? 0) + venda.valor);\n\nfor (const [vendedor, total] of porVendedor) console.log(`${vendedor.padEnd(6)} R$ ${total.toFixed(2)}`);\n\n// @ts-expect-error — Property 'valorr' does not exist. Did you mean 'valor'?\nconsole.log(vendas[0].valorr);\n\nconsole.log('\\nO erro de digitação em `valorr` é o que o TypeScript mais pega no dia a dia.');\nconsole.log('Em JavaScript ele seria `undefined`, e o relatório sairia com NaN no total.');",
+        "codigoJs": "const vendas = [\n    {\n        vendedor: 'Ana',\n        valor: 1200\n    },\n    {\n        vendedor: 'Bruno',\n        valor: 890\n    },\n    {\n        vendedor: 'Ana',\n        valor: 430\n    }\n];\nconst porVendedor = new Map();\nfor (const venda of vendas)porVendedor.set(venda.vendedor, (porVendedor.get(venda.vendedor) ?? 0) + venda.valor);\nfor (const [vendedor, total] of porVendedor)console.log(`${vendedor.padEnd(6)} R$ ${total.toFixed(2)}`);\nconsole.log(vendas[0].valorr);\nconsole.log('\\nO erro de digitação em `valorr` é o que o TypeScript mais pega no dia a dia.');\nconsole.log('Em JavaScript ele seria `undefined`, e o relatório sairia com NaN no total.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "`readonly`: lista que ninguém mexe",
+        "secao": "NA PRÁTICA",
+        "codigo": "const diasUteis: readonly string[] = ['seg', 'ter', 'qua', 'qui', 'sex'];\n\nconsole.log('dias:', diasUteis.join(' '));\nconsole.log('quantos:', diasUteis.length);\n\n// @ts-expect-error — Property 'push' does not exist on type 'readonly string[]'.\ndiasUteis.push('sáb');\n\n// Ler, contar e transformar continua tudo liberado — o que some é o que ALTERA a lista.\nconsole.log('em maiúsculas:', diasUteis.map((d) => d.toUpperCase()).join(' '));\nconsole.log('uma cópia mutável:', [...diasUteis, 'sáb'].join(' '));\n\nconsole.log('\\n`readonly` só existe para o compilador: rodando, é um array normal. Ele serve');\nconsole.log('para dizer \"esta lista é a fonte, não o rascunho\" — e o editor cobra.');",
+        "codigoJs": "const diasUteis = [\n    'seg',\n    'ter',\n    'qua',\n    'qui',\n    'sex'\n];\nconsole.log('dias:', diasUteis.join(' '));\nconsole.log('quantos:', diasUteis.length);\ndiasUteis.push('sáb');\nconsole.log('em maiúsculas:', diasUteis.map((d)=>d.toUpperCase()).join(' '));\nconsole.log('uma cópia mutável:', [\n    ...diasUteis,\n    'sáb'\n].join(' '));\nconsole.log('\\n`readonly` só existe para o compilador: rodando, é um array normal. Ele serve');\nconsole.log('para dizer \"esta lista é a fonte, não o rascunho\" — e o editor cobra.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`string` e `String` não são a mesma coisa",
+        "secao": "PEGADINHAS",
+        "codigo": "const texto: string = 'pix';\nconst objetoTexto: String = new String('pix');       // com maiúscula: o objeto embrulhado\n\nconsole.log('typeof texto      :', typeof texto);\nconsole.log('typeof objetoTexto:', typeof objetoTexto, '← \"object\", não \"string\"');\nconsole.log('são iguais com == :', texto == objetoTexto);\nconsole.log('são iguais com ===:', texto === objetoTexto, '← aqui a diferença aparece');\n\n// @ts-expect-error — Type 'String' is not assignable to type 'string'.\nconst aceita: string = objetoTexto;\nconsole.log('e mesmo assim roda:', aceita.toUpperCase());\n\nconsole.log('\\nSempre minúsculo: string, number, boolean. As versões maiúsculas existem por');\nconsole.log('herança do JavaScript e só causam confusão — não há motivo para escrevê-las.');",
+        "codigoJs": "const texto = 'pix';\nconst objetoTexto = new String('pix');\nconsole.log('typeof texto      :', typeof texto);\nconsole.log('typeof objetoTexto:', typeof objetoTexto, '← \"object\", não \"string\"');\nconsole.log('são iguais com == :', texto == objetoTexto);\nconsole.log('são iguais com ===:', texto === objetoTexto, '← aqui a diferença aparece');\nconst aceita = objetoTexto;\nconsole.log('e mesmo assim roda:', aceita.toUpperCase());\nconsole.log('\\nSempre minúsculo: string, number, boolean. As versões maiúsculas existem por');\nconsole.log('herança do JavaScript e só causam confusão — não há motivo para escrevê-las.');\n"
+       }
+      ],
+      "resumo": [
+       "`string`, `number` e `boolean` em minúsculas; as maiúsculas são outra coisa.",
+       "`number` é um tipo só: inteiro, decimal e negativo entram todos nele.",
+       "`string[]` e `Array<string>` são idênticos — escolha um estilo e mantenha.",
+       "Em cadeia de métodos o tipo acompanha sozinho: `map` de number pode devolver string[].",
+       "A pegada mais frequente do TypeScript é o nome de propriedade digitado errado.",
+       "`readonly string[]` some rodando: é um contrato de leitura, não uma trava de verdade."
+      ]
+     },
+     {
+      "slug": "02-tupla-e-objeto",
+      "arquivo": "typescript/src/02-tipos-basicos/02-tupla-e-objeto.ts",
+      "comando": "node src/02-tipos-basicos/02-tupla-e-objeto.ts",
+      "titulo": "Tupla e tipo de objeto",
+      "sessao": 2,
+      "oQueE": "tupla é um array de tamanho fixo em que cada posição tem o seu próprio tipo; tipo de objeto é a descrição das chaves que um objeto precisa ter.",
+      "quandoUsar": "tupla quando a posição significa alguma coisa (coordenada, par chave/valor, retorno de `useState`). Objeto para o resto.",
+      "quandoNaoUsar": "tupla com mais de três posições. Ninguém lembra o que é o índice 4 — ali um objeto com nomes vale muito mais.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "Tupla: a posição tem significado",
+        "secao": "ESSENCIAL",
+        "codigo": "const coordenada: [number, number] = [-19.92, -43.94];\nconst parChaveValor: [string, number] = ['estoque', 12];\n\nconsole.log(`lat ${coordenada[0]}, lon ${coordenada[1]}`);\nconsole.log(`${parChaveValor[0]} = ${parChaveValor[1]}`);\n\n// Cada posição carrega o seu tipo — e o TypeScript sabe qual é qual.\nconsole.log('arredondada:', coordenada[0].toFixed(1));\nconsole.log('em maiúscula:', parChaveValor[0].toUpperCase());\n\n// @ts-expect-error — Type 'string' is not assignable to type 'number'.\nconst trocada: [string, number] = ['estoque', 'doze'];\nconsole.log('rodando, a tupla é só um array:', Array.isArray(trocada), trocada.length);",
+        "codigoJs": "const coordenada = [\n    -19.92,\n    -43.94\n];\nconst parChaveValor = [\n    'estoque',\n    12\n];\nconsole.log(`lat ${coordenada[0]}, lon ${coordenada[1]}`);\nconsole.log(`${parChaveValor[0]} = ${parChaveValor[1]}`);\nconsole.log('arredondada:', coordenada[0].toFixed(1));\nconsole.log('em maiúscula:', parChaveValor[0].toUpperCase());\nconst trocada = [\n    'estoque',\n    'doze'\n];\nconsole.log('rodando, a tupla é só um array:', Array.isArray(trocada), trocada.length);\n"
+       },
+       {
+        "n": 2,
+        "titulo": "Tipo de objeto: as chaves e o que cabe em cada uma",
+        "secao": "ESSENCIAL",
+        "codigo": "const cliente: { nome: string; email: string; ativo: boolean } = {\n  nome: 'Ana Souza',\n  email: 'ana@loja.dev',\n  ativo: true,\n};\n\nconsole.log(`${cliente.nome} <${cliente.email}> — ${cliente.ativo ? 'ativo' : 'inativo'}`);\n\n// Faltar chave é erro, e sobrar chave também.\n// @ts-expect-error — Property 'email' is missing.\nconst incompleto: { nome: string; email: string } = { nome: 'Bruno' };\nconsole.log('mesmo assim roda:', JSON.stringify(incompleto));\n\n// @ts-expect-error — Object literal may only specify known properties.\nconst comExtra: { nome: string } = { nome: 'Bruno', telefone: '81 99999-0000' };\nconsole.log('e este também   :', JSON.stringify(comExtra));",
+        "codigoJs": "const cliente = {\n    nome: 'Ana Souza',\n    email: 'ana@loja.dev',\n    ativo: true\n};\nconsole.log(`${cliente.nome} <${cliente.email}> — ${cliente.ativo ? 'ativo' : 'inativo'}`);\nconst incompleto = {\n    nome: 'Bruno'\n};\nconsole.log('mesmo assim roda:', JSON.stringify(incompleto));\nconst comExtra = {\n    nome: 'Bruno',\n    telefone: '81 99999-0000'\n};\nconsole.log('e este também   :', JSON.stringify(comExtra));\n"
+       },
+       {
+        "n": 3,
+        "titulo": "Chave opcional e chave só de leitura",
+        "secao": "ESSENCIAL",
+        "codigo": "const pedido: { id: number; readonly criadoEm: string; observacao?: string } = {\n  id: 1042,\n  criadoEm: '2026-08-28',\n};\n\nconsole.log(`pedido ${pedido.id} de ${pedido.criadoEm}`);\nconsole.log('observação:', pedido.observacao ?? '(nenhuma)');\n\npedido.observacao = 'entregar na portaria';          // opcional pode ser preenchido depois\nconsole.log('observação:', pedido.observacao);\n\n// @ts-expect-error — Cannot assign to 'criadoEm' because it is a read-only property.\npedido.criadoEm = '2020-01-01';\nconsole.log('mas mudou rodando:', pedido.criadoEm, '← readonly é só para o compilador');\n\nconsole.log('\\n`?` faz a chave poder faltar, e o tipo dela vira `string | undefined`.');\nconsole.log('Por isso o `??` acima não é frescura: sem ele, o texto sairia \"undefined\".');",
+        "codigoJs": "const pedido = {\n    id: 1042,\n    criadoEm: '2026-08-28'\n};\nconsole.log(`pedido ${pedido.id} de ${pedido.criadoEm}`);\nconsole.log('observação:', pedido.observacao ?? '(nenhuma)');\npedido.observacao = 'entregar na portaria';\nconsole.log('observação:', pedido.observacao);\npedido.criadoEm = '2020-01-01';\nconsole.log('mas mudou rodando:', pedido.criadoEm, '← readonly é só para o compilador');\nconsole.log('\\n`?` faz a chave poder faltar, e o tipo dela vira `string | undefined`.');\nconsole.log('Por isso o `??` acima não é frescura: sem ele, o texto sairia \"undefined\".');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Tupla no retorno: dois valores de uma vez",
+        "secao": "NA PRÁTICA",
+        "codigo": "// O padrão do `useState` do React e do `[erro, dado]` de várias bibliotecas.\nfunction dividir(a: number, b: number): [number | null, string | null] {\n  if (b === 0) return [null, 'divisão por zero'];\n  return [a / b, null];\n}\n\nconst [resultado, erro] = dividir(10, 4);\nconsole.log('10 / 4 =', resultado, '| erro:', erro);\n\nconst [semResultado, comErro] = dividir(10, 0);\nconsole.log('10 / 0 =', semResultado, '| erro:', comErro);\n\n// A desestruturação é que dá nome às posições — sem ela a tupla fica ilegível.\nconsole.log('\\nRepare que o nome é escolhido por QUEM CHAMA. É a diferença para o objeto,');\nconsole.log('onde o nome vem de quem escreveu a função. Tupla é útil justamente por isso.');",
+        "codigoJs": "function dividir(a, b) {\n    if (b === 0) return [\n        null,\n        'divisão por zero'\n    ];\n    return [\n        a / b,\n        null\n    ];\n}\nconst [resultado, erro] = dividir(10, 4);\nconsole.log('10 / 4 =', resultado, '| erro:', erro);\nconst [semResultado, comErro] = dividir(10, 0);\nconsole.log('10 / 0 =', semResultado, '| erro:', comErro);\nconsole.log('\\nRepare que o nome é escolhido por QUEM CHAMA. É a diferença para o objeto,');\nconsole.log('onde o nome vem de quem escreveu a função. Tupla é útil justamente por isso.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Objeto aninhado, que é como o dado chega",
+        "secao": "NA PRÁTICA",
+        "codigo": "type Endereco = { cidade: string; uf: string };\ntype Funcionario = {\n  nome: string;\n  salario: number;\n  endereco: Endereco;\n  telefones: string[];\n};\n\nconst funcionario: Funcionario = {\n  nome: 'Carla Dias',\n  salario: 5400,\n  endereco: { cidade: 'Recife', uf: 'PE' },\n  telefones: ['81 3333-1111', '81 99999-2222'],\n};\n\nconsole.log(`${funcionario.nome} — ${funcionario.endereco.cidade}/${funcionario.endereco.uf}`);\nconsole.log('salário anual:', (funcionario.salario * 13).toFixed(2));\nconsole.log('contatos     :', funcionario.telefones.length);\n\n// O TypeScript acompanha a descida inteira: erra no fim da linha e ele acusa.\n// @ts-expect-error — Property 'estado' does not exist on type 'Endereco'.\nconsole.log(funcionario.endereco.estado);",
+        "codigoJs": "const funcionario = {\n    nome: 'Carla Dias',\n    salario: 5400,\n    endereco: {\n        cidade: 'Recife',\n        uf: 'PE'\n    },\n    telefones: [\n        '81 3333-1111',\n        '81 99999-2222'\n    ]\n};\nconsole.log(`${funcionario.nome} — ${funcionario.endereco.cidade}/${funcionario.endereco.uf}`);\nconsole.log('salário anual:', (funcionario.salario * 13).toFixed(2));\nconsole.log('contatos     :', funcionario.telefones.length);\nconsole.log(funcionario.endereco.estado);\n"
+       },
+       {
+        "n": 6,
+        "titulo": "Tupla com resto: o primeiro é especial",
+        "secao": "NA PRÁTICA",
+        "codigo": "type LinhaDoCsv = [string, ...number[]];             // o rótulo, e depois quantos números vierem\n\nconst janeiro: LinhaDoCsv = ['Janeiro', 1200, 890, 430];\nconst fevereiro: LinhaDoCsv = ['Fevereiro', 980];\n\nconst somar = ([rotulo, ...valores]: LinhaDoCsv) =>\n  `${rotulo.padEnd(10)} ${valores.length} vendas · R$ ${valores.reduce((a, b) => a + b, 0).toFixed(2)}`;\n\nconsole.log(somar(janeiro));\nconsole.log(somar(fevereiro));\n\n// @ts-expect-error — Type 'string' is not assignable to type 'number'.\nconst quebrada: LinhaDoCsv = ['Março', '1200'];\nconsole.log('quebrada:', quebrada.join(','));",
+        "codigoJs": "const janeiro = [\n    'Janeiro',\n    1200,\n    890,\n    430\n];\nconst fevereiro = [\n    'Fevereiro',\n    980\n];\nconst somar = ([rotulo, ...valores])=>`${rotulo.padEnd(10)} ${valores.length} vendas · R$ ${valores.reduce((a, b)=>a + b, 0).toFixed(2)}`;\nconsole.log(somar(janeiro));\nconsole.log(somar(fevereiro));\nconst quebrada = [\n    'Março',\n    '1200'\n];\nconsole.log('quebrada:', quebrada.join(','));\n"
+       },
+       {
+        "n": 7,
+        "titulo": "A tupla não se defende do `push`",
+        "secao": "PEGADINHAS",
+        "codigo": "const par: [string, number] = ['estoque', 12];\n\npar.push('sobrando');                                 // o tsc deixa passar: push aceita a união\nconsole.log('tamanho depois do push:', par.length, JSON.stringify(par));\n\n// @ts-expect-error — Tuple type '[string, number]' of length '2' has no element at index '2'.\nconsole.log('lendo o índice 2:', par[2]);\n\nconsole.log('\\nA proteção da tupla vale na hora de criar e na hora de ler por índice.');\nconsole.log('`push`, `pop` e `splice` escapam — se a lista precisa mesmo ser fixa, use');\nconsole.log('`readonly [string, number]`, que tira esses métodos do tipo.');",
+        "codigoJs": "const par = [\n    'estoque',\n    12\n];\npar.push('sobrando');\nconsole.log('tamanho depois do push:', par.length, JSON.stringify(par));\nconsole.log('lendo o índice 2:', par[2]);\nconsole.log('\\nA proteção da tupla vale na hora de criar e na hora de ler por índice.');\nconsole.log('`push`, `pop` e `splice` escapam — se a lista precisa mesmo ser fixa, use');\nconsole.log('`readonly [string, number]`, que tira esses métodos do tipo.');\n"
+       }
+      ],
+      "resumo": [
+       "Tupla é array de tamanho fixo com um tipo por posição: `[number, number]`.",
+       "Use tupla quando a posição significa algo, e no máximo até três posições.",
+       "Tipo de objeto cobra as chaves que faltam e recusa as que sobram.",
+       "`?` deixa a chave faltar (e acrescenta `undefined` ao tipo); `readonly` proíbe atribuir.",
+       "`readonly` e o tamanho da tupla somem na execução: são contratos, não travas.",
+       "`push` fura a tupla — `readonly [A, B]` fecha esse buraco."
+      ]
+     },
+     {
+      "slug": "03-any-unknown-void-never",
+      "arquivo": "typescript/src/02-tipos-basicos/03-any-unknown-void-never.ts",
+      "comando": "node src/02-tipos-basicos/03-any-unknown-void-never.ts",
+      "titulo": "any, unknown, void e never",
+      "sessao": 2,
+      "oQueE": "os quatro tipos que não descrevem um valor comum. `any` desliga a conferência, `unknown` a adia, `void` diz \"não devolve nada\" e `never` diz \"não volta\".",
+      "quandoUsar": "`unknown` para tudo que chega de fora; `void` no retorno de função que só faz efeito; `never` para provar que um caso foi esquecido.",
+      "quandoNaoUsar": "`any`. Ele é a saída de emergência, e quase sempre existe alternativa.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "`any` desliga tudo; `unknown` obriga a conferir",
+        "secao": "ESSENCIAL",
+        "codigo": "const dadoComAny: any = 'R$ 250,00';\nconst dadoComUnknown: unknown = 'R$ 250,00';\n\nconsole.log('com any     :', dadoComAny.toUpperCase());        // passa, e podia ser qualquer coisa\nconsole.log('com any     :', dadoComAny.metodoQueNaoExiste);   // o tsc também não pia aqui\n\n// @ts-expect-error — 'dadoComUnknown' is of type 'unknown'.\nconsole.log(dadoComUnknown.toUpperCase());\n\n// Com `unknown`, o caminho é conferir primeiro. Aí o tipo estreita e o método libera.\nif (typeof dadoComUnknown === 'string') console.log('com unknown :', dadoComUnknown.toUpperCase());\n\nconsole.log('\\nOs dois aceitam qualquer valor na entrada. A diferença é na SAÍDA: `any` sai');\nconsole.log('de graça e contamina tudo à frente; `unknown` só sai depois de provar o que é.');",
+        "codigoJs": "const dadoComAny = 'R$ 250,00';\nconst dadoComUnknown = 'R$ 250,00';\nconsole.log('com any     :', dadoComAny.toUpperCase());\nconsole.log('com any     :', dadoComAny.metodoQueNaoExiste);\nconsole.log(dadoComUnknown.toUpperCase());\nif (typeof dadoComUnknown === 'string') console.log('com unknown :', dadoComUnknown.toUpperCase());\nconsole.log('\\nOs dois aceitam qualquer valor na entrada. A diferença é na SAÍDA: `any` sai');\nconsole.log('de graça e contamina tudo à frente; `unknown` só sai depois de provar o que é.');\n"
+       },
+       {
+        "n": 2,
+        "titulo": "`void`: a função existe pelo efeito, não pelo resultado",
+        "secao": "ESSENCIAL",
+        "codigo": "function registrarLog(mensagem: string): void {\n  console.log(`[log] ${new Date('2026-08-28T10:00:00Z').toISOString().slice(0, 10)} ${mensagem}`);\n}\n\nregistrarLog('pedido 1042 confirmado');\nregistrarLog('estoque atualizado');\n\n// O que ela devolve é `undefined`, e o tipo `void` diz \"não conte com isso\".\nconst retorno = registrarLog('nada aqui');\nconsole.log('typeof do retorno:', typeof retorno);\n\ntry {\n  // @ts-expect-error — Property 'length' does not exist on type 'void'.\n  console.log(retorno.length);\n} catch (erro) {\n  console.log('retorno.length   :', (erro as Error).message);\n}\n\nconsole.log('\\n`void` não é `undefined`: é \"não olhe para o retorno\". A diferença aparece');\nconsole.log('no bloco 4, onde um callback `void` pode devolver valor sem ninguém reclamar.');",
+        "codigoJs": "function registrarLog(mensagem) {\n    console.log(`[log] ${new Date('2026-08-28T10:00:00Z').toISOString().slice(0, 10)} ${mensagem}`);\n}\nregistrarLog('pedido 1042 confirmado');\nregistrarLog('estoque atualizado');\nconst retorno = registrarLog('nada aqui');\nconsole.log('typeof do retorno:', typeof retorno);\ntry {\n    console.log(retorno.length);\n} catch (erro) {\n    console.log('retorno.length   :', erro.message);\n}\nconsole.log('\\n`void` não é `undefined`: é \"não olhe para o retorno\". A diferença aparece');\nconsole.log('no bloco 4, onde um callback `void` pode devolver valor sem ninguém reclamar.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "`never`: a função não chega a voltar",
+        "secao": "ESSENCIAL",
+        "codigo": "function falhar(motivo: string): never {\n  throw new Error(motivo);\n}\n\nfunction buscarPreco(tabela: Record<string, number>, sku: string): number {\n  const preco = tabela[sku];\n  if (preco === undefined) falhar(`sku ${sku} não está na tabela`);\n  return preco;\n}\n\nconst tabela = { 'CAN-01': 19.9, 'CAD-02': 32.5 };\nconsole.log('CAN-01:', buscarPreco(tabela, 'CAN-01').toFixed(2));\n\ntry {\n  buscarPreco(tabela, 'XXX-99');\n} catch (erro) {\n  console.log('XXX-99:', (erro as Error).message);\n}\n\nconsole.log('\\nRepare no `return preco` da última linha: o TypeScript sabe que, se passou do');\nconsole.log('`falhar()`, o preço não era undefined. `never` é o que dá essa certeza a ele.');",
+        "codigoJs": "function falhar(motivo) {\n    throw new Error(motivo);\n}\nfunction buscarPreco(tabela, sku) {\n    const preco = tabela[sku];\n    if (preco === undefined) falhar(`sku ${sku} não está na tabela`);\n    return preco;\n}\nconst tabela = {\n    'CAN-01': 19.9,\n    'CAD-02': 32.5\n};\nconsole.log('CAN-01:', buscarPreco(tabela, 'CAN-01').toFixed(2));\ntry {\n    buscarPreco(tabela, 'XXX-99');\n} catch (erro) {\n    console.log('XXX-99:', erro.message);\n}\nconsole.log('\\nRepare no `return preco` da última linha: o TypeScript sabe que, se passou do');\nconsole.log('`falhar()`, o preço não era undefined. `never` é o que dá essa certeza a ele.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "`unknown` na porta de entrada",
+        "secao": "NA PRÁTICA",
+        "codigo": "// Todo dado que vem de fora nasce como `unknown` — e é isso que força a validação.\nfunction lerTotalDoPedido(corpo: unknown): number {\n  if (typeof corpo !== 'object' || corpo === null) throw new Error('corpo não é um objeto');\n  if (!('total' in corpo)) throw new Error('falta o campo total');\n\n  const total = (corpo as { total: unknown }).total;\n  if (typeof total !== 'number' || Number.isNaN(total)) throw new Error('total não é um número');\n  return total;\n}\n\nconst casos: unknown[] = [{ total: 249.9 }, { total: '249,90' }, { valor: 10 }, null];\nfor (const caso of casos) {\n  try {\n    console.log(JSON.stringify(caso).padEnd(22), '→ R$', lerTotalDoPedido(caso).toFixed(2));\n  } catch (erro) {\n    console.log(JSON.stringify(caso).padEnd(22), '→ ✕', (erro as Error).message);\n  }\n}\n\nconsole.log('\\nSe o parâmetro fosse `any`, as quatro linhas passariam e três quebrariam mais');\nconsole.log('adiante, longe daqui. `unknown` traz o erro para a porta de entrada.');",
+        "codigoJs": "function lerTotalDoPedido(corpo) {\n    if (typeof corpo !== 'object' || corpo === null) throw new Error('corpo não é um objeto');\n    if (!('total' in corpo)) throw new Error('falta o campo total');\n    const total = corpo.total;\n    if (typeof total !== 'number' || Number.isNaN(total)) throw new Error('total não é um número');\n    return total;\n}\nconst casos = [\n    {\n        total: 249.9\n    },\n    {\n        total: '249,90'\n    },\n    {\n        valor: 10\n    },\n    null\n];\nfor (const caso of casos){\n    try {\n        console.log(JSON.stringify(caso).padEnd(22), '→ R$', lerTotalDoPedido(caso).toFixed(2));\n    } catch (erro) {\n        console.log(JSON.stringify(caso).padEnd(22), '→ ✕', erro.message);\n    }\n}\nconsole.log('\\nSe o parâmetro fosse `any`, as quatro linhas passariam e três quebrariam mais');\nconsole.log('adiante, longe daqui. `unknown` traz o erro para a porta de entrada.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "`never` para não esquecer um caso",
+        "secao": "NA PRÁTICA",
+        "codigo": "type FormaDePagamento = 'pix' | 'boleto' | 'cartao';\n\nfunction prazoDeCompensacao(forma: FormaDePagamento): string {\n  switch (forma) {\n    case 'pix': return 'na hora';\n    case 'boleto': return 'até 3 dias úteis';\n    case 'cartao': return 'até 30 dias';\n    default: {\n      // Se um dia entrar 'pix-parcelado' na união e ninguém tratar aqui, esta linha para\n      // de compilar: o caso que sobrou não é `never`, é o valor esquecido.\n      const naoTratado: never = forma;\n      throw new Error(`forma não tratada: ${naoTratado}`);\n    }\n  }\n}\n\nfor (const forma of ['pix', 'boleto', 'cartao'] as FormaDePagamento[])\n  console.log(forma.padEnd(8), prazoDeCompensacao(forma));\n\nconsole.log('\\nÉ o truque mais útil do `never`: transformar \"esqueci um caso\" em erro de');\nconsole.log('compilação, em vez de um `undefined` silencioso em produção.');",
+        "codigoJs": "function prazoDeCompensacao(forma) {\n    switch(forma){\n        case 'pix':\n            return 'na hora';\n        case 'boleto':\n            return 'até 3 dias úteis';\n        case 'cartao':\n            return 'até 30 dias';\n        default:\n            {\n                const naoTratado = forma;\n                throw new Error(`forma não tratada: ${naoTratado}`);\n            }\n    }\n}\nfor (const forma of [\n    'pix',\n    'boleto',\n    'cartao'\n])console.log(forma.padEnd(8), prazoDeCompensacao(forma));\nconsole.log('\\nÉ o truque mais útil do `never`: transformar \"esqueci um caso\" em erro de');\nconsole.log('compilação, em vez de um `undefined` silencioso em produção.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`any` vaza para tudo que encosta nele",
+        "secao": "PEGADINHAS",
+        "codigo": "const configuracao: any = { tentativas: '3' };\n\nconst tentativas = configuracao.tentativas;          // any, não string\nconst dobro = tentativas * 2;                        // any, e ninguém conferiu\nconst lista = Array(dobro).fill('x');                // any de novo\n\nconsole.log('tentativas:', tentativas, typeof tentativas);\nconsole.log('dobro     :', dobro, '← \"3\" * 2 deu 6 por acaso; com \"3a\" daria NaN');\nconsole.log('lista     :', lista.length, 'itens');\n\nconsole.log('\\nUm `any` no começo apaga a conferência de toda a cadeia à frente. Por isso a');\nconsole.log('regra é: `unknown` na entrada, `any` só quando não houver mesmo outro jeito.');",
+        "codigoJs": "const configuracao = {\n    tentativas: '3'\n};\nconst tentativas = configuracao.tentativas;\nconst dobro = tentativas * 2;\nconst lista = Array(dobro).fill('x');\nconsole.log('tentativas:', tentativas, typeof tentativas);\nconsole.log('dobro     :', dobro, '← \"3\" * 2 deu 6 por acaso; com \"3a\" daria NaN');\nconsole.log('lista     :', lista.length, 'itens');\nconsole.log('\\nUm `any` no começo apaga a conferência de toda a cadeia à frente. Por isso a');\nconsole.log('regra é: `unknown` na entrada, `any` só quando não houver mesmo outro jeito.');\n"
+       }
+      ],
+      "resumo": [
+       "`any` desliga a conferência e contamina tudo que sai dele — evite.",
+       "`unknown` aceita qualquer valor na entrada e não deixa usar sem conferir na saída.",
+       "`void` é o retorno de quem existe pelo efeito: log, envio, gravação.",
+       "`never` é a função que não volta (lança ou trava) — e o tsc usa isso para raciocinar.",
+       "`const x: never = valor` no `default` de um switch avisa quando um caso foi esquecido.",
+       "Dado de fora entra como `unknown` e sai validado. É a porta, e ela vale a cerca inteira."
+      ]
+     },
+     {
+      "slug": "04-null-e-opcional",
+      "arquivo": "typescript/src/02-tipos-basicos/04-null-e-opcional.ts",
+      "comando": "node src/02-tipos-basicos/04-null-e-opcional.ts",
+      "titulo": "null, undefined e opcional",
+      "sessao": 2,
+      "oQueE": "os dois jeitos de dizer \"não tem valor\" e o que o `strictNullChecks` cobra de você antes de deixar usar qualquer coisa que possa ser um deles.",
+      "quandoUsar": "`undefined` para \"ainda não foi preenchido\"; `null` para \"foi preenchido com nada de propósito\" — é o que costuma vir do banco.",
+      "quandoNaoUsar": "os dois no mesmo campo. Escolha um por projeto e seja consistente.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "Com strict, `null` deixa de valer para tudo",
+        "secao": "ESSENCIAL",
+        "codigo": "// Vindo de uma função, o tipo é mesmo `string | null` — o valor só se descobre chamando.\nconst buscarApelido = (nome: string): string | null => (nome === 'Ana' ? 'Aninha' : null);\n\nconst apelido = buscarApelido('Bruno');\nconst telefone: string | undefined = undefined;\n\ntry {\n  // @ts-expect-error — 'apelido' is possibly 'null'.\n  console.log(apelido.toUpperCase());\n} catch (erro) {\n  console.log('sem conferir:', (erro as Error).message);\n}\n\n// Conferir é o que abre a porta: dentro do `if`, o tipo já é só `string`.\nif (apelido !== null) console.log('apelido:', apelido.toUpperCase());\nelse console.log('apelido: não informado');\n\nconsole.log('da Ana  :', buscarApelido('Ana')?.toUpperCase() ?? 'não informado');\nconsole.log('telefone:', telefone ?? 'não informado');\n\nconsole.log('\\nSem `strictNullChecks`, `null` e `undefined` caberiam em `string` e a primeira');\nconsole.log('linha passaria — para estourar rodando. É a regra que mais acha bug de verdade.');",
+        "codigoJs": "const buscarApelido = (nome)=>nome === 'Ana' ? 'Aninha' : null;\nconst apelido = buscarApelido('Bruno');\nconst telefone = undefined;\ntry {\n    console.log(apelido.toUpperCase());\n} catch (erro) {\n    console.log('sem conferir:', erro.message);\n}\nif (apelido !== null) console.log('apelido:', apelido.toUpperCase());\nelse console.log('apelido: não informado');\nconsole.log('da Ana  :', buscarApelido('Ana')?.toUpperCase() ?? 'não informado');\nconsole.log('telefone:', telefone ?? 'não informado');\nconsole.log('\\nSem `strictNullChecks`, `null` e `undefined` caberiam em `string` e a primeira');\nconsole.log('linha passaria — para estourar rodando. É a regra que mais acha bug de verdade.');\n"
+       },
+       {
+        "n": 2,
+        "titulo": "`?.` e `??`: o caminho curto",
+        "secao": "ESSENCIAL",
+        "codigo": "type Assinante = { nome: string; plano?: { titulo: string; precoMensal: number } };\n\nconst comPlano: Assinante = { nome: 'Ana', plano: { titulo: 'Pro', precoMensal: 49.9 } };\nconst semPlano: Assinante = { nome: 'Bruno' };\n\n// `?.` para de descer assim que encontra null/undefined, e devolve undefined.\nconsole.log('Ana  :', comPlano.plano?.titulo ?? 'sem plano');\nconsole.log('Bruno:', semPlano.plano?.titulo ?? 'sem plano');\n\n// `??` só cai no padrão para null/undefined — diferente do `||`, que cai para 0 e ''.\nconst desconto = 0;\nconsole.log('com ?? :', desconto ?? 10, '← respeita o zero');\nconsole.log('com || :', desconto || 10, '← trocou o zero por 10, e o cliente perdeu o desconto');\n\nconsole.log('\\nA regra: `??` para valor ausente, `||` para valor \"falsy\". Em preço, quantidade');\nconsole.log('e texto de formulário, `||` costuma ser o bug.');",
+        "codigoJs": "const comPlano = {\n    nome: 'Ana',\n    plano: {\n        titulo: 'Pro',\n        precoMensal: 49.9\n    }\n};\nconst semPlano = {\n    nome: 'Bruno'\n};\nconsole.log('Ana  :', comPlano.plano?.titulo ?? 'sem plano');\nconsole.log('Bruno:', semPlano.plano?.titulo ?? 'sem plano');\nconst desconto = 0;\nconsole.log('com ?? :', desconto ?? 10, '← respeita o zero');\nconsole.log('com || :', desconto || 10, '← trocou o zero por 10, e o cliente perdeu o desconto');\nconsole.log('\\nA regra: `??` para valor ausente, `||` para valor \"falsy\". Em preço, quantidade');\nconsole.log('e texto de formulário, `||` costuma ser o bug.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "`?` na propriedade e `?` no parâmetro",
+        "secao": "ESSENCIAL",
+        "codigo": "type Contato = { nome: string; email?: string };\n\nfunction formatarContato(contato: Contato, prefixo?: string): string {\n  const marca = prefixo ?? '·';\n  return `${marca} ${contato.nome}${contato.email ? ` <${contato.email}>` : ''}`;\n}\n\nconsole.log(formatarContato({ nome: 'Ana', email: 'ana@loja.dev' }));\nconsole.log(formatarContato({ nome: 'Bruno' }, '→'));\n\n// `email?: string` é o mesmo que `email: string | undefined`... quase. A diferença é que\n// o opcional deixa a chave FALTAR; a união obriga a escrevê-la, mesmo que como undefined.\ntype ContatoUniao = { nome: string; email: string | undefined };\n\n// @ts-expect-error — Property 'email' is missing in type '{ nome: string; }'.\nconst semEmail: ContatoUniao = { nome: 'Carla' };\nconsole.log('roda igual:', JSON.stringify(semEmail));\n\nconst comUndefined: ContatoUniao = { nome: 'Carla', email: undefined };\nconsole.log('a forma aceita:', JSON.stringify(comUndefined), '← email some do JSON');",
+        "codigoJs": "function formatarContato(contato, prefixo) {\n    const marca = prefixo ?? '·';\n    return `${marca} ${contato.nome}${contato.email ? ` <${contato.email}>` : ''}`;\n}\nconsole.log(formatarContato({\n    nome: 'Ana',\n    email: 'ana@loja.dev'\n}));\nconsole.log(formatarContato({\n    nome: 'Bruno'\n}, '→'));\nconst semEmail = {\n    nome: 'Carla'\n};\nconsole.log('roda igual:', JSON.stringify(semEmail));\nconst comUndefined = {\n    nome: 'Carla',\n    email: undefined\n};\nconsole.log('a forma aceita:', JSON.stringify(comUndefined), '← email some do JSON');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "O `find` que pode não achar",
+        "secao": "NA PRÁTICA",
+        "codigo": "const catalogo = [\n  { sku: 'CAN-01', nome: 'Caneca', preco: 19.9 },\n  { sku: 'CAD-02', nome: 'Caderno', preco: 32.5 },\n];\n\nfunction precoDoSku(sku: string): string {\n  const produto = catalogo.find((p) => p.sku === sku);\n  if (!produto) return `${sku}: não encontrado`;      // sem esta linha, o tsc não deixa seguir\n  return `${sku}: R$ ${produto.preco.toFixed(2)}`;\n}\n\nconsole.log(precoDoSku('CAN-01'));\nconsole.log(precoDoSku('XXX-99'));\n\n// O tipo de `find` é `T | undefined`, e é isso que força o tratamento.\nconst achado = catalogo.find((p) => p.preco > 100);\nconsole.log('acima de 100:', achado?.nome ?? 'nenhum');\n\nconsole.log('\\nO mesmo vale para `array[i]`, `Map.get`, `document.querySelector` e qualquer');\nconsole.log('busca. O \"não achou\" existe — o TypeScript só não deixa mais você fingir que não.');",
+        "codigoJs": "const catalogo = [\n    {\n        sku: 'CAN-01',\n        nome: 'Caneca',\n        preco: 19.9\n    },\n    {\n        sku: 'CAD-02',\n        nome: 'Caderno',\n        preco: 32.5\n    }\n];\nfunction precoDoSku(sku) {\n    const produto = catalogo.find((p)=>p.sku === sku);\n    if (!produto) return `${sku}: não encontrado`;\n    return `${sku}: R$ ${produto.preco.toFixed(2)}`;\n}\nconsole.log(precoDoSku('CAN-01'));\nconsole.log(precoDoSku('XXX-99'));\nconst achado = catalogo.find((p)=>p.preco > 100);\nconsole.log('acima de 100:', achado?.nome ?? 'nenhum');\nconsole.log('\\nO mesmo vale para `array[i]`, `Map.get`, `document.querySelector` e qualquer');\nconsole.log('busca. O \"não achou\" existe — o TypeScript só não deixa mais você fingir que não.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Do banco vem null; do formulário vem undefined",
+        "secao": "NA PRÁTICA",
+        "codigo": "type LinhaDoBanco = { id: number; nome: string; apelido: string | null };\ntype FormularioAberto = { nome: string; apelido?: string };\n\nconst doBanco: LinhaDoBanco = { id: 7, nome: 'Ana Souza', apelido: null };\nconst doFormulario: FormularioAberto = { nome: 'Bruno Lima' };\n\n// Um jeito só de tratar os dois: o `??` cobre null E undefined.\nconst comoChamar = (apelido: string | null | undefined, nome: string) => apelido ?? nome.split(' ')[0];\n\nconsole.log('banco     :', comoChamar(doBanco.apelido, doBanco.nome));\nconsole.log('formulário:', comoChamar(doFormulario.apelido, doFormulario.nome));\nconsole.log('com apelido:', comoChamar('Aninha', 'Ana Souza'));\n\nconsole.log('\\nMisturar os dois no mesmo campo é o que dá `if (x !== null && x !== undefined)`');\nconsole.log('espalhado pelo código. Escolha um na borda do sistema e converta ali mesmo.');",
+        "codigoJs": "const doBanco = {\n    id: 7,\n    nome: 'Ana Souza',\n    apelido: null\n};\nconst doFormulario = {\n    nome: 'Bruno Lima'\n};\nconst comoChamar = (apelido, nome)=>apelido ?? nome.split(' ')[0];\nconsole.log('banco     :', comoChamar(doBanco.apelido, doBanco.nome));\nconsole.log('formulário:', comoChamar(doFormulario.apelido, doFormulario.nome));\nconsole.log('com apelido:', comoChamar('Aninha', 'Ana Souza'));\nconsole.log('\\nMisturar os dois no mesmo campo é o que dá `if (x !== null && x !== undefined)`');\nconsole.log('espalhado pelo código. Escolha um na borda do sistema e converta ali mesmo.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`!` cala o compilador sem resolver nada",
+        "secao": "PEGADINHAS",
+        "codigo": "const usuarios = [{ nome: 'Ana' }, { nome: 'Bruno' }];\n\n// `!` é você afirmando \"eu sei que não é undefined\". O tsc acredita e para de conferir.\nconst primeiro = usuarios.find((u) => u.nome === 'Ana')!;\nconsole.log('achou      :', primeiro.nome);\n\nconst inexistente = usuarios.find((u) => u.nome === 'Carla')!;\ntry {\n  console.log('não achou  :', inexistente.nome);\n} catch (erro) {\n  console.log('não achou  :', (erro as Error).message, '← o `!` mentiu, e rodando não tem perdão');\n}\n\nconsole.log('\\n`!` não confere nada: apaga o aviso. Use quando você tem uma garantia que o');\nconsole.log('compilador não enxerga — e, mesmo aí, um `if` explícito envelhece melhor.');",
+        "codigoJs": "const usuarios = [\n    {\n        nome: 'Ana'\n    },\n    {\n        nome: 'Bruno'\n    }\n];\nconst primeiro = usuarios.find((u)=>u.nome === 'Ana');\nconsole.log('achou      :', primeiro.nome);\nconst inexistente = usuarios.find((u)=>u.nome === 'Carla');\ntry {\n    console.log('não achou  :', inexistente.nome);\n} catch (erro) {\n    console.log('não achou  :', erro.message, '← o `!` mentiu, e rodando não tem perdão');\n}\nconsole.log('\\n`!` não confere nada: apaga o aviso. Use quando você tem uma garantia que o');\nconsole.log('compilador não enxerga — e, mesmo aí, um `if` explícito envelhece melhor.');\n"
+       }
+      ],
+      "resumo": [
+       "Com `strictNullChecks`, nada que possa ser null/undefined é usado sem conferir antes.",
+       "`?.` para de descer no primeiro vazio; `??` dá o padrão só para null e undefined.",
+       "`||` também cai para 0 e '' — em preço e quantidade, é onde nasce o bug.",
+       "`email?: string` deixa a chave faltar; `email: string | undefined` obriga a escrevê-la.",
+       "`find`, `Map.get` e `array[i]` podem não achar: o tipo diz isso, e agora você trata.",
+       "`!` silencia o compilador sem mudar a realidade — prefira o `if`."
+      ]
+     }
+    ]
+   },
+   {
+    "slug": "03-montar-tipos",
+    "titulo": "Montar Tipos",
+    "icone": "⧉",
+    "cor": "#f2c14e",
+    "resumo": "Combinar tipos: união, literal, alias, interface e enum.",
+    "topicos": [
+     {
+      "slug": "01-union-e-literais",
+      "arquivo": "typescript/src/03-montar-tipos/01-union-e-literais.ts",
+      "comando": "node src/03-montar-tipos/01-union-e-literais.ts",
+      "titulo": "União e tipos literais",
+      "sessao": 3,
+      "oQueE": "união (`A | B`) é \"um ou outro\"; tipo literal é um valor específico virando tipo — `'pix'` não é `string`, é exatamente `'pix'`.",
+      "quandoUsar": "sempre que um campo só aceita alguns valores fixos: status, forma de pagamento, tamanho, papel do usuário.",
+      "quandoNaoUsar": "quando a lista de valores muda em tempo de execução (vem do banco). Aí o tipo não tem como saber, e o certo é validar rodando.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "União: um valor, mais de um tipo possível",
+        "secao": "ESSENCIAL",
+        "codigo": "function formatarIdentificador(id: number | string): string {\n  // Dentro do `if`, o TypeScript já sabe que é number; no `else`, que é string.\n  if (typeof id === 'number') return `#${id.toFixed(0).padStart(6, '0')}`;\n  return id.trim().toUpperCase();\n}\n\nconsole.log(formatarIdentificador(1042));\nconsole.log(formatarIdentificador('  ped-2026-a  '));\n\n// Fora do `if`, só vale o que EXISTE NOS DOIS lados da união.\nfunction tamanhoDoIdentificador(id: number | string): number {\n  return String(id).length;\n}\nconsole.log('tamanhos:', tamanhoDoIdentificador(1042), tamanhoDoIdentificador('ped-a'));\n\n// @ts-expect-error — Property 'toFixed' does not exist on type 'string | number'.\nconsole.log((1042 as number | string).toFixed(2));",
+        "codigoJs": "function formatarIdentificador(id) {\n    if (typeof id === 'number') return `#${id.toFixed(0).padStart(6, '0')}`;\n    return id.trim().toUpperCase();\n}\nconsole.log(formatarIdentificador(1042));\nconsole.log(formatarIdentificador('  ped-2026-a  '));\nfunction tamanhoDoIdentificador(id) {\n    return String(id).length;\n}\nconsole.log('tamanhos:', tamanhoDoIdentificador(1042), tamanhoDoIdentificador('ped-a'));\nconsole.log(1042..toFixed(2));\n"
+       },
+       {
+        "n": 2,
+        "titulo": "Literal: o valor vira o tipo",
+        "secao": "ESSENCIAL",
+        "codigo": "type FormaDePagamento = 'pix' | 'boleto' | 'cartao';\n\nconst taxas: Record<FormaDePagamento, number> = { pix: 0, boleto: 2.5, cartao: 4.9 };\n\nfunction cobrar(valor: number, forma: FormaDePagamento): string {\n  return `${forma.padEnd(7)} R$ ${(valor + valor * (taxas[forma] / 100)).toFixed(2)}`;\n}\n\nconsole.log(cobrar(200, 'pix'));\nconsole.log(cobrar(200, 'cartao'));\n\n// @ts-expect-error — Argument of type '\"dinheiro\"' is not assignable to parameter of type 'FormaDePagamento'.\nconsole.log(cobrar(200, 'dinheiro'));\n\nconsole.log('\\nO editor completa as três opções sozinho, e o erro de digitação em \"cartão\"');\nconsole.log('com til nunca chega a rodar. É o uso mais rentável de tipo que existe.');",
+        "codigoJs": "const taxas = {\n    pix: 0,\n    boleto: 2.5,\n    cartao: 4.9\n};\nfunction cobrar(valor, forma) {\n    return `${forma.padEnd(7)} R$ ${(valor + valor * (taxas[forma] / 100)).toFixed(2)}`;\n}\nconsole.log(cobrar(200, 'pix'));\nconsole.log(cobrar(200, 'cartao'));\nconsole.log(cobrar(200, 'dinheiro'));\nconsole.log('\\nO editor completa as três opções sozinho, e o erro de digitação em \"cartão\"');\nconsole.log('com til nunca chega a rodar. É o uso mais rentável de tipo que existe.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "`as const` congela o objeto em literais",
+        "secao": "ESSENCIAL",
+        "codigo": "const configuracaoSolta = { ambiente: 'producao', tentativas: 3 };\nconst configuracaoFixa = { ambiente: 'producao', tentativas: 3 } as const;\n\nconsole.log('solta:', configuracaoSolta.ambiente, '| fixa:', configuracaoFixa.ambiente);\n\nconfiguracaoSolta.ambiente = 'homologacao';        // string aceita qualquer string\nconsole.log('mudou :', configuracaoSolta.ambiente);\n\n// @ts-expect-error — Cannot assign to 'ambiente' because it is a read-only property.\nconfiguracaoFixa.ambiente = 'homologacao';\n\n// A utilidade real: virar uma união sem escrever a lista duas vezes.\nconst AMBIENTES = ['local', 'homologacao', 'producao'] as const;\ntype Ambiente = (typeof AMBIENTES)[number];        // 'local' | 'homologacao' | 'producao'\n\nconst atual: Ambiente = 'homologacao';\nconsole.log('ambientes:', AMBIENTES.join(' · '), '| atual:', atual);\n\n// @ts-expect-error — Type '\"testes\"' is not assignable to type 'Ambiente'.\nconst invalido: Ambiente = 'testes';\nconsole.log('e rodando entra qualquer um:', invalido);",
+        "codigoJs": "const configuracaoSolta = {\n    ambiente: 'producao',\n    tentativas: 3\n};\nconst configuracaoFixa = {\n    ambiente: 'producao',\n    tentativas: 3\n};\nconsole.log('solta:', configuracaoSolta.ambiente, '| fixa:', configuracaoFixa.ambiente);\nconfiguracaoSolta.ambiente = 'homologacao';\nconsole.log('mudou :', configuracaoSolta.ambiente);\nconfiguracaoFixa.ambiente = 'homologacao';\nconst AMBIENTES = [\n    'local',\n    'homologacao',\n    'producao'\n];\nconst atual = 'homologacao';\nconsole.log('ambientes:', AMBIENTES.join(' · '), '| atual:', atual);\nconst invalido = 'testes';\nconsole.log('e rodando entra qualquer um:', invalido);\n"
+       },
+       {
+        "n": 4,
+        "titulo": "União discriminada: o campo que diz qual é qual",
+        "secao": "NA PRÁTICA",
+        "codigo": "// Cada forma carrega os seus próprios campos, e um campo em comum diz qual delas é.\ntype Entrega =\n  | { tipo: 'retirada'; loja: string }\n  | { tipo: 'correios'; cep: string; prazoEmDias: number }\n  | { tipo: 'motoboy'; bairro: string; taxa: number };\n\nfunction descrever(entrega: Entrega): string {\n  switch (entrega.tipo) {\n    case 'retirada': return `retirar na loja ${entrega.loja}`;\n    case 'correios': return `correios para ${entrega.cep} em ${entrega.prazoEmDias} dias`;\n    case 'motoboy': return `motoboy no ${entrega.bairro} por R$ ${entrega.taxa.toFixed(2)}`;\n  }\n}\n\nconsole.log(descrever({ tipo: 'retirada', loja: 'Centro' }));\nconsole.log(descrever({ tipo: 'correios', cep: '30110-012', prazoEmDias: 5 }));\nconsole.log(descrever({ tipo: 'motoboy', bairro: 'Savassi', taxa: 12 }));\n\n// Dentro do `case 'retirada'`, só existe `loja` — os outros campos nem aparecem.\n// @ts-expect-error — Property 'cep' does not exist on type '{ tipo: \"retirada\"; loja: string; }'.\nconst semCep = ({ tipo: 'retirada', loja: 'Centro' } as Entrega & { tipo: 'retirada' }).cep;\nconsole.log('cep na retirada:', semCep);\n\nconsole.log('\\nÉ o padrão mais poderoso do TypeScript: em vez de um objeto com tudo opcional,');\nconsole.log('três formas fechadas e um campo que separa. O switch fica exaustivo de graça.');",
+        "codigoJs": "function descrever(entrega) {\n    switch(entrega.tipo){\n        case 'retirada':\n            return `retirar na loja ${entrega.loja}`;\n        case 'correios':\n            return `correios para ${entrega.cep} em ${entrega.prazoEmDias} dias`;\n        case 'motoboy':\n            return `motoboy no ${entrega.bairro} por R$ ${entrega.taxa.toFixed(2)}`;\n    }\n}\nconsole.log(descrever({\n    tipo: 'retirada',\n    loja: 'Centro'\n}));\nconsole.log(descrever({\n    tipo: 'correios',\n    cep: '30110-012',\n    prazoEmDias: 5\n}));\nconsole.log(descrever({\n    tipo: 'motoboy',\n    bairro: 'Savassi',\n    taxa: 12\n}));\nconst semCep = {\n    tipo: 'retirada',\n    loja: 'Centro'\n}.cep;\nconsole.log('cep na retirada:', semCep);\nconsole.log('\\nÉ o padrão mais poderoso do TypeScript: em vez de um objeto com tudo opcional,');\nconsole.log('três formas fechadas e um campo que separa. O switch fica exaustivo de graça.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "União de retorno: sucesso ou falha",
+        "secao": "NA PRÁTICA",
+        "codigo": "type Resultado = { ok: true; total: number } | { ok: false; erro: string };\n\nfunction calcularTotal(itens: { preco: number; quantidade: number }[]): Resultado {\n  if (itens.length === 0) return { ok: false, erro: 'carrinho vazio' };\n  const total = itens.reduce((soma, i) => soma + i.preco * i.quantidade, 0);\n  if (total <= 0) return { ok: false, erro: 'total inválido' };\n  return { ok: true, total };\n}\n\nfor (const carrinho of [[{ preco: 19.9, quantidade: 2 }], [], [{ preco: 0, quantidade: 1 }]]) {\n  const r = calcularTotal(carrinho);\n  // Só depois de conferir `r.ok` é que `r.total` (ou `r.erro`) existe.\n  console.log(r.ok ? `✓ R$ ${r.total.toFixed(2)}` : `✕ ${r.erro}`);\n}\n\nconsole.log('\\nSem união, isso viraria `{ total?: number; erro?: string }` — e aí os dois');\nconsole.log('podem faltar ao mesmo tempo, ou vir juntos. A união fecha essas duas portas.');",
+        "codigoJs": "function calcularTotal(itens) {\n    if (itens.length === 0) return {\n        ok: false,\n        erro: 'carrinho vazio'\n    };\n    const total = itens.reduce((soma, i)=>soma + i.preco * i.quantidade, 0);\n    if (total <= 0) return {\n        ok: false,\n        erro: 'total inválido'\n    };\n    return {\n        ok: true,\n        total\n    };\n}\nfor (const carrinho of [\n    [\n        {\n            preco: 19.9,\n            quantidade: 2\n        }\n    ],\n    [],\n    [\n        {\n            preco: 0,\n            quantidade: 1\n        }\n    ]\n]){\n    const r = calcularTotal(carrinho);\n    console.log(r.ok ? `✓ R$ ${r.total.toFixed(2)}` : `✕ ${r.erro}`);\n}\nconsole.log('\\nSem união, isso viraria `{ total?: number; erro?: string }` — e aí os dois');\nconsole.log('podem faltar ao mesmo tempo, ou vir juntos. A união fecha essas duas portas.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "Sem `as const`, o literal vira string na hora",
+        "secao": "PEGADINHAS",
+        "codigo": "type Nivel = 'baixo' | 'medio' | 'alto';\n\nfunction alertar(nivel: Nivel): string { return `alerta ${nivel}`; }\n\nconst escolhido = 'alto';                  // const: o tipo é 'alto' — funciona\nconsole.log(alertar(escolhido));\n\nlet escolhidoSolto = 'alto';               // let: o tipo alarga para string\n// @ts-expect-error — Argument of type 'string' is not assignable to parameter of type 'Nivel'.\nconsole.log(alertar(escolhidoSolto));\n\nconst dentroDeObjeto = { nivel: 'alto' };  // a propriedade também alarga para string\n// @ts-expect-error — Argument of type 'string' is not assignable to parameter of type 'Nivel'.\nconsole.log(alertar(dentroDeObjeto.nivel));\n\nconst congelado = { nivel: 'alto' } as const;\nconsole.log(alertar(congelado.nivel), '← com `as const` volta a ser o literal');\n\nconsole.log('\\nA regra é essa: `let` e propriedade de objeto alargam o literal para `string`.');\nconsole.log('Conserto: `as const`, ou anotar o tipo (`const n: Nivel = \"alto\"`).');",
+        "codigoJs": "function alertar(nivel) {\n    return `alerta ${nivel}`;\n}\nconst escolhido = 'alto';\nconsole.log(alertar(escolhido));\nlet escolhidoSolto = 'alto';\nconsole.log(alertar(escolhidoSolto));\nconst dentroDeObjeto = {\n    nivel: 'alto'\n};\nconsole.log(alertar(dentroDeObjeto.nivel));\nconst congelado = {\n    nivel: 'alto'\n};\nconsole.log(alertar(congelado.nivel), '← com `as const` volta a ser o literal');\nconsole.log('\\nA regra é essa: `let` e propriedade de objeto alargam o literal para `string`.');\nconsole.log('Conserto: `as const`, ou anotar o tipo (`const n: Nivel = \"alto\"`).');\n"
+       }
+      ],
+      "resumo": [
+       "`A | B` é \"um ou outro\"; fora de um `if`, só se pode usar o que existe nos dois.",
+       "Tipo literal transforma o valor em tipo: `'pix'` é mais preciso que `string`.",
+       "União de literais é o jeito de escrever status, papel, tamanho e forma de pagamento.",
+       "União discriminada (um campo `tipo` em comum) faz o `switch` estreitar sozinho.",
+       "Retorno `{ ok: true, ... } | { ok: false, erro }` acaba com o objeto meio preenchido.",
+       "`let` e propriedade de objeto alargam o literal — `as const` segura."
+      ]
+     },
+     {
+      "slug": "02-alias-e-interface",
+      "arquivo": "typescript/src/03-montar-tipos/02-alias-e-interface.ts",
+      "comando": "node src/03-montar-tipos/02-alias-e-interface.ts",
+      "titulo": "type alias e interface",
+      "sessao": 3,
+      "oQueE": "as duas formas de dar nome a um tipo. `type` apelida qualquer tipo; `interface` descreve o formato de um objeto e pode ser estendida.",
+      "quandoUsar": "`interface` para o formato de objeto e de classe; `type` para união, tupla, função e qualquer coisa que não seja um objeto.",
+      "quandoNaoUsar": "não misture os dois para a mesma ideia no mesmo projeto. A escolha importa menos do que a consistência.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "Dar nome ao tipo, em vez de repeti-lo",
+        "secao": "ESSENCIAL",
+        "codigo": "// Sem nome, o mesmo formato é escrito em três lugares e muda em três lugares.\ninterface Produto {\n  sku: string;\n  nome: string;\n  preco: number;\n}\n\nconst cadastrar = (produto: Produto): string => `cadastrado: ${produto.nome}`;\nconst etiqueta = (produto: Produto): string => `${produto.sku} — R$ ${produto.preco.toFixed(2)}`;\n\nconst caneca: Produto = { sku: 'CAN-01', nome: 'Caneca', preco: 19.9 };\nconsole.log(cadastrar(caneca));\nconsole.log(etiqueta(caneca));\n\ntry {\n  // @ts-expect-error — Property 'preco' is missing in type '{ sku: string; nome: string; }'.\n  console.log(etiqueta({ sku: 'CAD-02', nome: 'Caderno' }));\n} catch (erro) {\n  console.log('sem preço:', (erro as Error).message);\n}",
+        "codigoJs": "const cadastrar = (produto)=>`cadastrado: ${produto.nome}`;\nconst etiqueta = (produto)=>`${produto.sku} — R$ ${produto.preco.toFixed(2)}`;\nconst caneca = {\n    sku: 'CAN-01',\n    nome: 'Caneca',\n    preco: 19.9\n};\nconsole.log(cadastrar(caneca));\nconsole.log(etiqueta(caneca));\ntry {\n    console.log(etiqueta({\n        sku: 'CAD-02',\n        nome: 'Caderno'\n    }));\n} catch (erro) {\n    console.log('sem preço:', erro.message);\n}\n"
+       },
+       {
+        "n": 2,
+        "titulo": "`type` apelida qualquer coisa, não só objeto",
+        "secao": "ESSENCIAL",
+        "codigo": "type Reais = number;                                  // um apelido, para o código se ler melhor\ntype Sku = `${string}-${number}`;                     // template literal: formato de texto\ntype Ordenacao = 'asc' | 'desc';                      // união\ntype Comparador = (a: number, b: number) => number;   // função\ntype Coordenada = [number, number];                   // tupla\n\nconst preco: Reais = 19.9;\nconst codigo: Sku = 'CAN-01';\nconst ordem: Ordenacao = 'desc';\nconst porValor: Comparador = (a, b) => b - a;\nconst loja: Coordenada = [-19.92, -43.94];\n\nconsole.log(`${codigo}: R$ ${preco.toFixed(2)} (${ordem})`);\nconsole.log('ordenado:', [3, 1, 2].sort(porValor).join(' > '));\nconsole.log('loja em :', loja.join(', '));\n\n// @ts-expect-error — Type '\"CANECA\"' is not assignable to type '`${string}-${number}`'.\nconst skuTorto: Sku = 'CANECA';\nconsole.log('rodando, é texto como qualquer outro:', skuTorto.length, 'letras');",
+        "codigoJs": "const preco = 19.9;\nconst codigo = 'CAN-01';\nconst ordem = 'desc';\nconst porValor = (a, b)=>b - a;\nconst loja = [\n    -19.92,\n    -43.94\n];\nconsole.log(`${codigo}: R$ ${preco.toFixed(2)} (${ordem})`);\nconsole.log('ordenado:', [\n    3,\n    1,\n    2\n].sort(porValor).join(' > '));\nconsole.log('loja em :', loja.join(', '));\nconst skuTorto = 'CANECA';\nconsole.log('rodando, é texto como qualquer outro:', skuTorto.length, 'letras');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "Estender: `extends` na interface, `&` no type",
+        "secao": "ESSENCIAL",
+        "codigo": "interface Pessoa {\n  nome: string;\n  nascimento: string;\n}\ninterface Aluno extends Pessoa {\n  matricula: string;\n}\n\ntype PessoaTipo = { nome: string; nascimento: string };\ntype ProfessorTipo = PessoaTipo & { disciplinas: string[] };\n\nconst aluno: Aluno = { nome: 'Ana', nascimento: '2004-03-11', matricula: 'A-1042' };\nconst professor: ProfessorTipo = { nome: 'Carla', nascimento: '1985-07-02', disciplinas: ['Física'] };\n\nconsole.log(`${aluno.nome} (${aluno.matricula})`);\nconsole.log(`${professor.nome} — ${professor.disciplinas.join(', ')}`);\n\n// @ts-expect-error — Property 'matricula' is missing.\nconst semMatricula: Aluno = { nome: 'Bruno', nascimento: '2003-01-20' };\nconsole.log('roda mesmo assim:', Object.keys(semMatricula).length, 'chaves');\n\nconsole.log('\\nOs dois chegam ao mesmo resultado. `extends` diz \"é um tipo de\"; `&` diz');\nconsole.log('\"tem as duas coisas\". Na leitura, `extends` costuma contar melhor a história.');",
+        "codigoJs": "const aluno = {\n    nome: 'Ana',\n    nascimento: '2004-03-11',\n    matricula: 'A-1042'\n};\nconst professor = {\n    nome: 'Carla',\n    nascimento: '1985-07-02',\n    disciplinas: [\n        'Física'\n    ]\n};\nconsole.log(`${aluno.nome} (${aluno.matricula})`);\nconsole.log(`${professor.nome} — ${professor.disciplinas.join(', ')}`);\nconst semMatricula = {\n    nome: 'Bruno',\n    nascimento: '2003-01-20'\n};\nconsole.log('roda mesmo assim:', Object.keys(semMatricula).length, 'chaves');\nconsole.log('\\nOs dois chegam ao mesmo resultado. `extends` diz \"é um tipo de\"; `&` diz');\nconsole.log('\"tem as duas coisas\". Na leitura, `extends` costuma contar melhor a história.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Qual escolher, na prática",
+        "secao": "NA PRÁTICA",
+        "codigo": "const escolha = [\n  ['formato de objeto', 'interface', 'é o caso mais comum, e o erro sai mais legível'],\n  ['contrato de classe', 'interface', 'só interface entra em `implements`'],\n  ['união de literais', 'type', 'interface não sabe fazer união'],\n  ['tupla', 'type', 'idem'],\n  ['tipo de função', 'os dois', 'na prática, `type` é o que se lê melhor'],\n  ['tipo derivado de outro', 'type', 'Pick, Omit e keyof só cabem em `type`'],\n];\n\nconst largura = [24, 12, 46];\nconst linha = (colunas: string[]) => colunas.map((c, i) => c.padEnd(largura[i])).join('');\nconsole.log(linha(['PARA QUÊ', 'USE', 'POR QUÊ']));\nconsole.log(linha(['─'.repeat(22), '─'.repeat(10), '─'.repeat(44)]));\nfor (const l of escolha) console.log(linha(l));",
+        "codigoJs": "const escolha = [\n    [\n        'formato de objeto',\n        'interface',\n        'é o caso mais comum, e o erro sai mais legível'\n    ],\n    [\n        'contrato de classe',\n        'interface',\n        'só interface entra em `implements`'\n    ],\n    [\n        'união de literais',\n        'type',\n        'interface não sabe fazer união'\n    ],\n    [\n        'tupla',\n        'type',\n        'idem'\n    ],\n    [\n        'tipo de função',\n        'os dois',\n        'na prática, `type` é o que se lê melhor'\n    ],\n    [\n        'tipo derivado de outro',\n        'type',\n        'Pick, Omit e keyof só cabem em `type`'\n    ]\n];\nconst largura = [\n    24,\n    12,\n    46\n];\nconst linha = (colunas)=>colunas.map((c, i)=>c.padEnd(largura[i])).join('');\nconsole.log(linha([\n    'PARA QUÊ',\n    'USE',\n    'POR QUÊ'\n]));\nconsole.log(linha([\n    '─'.repeat(22),\n    '─'.repeat(10),\n    '─'.repeat(44)\n]));\nfor (const l of escolha)console.log(linha(l));\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Interface que descreve função e índice",
+        "secao": "NA PRÁTICA",
+        "codigo": "interface Formatador {\n  (valor: number): string;                    // a interface descreve a chamada\n  moeda: string;                              // e ainda tem propriedade própria\n}\n\nconst emReais = ((valor: number) => `R$ ${valor.toFixed(2)}`) as Formatador;\nemReais.moeda = 'BRL';\n\nconsole.log(emReais(1250.5), `(${emReais.moeda})`);\n\ninterface EstoquePorSku {\n  [sku: string]: number;                      // qualquer chave string, valor number\n}\n\nconst estoque: EstoquePorSku = { 'CAN-01': 12, 'CAD-02': 0 };\nestoque['CAN-02'] = 40;\n\nfor (const [sku, quantidade] of Object.entries(estoque))\n  console.log(`${sku.padEnd(8)} ${quantidade === 0 ? 'esgotado' : `${quantidade} un`}`);\n\n// @ts-expect-error — Type 'string' is not assignable to type 'number'.\nestoque['CAD-03'] = 'muitos';\nconsole.log('e o texto entrou:', estoque['CAD-03']);",
+        "codigoJs": "const emReais = (valor)=>`R$ ${valor.toFixed(2)}`;\nemReais.moeda = 'BRL';\nconsole.log(emReais(1250.5), `(${emReais.moeda})`);\nconst estoque = {\n    'CAN-01': 12,\n    'CAD-02': 0\n};\nestoque['CAN-02'] = 40;\nfor (const [sku, quantidade] of Object.entries(estoque))console.log(`${sku.padEnd(8)} ${quantidade === 0 ? 'esgotado' : `${quantidade} un`}`);\nestoque['CAD-03'] = 'muitos';\nconsole.log('e o texto entrou:', estoque['CAD-03']);\n"
+       },
+       {
+        "n": 6,
+        "titulo": "Interface se reabre; type, não",
+        "secao": "PEGADINHAS",
+        "codigo": "interface Configuracao {\n  ambiente: string;\n}\n// A MESMA interface, declarada de novo: o TypeScript junta as duas em silêncio.\ninterface Configuracao {\n  tentativas: number;\n}\n\nconst config: Configuracao = { ambiente: 'producao', tentativas: 3 };\nconsole.log('junção automática:', JSON.stringify(config));\n\n// @ts-expect-error — Property 'tentativas' is missing.\nconst soAmbiente: Configuracao = { ambiente: 'producao' };\nconsole.log('faltando um campo:', JSON.stringify(soAmbiente));\n\nconsole.log('\\nIsso se chama declaration merging. É ótimo para acrescentar campo a um tipo de');\nconsole.log('biblioteca (o `Request` do Express, por exemplo) e péssimo quando acontece sem');\nconsole.log('você querer: dois arquivos com a mesma interface viram uma só, sem aviso.');\nconsole.log('Com `type`, o mesmo nome duas vezes é erro na hora — e às vezes é o que se quer.');",
+        "codigoJs": "const config = {\n    ambiente: 'producao',\n    tentativas: 3\n};\nconsole.log('junção automática:', JSON.stringify(config));\nconst soAmbiente = {\n    ambiente: 'producao'\n};\nconsole.log('faltando um campo:', JSON.stringify(soAmbiente));\nconsole.log('\\nIsso se chama declaration merging. É ótimo para acrescentar campo a um tipo de');\nconsole.log('biblioteca (o `Request` do Express, por exemplo) e péssimo quando acontece sem');\nconsole.log('você querer: dois arquivos com a mesma interface viram uma só, sem aviso.');\nconsole.log('Com `type`, o mesmo nome duas vezes é erro na hora — e às vezes é o que se quer.');\n"
+       }
+      ],
+      "resumo": [
+       "`interface` para formato de objeto e contrato de classe; `type` para o resto.",
+       "`type` apelida qualquer tipo: união, tupla, função, template literal.",
+       "Herança: `extends` na interface, `&` no type — o resultado é o mesmo.",
+       "Só `interface` entra em `implements` (tema 06) e só `type` deriva com Pick/Omit (tema 07).",
+       "Interface descreve chamada de função e assinatura de índice.",
+       "Interface declarada duas vezes se funde em silêncio; `type` acusa nome repetido."
+      ]
+     },
+     {
+      "slug": "03-intersection-e-enum",
+      "arquivo": "typescript/src/03-montar-tipos/03-intersection-e-enum.ts",
+      "comando": "node --experimental-transform-types src/03-montar-tipos/03-intersection-e-enum.ts",
+      "titulo": "Intersection e enum",
+      "sessao": 3,
+      "oQueE": "intersection (`A & B`) junta dois tipos num só, que precisa cumprir os dois. `enum` é a única construção do TypeScript que SOBRA depois de compilar: ela vira um objeto de verdade no JavaScript gerado.",
+      "quandoUsar": "`&` para compor formatos sem herança. `enum` quando você precisa do valor existindo em tempo de execução (percorrer as opções, mapear de volta).",
+      "quandoNaoUsar": "`enum` no caso comum. Uma união de literais com `as const` faz o mesmo sem gerar código — e é o que a maior parte dos projetos usa hoje.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "`&`: o tipo que cumpre os dois contratos",
+        "secao": "ESSENCIAL",
+        "codigo": "type Identificavel = { id: number };\ntype ComDatas = { criadoEm: string; atualizadoEm: string };\ntype Comentario = Identificavel & ComDatas & { texto: string; autor: string };\n\nconst comentario: Comentario = {\n  id: 7,\n  criadoEm: '2026-08-20',\n  atualizadoEm: '2026-08-21',\n  texto: 'Chegou antes do prazo.',\n  autor: 'Ana',\n};\n\nconsole.log(`#${comentario.id} por ${comentario.autor}: \"${comentario.texto}\"`);\nconsole.log(`criado em ${comentario.criadoEm}, editado em ${comentario.atualizadoEm}`);\n\n// @ts-expect-error — Property 'atualizadoEm' is missing.\nconst semData: Comentario = { id: 8, criadoEm: '2026-08-22', texto: 'ok', autor: 'Bruno' };\nconsole.log('faltando um campo:', Object.keys(semData).length, 'chaves');\n\nconsole.log('\\n`&` é junção, não escolha: o objeto precisa de TODOS os campos dos dois lados.');\nconsole.log('É o contrário de `|`, onde basta ser um deles.');",
+        "codigoJs": "const comentario = {\n    id: 7,\n    criadoEm: '2026-08-20',\n    atualizadoEm: '2026-08-21',\n    texto: 'Chegou antes do prazo.',\n    autor: 'Ana'\n};\nconsole.log(`#${comentario.id} por ${comentario.autor}: \"${comentario.texto}\"`);\nconsole.log(`criado em ${comentario.criadoEm}, editado em ${comentario.atualizadoEm}`);\nconst semData = {\n    id: 8,\n    criadoEm: '2026-08-22',\n    texto: 'ok',\n    autor: 'Bruno'\n};\nconsole.log('faltando um campo:', Object.keys(semData).length, 'chaves');\nconsole.log('\\n`&` é junção, não escolha: o objeto precisa de TODOS os campos dos dois lados.');\nconsole.log('É o contrário de `|`, onde basta ser um deles.');\n"
+       },
+       {
+        "n": 2,
+        "titulo": "`enum`: a exceção que vira código",
+        "secao": "ESSENCIAL",
+        "codigo": "enum StatusDoPedido {\n  Pendente,        // 0\n  Pago,            // 1\n  Enviado,         // 2\n  Entregue,        // 3\n}\n\nconst status = StatusDoPedido.Enviado;\nconsole.log('valor    :', status);\nconsole.log('nome     :', StatusDoPedido[status], '← o mapa de volta, que só o enum dá');\nconsole.log('todos    :', Object.values(StatusDoPedido).filter((v) => typeof v === 'string').join(' → '));\n\n// É por isso que o cabeçalho deste arquivo pede `--experimental-transform-types`: sem a\n// flag, o `node` recusa o arquivo inteiro, porque `enum` não é um tipo — é código para gerar.\nconsole.log('\\nSão só duas as construções do TypeScript que geram código: `enum` e a');\nconsole.log('propriedade de parâmetro do construtor (tema 06). O resto o `node` apaga e pronto.');",
+        "codigoJs": "var StatusDoPedido = /*#__PURE__*/ function(StatusDoPedido) {\n    StatusDoPedido[StatusDoPedido[\"Pendente\"] = 0] = \"Pendente\";\n    StatusDoPedido[StatusDoPedido[\"Pago\"] = 1] = \"Pago\";\n    StatusDoPedido[StatusDoPedido[\"Enviado\"] = 2] = \"Enviado\";\n    StatusDoPedido[StatusDoPedido[\"Entregue\"] = 3] = \"Entregue\";\n    return StatusDoPedido;\n}(StatusDoPedido || {});\nconst status = 2;\nconsole.log('valor    :', status);\nconsole.log('nome     :', StatusDoPedido[status], '← o mapa de volta, que só o enum dá');\nconsole.log('todos    :', Object.values(StatusDoPedido).filter((v)=>typeof v === 'string').join(' → '));\nconsole.log('\\nSão só duas as construções do TypeScript que geram código: `enum` e a');\nconsole.log('propriedade de parâmetro do construtor (tema 06). O resto o `node` apaga e pronto.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "enum de texto, que é o que se usa de verdade",
+        "secao": "ESSENCIAL",
+        "codigo": "enum FormaDePagamento {\n  Pix = 'pix',\n  Boleto = 'boleto',\n  Cartao = 'cartao',\n}\n\nfunction prazo(forma: FormaDePagamento): string {\n  if (forma === FormaDePagamento.Pix) return 'na hora';\n  if (forma === FormaDePagamento.Boleto) return 'até 3 dias úteis';\n  return 'até 30 dias';\n}\n\nfor (const forma of Object.values(FormaDePagamento))\n  console.log(`${forma.padEnd(8)} ${prazo(forma)}`);\n\n// @ts-expect-error — Type '\"pix\"' is not assignable to type 'FormaDePagamento'.\nconsole.log(prazo('pix'));\n\nconsole.log('\\nRepare: o texto \"pix\" cru NÃO serve, mesmo tendo o mesmo valor. Enum de texto');\nconsole.log('é nominal — só o membro do enum entra. Enum de número, esse aceita qualquer number.');",
+        "codigoJs": "var FormaDePagamento = /*#__PURE__*/ function(FormaDePagamento) {\n    FormaDePagamento[\"Pix\"] = \"pix\";\n    FormaDePagamento[\"Boleto\"] = \"boleto\";\n    FormaDePagamento[\"Cartao\"] = \"cartao\";\n    return FormaDePagamento;\n}(FormaDePagamento || {});\nfunction prazo(forma) {\n    if (forma === \"pix\") return 'na hora';\n    if (forma === \"boleto\") return 'até 3 dias úteis';\n    return 'até 30 dias';\n}\nfor (const forma of Object.values(FormaDePagamento))console.log(`${forma.padEnd(8)} ${prazo(forma)}`);\nconsole.log(prazo('pix'));\nconsole.log('\\nRepare: o texto \"pix\" cru NÃO serve, mesmo tendo o mesmo valor. Enum de texto');\nconsole.log('é nominal — só o membro do enum entra. Enum de número, esse aceita qualquer number.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "`&` para acrescentar campo a um tipo que veio de fora",
+        "secao": "NA PRÁTICA",
+        "codigo": "// O caso clássico: o `Request` do Express ganha `usuarioId` depois que o login passa.\ntype Pedido = { rota: string; cabecalhos: Record<string, string> };\ntype PedidoAutenticado = Pedido & { usuarioId: number };\n\nconst loginRequired = (pedido: Pedido): PedidoAutenticado | null => {\n  const token = pedido.cabecalhos['authorization'];\n  if (!token) return null;\n  return { ...pedido, usuarioId: Number(token.replace('Bearer ', '')) };\n};\n\nconst semToken = loginRequired({ rota: '/alunos', cabecalhos: {} });\nconst comToken = loginRequired({ rota: '/alunos', cabecalhos: { authorization: 'Bearer 7' } });\n\nconsole.log('sem token:', semToken === null ? '401' : 'passou');\nconsole.log('com token:', comToken ? `usuário ${comToken.usuarioId} em ${comToken.rota}` : '401');\n\nconsole.log('\\nO `&` deixa claro o que foi ACRESCENTADO por quem, sem mexer no tipo original.');",
+        "codigoJs": "const loginRequired = (pedido)=>{\n    const token = pedido.cabecalhos['authorization'];\n    if (!token) return null;\n    return {\n        ...pedido,\n        usuarioId: Number(token.replace('Bearer ', ''))\n    };\n};\nconst semToken = loginRequired({\n    rota: '/alunos',\n    cabecalhos: {}\n});\nconst comToken = loginRequired({\n    rota: '/alunos',\n    cabecalhos: {\n        authorization: 'Bearer 7'\n    }\n});\nconsole.log('sem token:', semToken === null ? '401' : 'passou');\nconsole.log('com token:', comToken ? `usuário ${comToken.usuarioId} em ${comToken.rota}` : '401');\nconsole.log('\\nO `&` deixa claro o que foi ACRESCENTADO por quem, sem mexer no tipo original.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Enum ou união de literais?",
+        "secao": "NA PRÁTICA",
+        "codigo": "const comparacao = [\n  ['Existe rodando', 'sim, vira objeto', 'não, some'],\n  ['Peso no bundle', 'algumas linhas por enum', 'zero'],\n  ['Listar as opções', 'Object.values(E)', 'precisa de um array `as const`'],\n  ['Valor → nome', 'E[0] === \"Pendente\"', 'não tem'],\n  ['Aceita o texto cru', 'não (enum de texto)', 'sim, é o próprio texto'],\n  ['O que se usa hoje', 'quando precisa do objeto', 'no resto — é o padrão'],\n];\n\nconst largura = [22, 30, 30];\nconst linha = (colunas: string[]) => colunas.map((c, i) => c.padEnd(largura[i])).join('');\nconsole.log(linha(['', 'ENUM', 'UNIÃO DE LITERAIS']));\nconsole.log(linha(['─'.repeat(20), '─'.repeat(28), '─'.repeat(28)]));\nfor (const l of comparacao) console.log(linha(l));\n\n// A alternativa sem enum, com tudo que o enum dava:\nconst STATUS = ['pendente', 'pago', 'enviado', 'entregue'] as const;\ntype StatusLiteral = (typeof STATUS)[number];\n\nconst atual: StatusLiteral = 'enviado';\nconsole.log('\\nsem enum → opções:', STATUS.join(' → '), '| atual:', atual, '| índice:', STATUS.indexOf(atual));",
+        "codigoJs": "const comparacao = [\n    [\n        'Existe rodando',\n        'sim, vira objeto',\n        'não, some'\n    ],\n    [\n        'Peso no bundle',\n        'algumas linhas por enum',\n        'zero'\n    ],\n    [\n        'Listar as opções',\n        'Object.values(E)',\n        'precisa de um array `as const`'\n    ],\n    [\n        'Valor → nome',\n        'E[0] === \"Pendente\"',\n        'não tem'\n    ],\n    [\n        'Aceita o texto cru',\n        'não (enum de texto)',\n        'sim, é o próprio texto'\n    ],\n    [\n        'O que se usa hoje',\n        'quando precisa do objeto',\n        'no resto — é o padrão'\n    ]\n];\nconst largura = [\n    22,\n    30,\n    30\n];\nconst linha = (colunas)=>colunas.map((c, i)=>c.padEnd(largura[i])).join('');\nconsole.log(linha([\n    '',\n    'ENUM',\n    'UNIÃO DE LITERAIS'\n]));\nconsole.log(linha([\n    '─'.repeat(20),\n    '─'.repeat(28),\n    '─'.repeat(28)\n]));\nfor (const l of comparacao)console.log(linha(l));\nconst STATUS = [\n    'pendente',\n    'pago',\n    'enviado',\n    'entregue'\n];\nconst atual = 'enviado';\nconsole.log('\\nsem enum → opções:', STATUS.join(' → '), '| atual:', atual, '| índice:', STATUS.indexOf(atual));\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`&` de tipos incompatíveis dá `never`, não erro",
+        "secao": "PEGADINHAS",
+        "codigo": "type ComoTexto = { codigo: string };\ntype ComoNumero = { codigo: number };\ntype Impossivel = ComoTexto & ComoNumero;          // codigo: string & number → never\n\n// A declaração do TIPO passa. O erro só aparece quando alguém tenta criar o valor.\n// @ts-expect-error — Type 'string' is not assignable to type 'never'.\nconst nunca: Impossivel = { codigo: 'CAN-01' };\nconsole.log('rodando, é um objeto comum:', JSON.stringify(nunca));\n\nconsole.log('\\nO TypeScript não avisa na hora de declarar: ele espera você tentar usar.');\nconsole.log('Quando um `&` começa a dar \"not assignable to never\", quase sempre é isto:');\nconsole.log('dois campos com o mesmo nome e tipos que não se encontram.');",
+        "codigoJs": "const nunca = {\n    codigo: 'CAN-01'\n};\nconsole.log('rodando, é um objeto comum:', JSON.stringify(nunca));\nconsole.log('\\nO TypeScript não avisa na hora de declarar: ele espera você tentar usar.');\nconsole.log('Quando um `&` começa a dar \"not assignable to never\", quase sempre é isto:');\nconsole.log('dois campos com o mesmo nome e tipos que não se encontram.');\n"
+       },
+       {
+        "n": 7,
+        "titulo": "Enum de número aceita número que não é dele",
+        "secao": "PEGADINHAS",
+        "codigo": "enum Prioridade { Baixa = 1, Media = 2, Alta = 3 }\n\nfunction rotular(p: Prioridade): string { return Prioridade[p] ?? 'desconhecida'; }\n\nconst vindoDaApi: number = 99;                     // qualquer number, e o tsc aceita\n\nconsole.log('Alta   :', rotular(Prioridade.Alta));\nconsole.log('o 99   :', rotular(vindoDaApi), '← não é membro nenhum, e passou pelo tsc');\n\nconsole.log('\\nEnum numérico é estrutural: qualquer `number` cabe nele. Enum de texto não tem');\nconsole.log('esse buraco — mais um motivo para nunca usar a versão numérica em dado de fora.');",
+        "codigoJs": "var Prioridade = /*#__PURE__*/ function(Prioridade) {\n    Prioridade[Prioridade[\"Baixa\"] = 1] = \"Baixa\";\n    Prioridade[Prioridade[\"Media\"] = 2] = \"Media\";\n    Prioridade[Prioridade[\"Alta\"] = 3] = \"Alta\";\n    return Prioridade;\n}(Prioridade || {});\nfunction rotular(p) {\n    return Prioridade[p] ?? 'desconhecida';\n}\nconst vindoDaApi = 99;\nconsole.log('Alta   :', rotular(3));\nconsole.log('o 99   :', rotular(vindoDaApi), '← não é membro nenhum, e passou pelo tsc');\nconsole.log('\\nEnum numérico é estrutural: qualquer `number` cabe nele. Enum de texto não tem');\nconsole.log('esse buraco — mais um motivo para nunca usar a versão numérica em dado de fora.');\n"
+       }
+      ],
+      "resumo": [
+       "`A & B` exige os campos dos dois; `A | B` aceita ser um dos dois.",
+       "`&` é o jeito de acrescentar campo a um tipo de terceiro sem herança.",
+       "`enum` é a única coisa do TypeScript que sobra no JavaScript gerado.",
+       "Prefira enum de texto; o numérico aceita qualquer `number` e não protege nada.",
+       "Para o caso comum, união de literais + `as const` faz o mesmo e não gera código.",
+       "`&` de campos incompatíveis vira `never` calado — o erro só aparece ao criar o valor."
+      ]
+     }
+    ]
+   },
+   {
+    "slug": "04-funcoes",
+    "titulo": "Funções Tipadas",
+    "icone": "ƒ",
+    "cor": "#6ee7a8",
+    "resumo": "Parâmetro, retorno, sobrecarga e o this tipado.",
+    "topicos": [
+     {
+      "slug": "01-parametros-e-retorno",
+      "arquivo": "typescript/src/04-funcoes/01-parametros-e-retorno.ts",
+      "comando": "node src/04-funcoes/01-parametros-e-retorno.ts",
+      "titulo": "Parâmetros e retorno",
+      "sessao": 4,
+      "oQueE": "o contrato de uma função escrito por inteiro — o que entra, o que é opcional, o que tem padrão e o que sai.",
+      "quandoUsar": "sempre nos parâmetros; no retorno, quando ele for parte do contrato público ou quando a inferência sair mais larga do que você quer.",
+      "quandoNaoUsar": "não anote o retorno de callback curto (`(n) => n * 2`). Ali a inferência acerta e a anotação só ocupa espaço.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "Obrigatório, opcional e com padrão",
+        "secao": "ESSENCIAL",
+        "codigo": "function montarEtiqueta(\n  produto: string,                       // obrigatório\n  preco: number,                         // obrigatório\n  moeda: string = 'R$',                  // tem padrão: quem chama pode omitir\n  observacao?: string,                   // opcional: pode faltar, e aí é undefined\n): string {\n  const base = `${produto.padEnd(12)} ${moeda} ${preco.toFixed(2)}`;\n  return observacao ? `${base} (${observacao})` : base;\n}\n\nconsole.log(montarEtiqueta('Caneca', 19.9));\nconsole.log(montarEtiqueta('Caderno', 32.5, 'US$'));\nconsole.log(montarEtiqueta('Caneta', 4.2, 'R$', 'última unidade'));\n\ntry {\n  // @ts-expect-error — Expected 2-4 arguments, but got 1.\n  console.log(montarEtiqueta('Caneca'));\n} catch (erro) {\n  console.log('sem o preço:', (erro as Error).message);\n}\n\nconsole.log('\\nOpcional e com padrão vêm depois dos obrigatórios — senão não haveria como');\nconsole.log('omitir. E `observacao` dentro da função é `string | undefined`, não `string`.');",
+        "codigoJs": "function montarEtiqueta(produto, preco, moeda = 'R$', observacao) {\n    const base = `${produto.padEnd(12)} ${moeda} ${preco.toFixed(2)}`;\n    return observacao ? `${base} (${observacao})` : base;\n}\nconsole.log(montarEtiqueta('Caneca', 19.9));\nconsole.log(montarEtiqueta('Caderno', 32.5, 'US$'));\nconsole.log(montarEtiqueta('Caneta', 4.2, 'R$', 'última unidade'));\ntry {\n    console.log(montarEtiqueta('Caneca'));\n} catch (erro) {\n    console.log('sem o preço:', erro.message);\n}\nconsole.log('\\nOpcional e com padrão vêm depois dos obrigatórios — senão não haveria como');\nconsole.log('omitir. E `observacao` dentro da função é `string | undefined`, não `string`.');\n"
+       },
+       {
+        "n": 2,
+        "titulo": "O retorno: deduzido ou declarado",
+        "secao": "ESSENCIAL",
+        "codigo": "// Sem anotar, o TypeScript deduz. Aqui ele deduz `number`.\nfunction calcularSubtotal(preco: number, quantidade: number) {\n  return preco * quantidade;\n}\n\n// Anotando, você trava a intenção — e o erro aparece DENTRO da função, não em quem chama.\nfunction calcularTotal(subtotal: number, frete: number): number {\n  return subtotal + frete;\n}\n\nconsole.log('subtotal:', calcularSubtotal(19.9, 3).toFixed(2));\nconsole.log('total   :', calcularTotal(calcularSubtotal(19.9, 3), 12).toFixed(2));\n\n// @ts-expect-error — Type 'string' is not assignable to type 'number'.\nfunction calcularErrado(a: number, b: number): number { return `${a + b}`; }\nconsole.log('devolveu texto:', typeof calcularErrado(1, 2));\n\nconsole.log('\\nEssa é a vantagem de anotar o retorno: o erro é acusado na linha do `return`.');\nconsole.log('Sem a anotação, a função \"funcionaria\" e o problema apareceria três chamadas adiante.');",
+        "codigoJs": "function calcularSubtotal(preco, quantidade) {\n    return preco * quantidade;\n}\nfunction calcularTotal(subtotal, frete) {\n    return subtotal + frete;\n}\nconsole.log('subtotal:', calcularSubtotal(19.9, 3).toFixed(2));\nconsole.log('total   :', calcularTotal(calcularSubtotal(19.9, 3), 12).toFixed(2));\nfunction calcularErrado(a, b) {\n    return `${a + b}`;\n}\nconsole.log('devolveu texto:', typeof calcularErrado(1, 2));\nconsole.log('\\nEssa é a vantagem de anotar o retorno: o erro é acusado na linha do `return`.');\nconsole.log('Sem a anotação, a função \"funcionaria\" e o problema apareceria três chamadas adiante.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "Resto de parâmetros: quantos vierem",
+        "secao": "ESSENCIAL",
+        "codigo": "function somarLancamentos(descricao: string, ...valores: number[]): string {\n  const total = valores.reduce((soma, v) => soma + v, 0);\n  return `${descricao.padEnd(12)} ${valores.length} lançamentos · R$ ${total.toFixed(2)}`;\n}\n\nconsole.log(somarLancamentos('Janeiro', 1200, 890, 430));\nconsole.log(somarLancamentos('Fevereiro', 980));\nconsole.log(somarLancamentos('Março'));\n\ntry {\n  // @ts-expect-error — Argument of type 'string' is not assignable to parameter of type 'number'.\n  console.log(somarLancamentos('Abril', 100, '200'));\n} catch (erro) {\n  console.log('com texto no meio:', (erro as Error).message, '← 100 + \"200\" virou \"100200\"');\n}\n\n// Espalhar uma lista existente funciona igual — e o tipo acompanha.\nconst doBanco: number[] = [310, 275, 96];\nconsole.log(somarLancamentos('Maio', ...doBanco));",
+        "codigoJs": "function somarLancamentos(descricao, ...valores) {\n    const total = valores.reduce((soma, v)=>soma + v, 0);\n    return `${descricao.padEnd(12)} ${valores.length} lançamentos · R$ ${total.toFixed(2)}`;\n}\nconsole.log(somarLancamentos('Janeiro', 1200, 890, 430));\nconsole.log(somarLancamentos('Fevereiro', 980));\nconsole.log(somarLancamentos('Março'));\ntry {\n    console.log(somarLancamentos('Abril', 100, '200'));\n} catch (erro) {\n    console.log('com texto no meio:', erro.message, '← 100 + \"200\" virou \"100200\"');\n}\nconst doBanco = [\n    310,\n    275,\n    96\n];\nconsole.log(somarLancamentos('Maio', ...doBanco));\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Objeto de opções, quando os parâmetros passam de três",
+        "secao": "NA PRÁTICA",
+        "codigo": "// Quatro parâmetros soltos viram `buscar('ana', true, false, 20)` — ilegível na chamada.\ntype OpcoesDeBusca = {\n  termo: string;\n  somenteAtivos?: boolean;\n  incluirArquivados?: boolean;\n  limite?: number;\n};\n\nfunction buscarClientes({ termo, somenteAtivos = true, incluirArquivados = false, limite = 10 }: OpcoesDeBusca): string {\n  return `\"${termo}\" · ativos=${somenteAtivos} · arquivados=${incluirArquivados} · limite=${limite}`;\n}\n\nconsole.log(buscarClientes({ termo: 'ana' }));\nconsole.log(buscarClientes({ termo: 'bruno', limite: 50, incluirArquivados: true }));\n\n// @ts-expect-error — Object literal may only specify known properties. Did you mean 'limite'?\nconsole.log(buscarClientes({ termo: 'carla', limit: 5 }));\n\nconsole.log('\\nO padrão fica no desmembramento, o tipo fica no `type`. Quem chama enxerga o');\nconsole.log('nome de cada opção, e acrescentar a quinta não quebra ninguém.');",
+        "codigoJs": "function buscarClientes({ termo, somenteAtivos = true, incluirArquivados = false, limite = 10 }) {\n    return `\"${termo}\" · ativos=${somenteAtivos} · arquivados=${incluirArquivados} · limite=${limite}`;\n}\nconsole.log(buscarClientes({\n    termo: 'ana'\n}));\nconsole.log(buscarClientes({\n    termo: 'bruno',\n    limite: 50,\n    incluirArquivados: true\n}));\nconsole.log(buscarClientes({\n    termo: 'carla',\n    limit: 5\n}));\nconsole.log('\\nO padrão fica no desmembramento, o tipo fica no `type`. Quem chama enxerga o');\nconsole.log('nome de cada opção, e acrescentar a quinta não quebra ninguém.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Função como parâmetro",
+        "secao": "NA PRÁTICA",
+        "codigo": "type Transformacao = (valor: number) => number;\n\nfunction aplicarNaFolha(salarios: number[], transformar: Transformacao): number[] {\n  return salarios.map(transformar);\n}\n\nconst salarios = [3200, 5400, 2100];\nconst reajuste = (valor: number) => Math.round(valor * 1.08);\nconst bonus: Transformacao = (valor) => valor + 500;   // parâmetro não precisa de anotação aqui\n\nconsole.log('original :', salarios.join(' · '));\nconsole.log('reajuste :', aplicarNaFolha(salarios, reajuste).join(' · '));\nconsole.log('bônus    :', aplicarNaFolha(salarios, bonus).join(' · '));\n\n// @ts-expect-error — Type 'string' is not assignable to type 'number'.\nconsole.log(aplicarNaFolha(salarios, (valor) => `R$ ${valor}`));\n\nconsole.log('\\nRepare no `bonus`: o tipo está na variável, então o `valor` já vem tipado.');\nconsole.log('Isso se chama tipagem contextual, e é por isso que callback quase nunca precisa');\nconsole.log('de anotação.');",
+        "codigoJs": "function aplicarNaFolha(salarios, transformar) {\n    return salarios.map(transformar);\n}\nconst salarios = [\n    3200,\n    5400,\n    2100\n];\nconst reajuste = (valor)=>Math.round(valor * 1.08);\nconst bonus = (valor)=>valor + 500;\nconsole.log('original :', salarios.join(' · '));\nconsole.log('reajuste :', aplicarNaFolha(salarios, reajuste).join(' · '));\nconsole.log('bônus    :', aplicarNaFolha(salarios, bonus).join(' · '));\nconsole.log(aplicarNaFolha(salarios, (valor)=>`R$ ${valor}`));\nconsole.log('\\nRepare no `bonus`: o tipo está na variável, então o `valor` já vem tipado.');\nconsole.log('Isso se chama tipagem contextual, e é por isso que callback quase nunca precisa');\nconsole.log('de anotação.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "Parâmetro opcional não é o mesmo que aceitar `undefined`",
+        "secao": "PEGADINHAS",
+        "codigo": "function comOpcional(nome: string, apelido?: string): string { return apelido ?? nome; }\nfunction comUniao(nome: string, apelido: string | undefined): string { return apelido ?? nome; }\n\nconsole.log('opcional, omitindo :', comOpcional('Ana Souza'));\nconsole.log('união, com undefined:', comUniao('Ana Souza', undefined));\n\n// @ts-expect-error — Expected 2 arguments, but got 1.\nconsole.log(comUniao('Bruno Lima'));\n\nconsole.log('\\n`apelido?` deixa OMITIR o argumento; `string | undefined` obriga a passá-lo,');\nconsole.log('mesmo que seja `undefined`. A segunda forma é chata — e é justamente por isso');\nconsole.log('que ela serve: obriga quem chama a decidir, em vez de esquecer.');",
+        "codigoJs": "function comOpcional(nome, apelido) {\n    return apelido ?? nome;\n}\nfunction comUniao(nome, apelido) {\n    return apelido ?? nome;\n}\nconsole.log('opcional, omitindo :', comOpcional('Ana Souza'));\nconsole.log('união, com undefined:', comUniao('Ana Souza', undefined));\nconsole.log(comUniao('Bruno Lima'));\nconsole.log('\\n`apelido?` deixa OMITIR o argumento; `string | undefined` obriga a passá-lo,');\nconsole.log('mesmo que seja `undefined`. A segunda forma é chata — e é justamente por isso');\nconsole.log('que ela serve: obriga quem chama a decidir, em vez de esquecer.');\n"
+       }
+      ],
+      "resumo": [
+       "Parâmetro obrigatório primeiro; opcional (`?`) e com padrão (`= x`) depois.",
+       "Dentro da função, `x?: T` vale `T | undefined` — trate antes de usar.",
+       "Anotar o retorno faz o erro aparecer no `return`, e não lá na frente.",
+       "`...resto: T[]` aceita quantos vierem, e `...array` na chamada casa com ele.",
+       "Passou de três parâmetros, troque por um objeto de opções com padrões no desmembramento.",
+       "Callback quase nunca precisa de anotação: o tipo vem do contexto."
+      ]
+     },
+     {
+      "slug": "02-overload-e-this",
+      "arquivo": "typescript/src/04-funcoes/02-overload-e-this.ts",
+      "comando": "node src/04-funcoes/02-overload-e-this.ts",
+      "titulo": "Sobrecarga e o this tipado",
+      "sessao": 4,
+      "oQueE": "sobrecarga é declarar várias assinaturas para a mesma função, para o retorno depender do que entrou. `this: T` é um parâmetro falso que diz de quem a função é — some na chamada e só serve para o compilador conferir.",
+      "quandoUsar": "sobrecarga quando o tipo do retorno MUDA conforme o argumento. `this: T` em função que vai virar método ou callback de evento.",
+      "quandoNaoUsar": "sobrecarga quando uma união resolve. Duas assinaturas que devolvem o mesmo tipo não precisam de sobrecarga nenhuma.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "O problema que a sobrecarga resolve",
+        "secao": "ESSENCIAL",
+        "codigo": "// Sem sobrecarga, o retorno é a união — e quem chama tem que conferir mesmo sabendo.\nfunction buscarSemSobrecarga(chave: string | number): string | number {\n  return typeof chave === 'string' ? chave.length : chave * 2;\n}\n\nconst semSobrecarga = buscarSemSobrecarga('caneca');\n// @ts-expect-error — Property 'toFixed' does not exist on type 'string | number'.\nconsole.log(semSobrecarga.toFixed(0));\nconsole.log('sem sobrecarga:', semSobrecarga, '← o tipo é string | number, e quem chama sofre');",
+        "codigoJs": "function buscarSemSobrecarga(chave) {\n    return typeof chave === 'string' ? chave.length : chave * 2;\n}\nconst semSobrecarga = buscarSemSobrecarga('caneca');\nconsole.log(semSobrecarga.toFixed(0));\nconsole.log('sem sobrecarga:', semSobrecarga, '← o tipo é string | number, e quem chama sofre');\n"
+       },
+       {
+        "n": 2,
+        "titulo": "Com sobrecarga: o retorno segue a entrada",
+        "secao": "ESSENCIAL",
+        "codigo": "// As duas primeiras linhas são só assinaturas: somem no JavaScript gerado.\nfunction medir(valor: string): string;\nfunction medir(valor: number): number;\nfunction medir(valor: string | number): string | number {\n  return typeof valor === 'string' ? `${valor.length} letras` : Math.round(valor * 100) / 100;\n}\n\nconst comoTexto = medir('caneca');          // string\nconst comoNumero = medir(19.987);           // number\n\nconsole.log('texto :', comoTexto.toUpperCase());\nconsole.log('número:', comoNumero.toFixed(1));\n\n// @ts-expect-error — No overload matches this call.\nconsole.log(medir(true));\n\nconsole.log('\\nA implementação (a terceira linha) NÃO é uma assinatura pública: ninguém pode');\nconsole.log('chamar `medir(x: string | number)`. Só as duas declaradas acima valem.');",
+        "codigoJs": "function medir(valor) {\n    return typeof valor === 'string' ? `${valor.length} letras` : Math.round(valor * 100) / 100;\n}\nconst comoTexto = medir('caneca');\nconst comoNumero = medir(19.987);\nconsole.log('texto :', comoTexto.toUpperCase());\nconsole.log('número:', comoNumero.toFixed(1));\nconsole.log(medir(true));\nconsole.log('\\nA implementação (a terceira linha) NÃO é uma assinatura pública: ninguém pode');\nconsole.log('chamar `medir(x: string | number)`. Só as duas declaradas acima valem.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "`this` tipado: a função sabe de quem ela é",
+        "secao": "ESSENCIAL",
+        "codigo": "type Carrinho = {\n  itens: { nome: string; preco: number }[];\n  total(): number;\n};\n\n// `this: Carrinho` é o primeiro parâmetro na declaração e não existe na chamada.\nfunction totalDoCarrinho(this: Carrinho): number {\n  return this.itens.reduce((soma, i) => soma + i.preco, 0);\n}\n\nconst carrinho: Carrinho = {\n  itens: [{ nome: 'Caneca', preco: 19.9 }, { nome: 'Caderno', preco: 32.5 }],\n  total: totalDoCarrinho,\n};\n\nconsole.log('total:', carrinho.total().toFixed(2));\n\n// Chamada solta, sem dono, a função não tem `this` — e o TypeScript avisa antes de rodar.\ntry {\n  // @ts-expect-error — The 'this' context of type 'void' is not assignable to method's 'this' of type 'Carrinho'.\n  console.log(totalDoCarrinho());\n} catch (erro) {\n  console.log('sem dono   :', (erro as Error).message);\n}\n\nconsole.log('\\nEsse é o bug clássico de `this` no JavaScript, transformado em erro de compilação.');",
+        "codigoJs": "function totalDoCarrinho() {\n    return this.itens.reduce((soma, i)=>soma + i.preco, 0);\n}\nconst carrinho = {\n    itens: [\n        {\n            nome: 'Caneca',\n            preco: 19.9\n        },\n        {\n            nome: 'Caderno',\n            preco: 32.5\n        }\n    ],\n    total: totalDoCarrinho\n};\nconsole.log('total:', carrinho.total().toFixed(2));\ntry {\n    console.log(totalDoCarrinho());\n} catch (erro) {\n    console.log('sem dono   :', erro.message);\n}\nconsole.log('\\nEsse é o bug clássico de `this` no JavaScript, transformado em erro de compilação.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Sobrecarga onde ela vale mesmo a pena",
+        "secao": "NA PRÁTICA",
+        "codigo": "type Aluno = { id: number; nome: string; nota: number };\n\nconst turma: Aluno[] = [\n  { id: 1, nome: 'Ana', nota: 9.2 },\n  { id: 2, nome: 'Bruno', nota: 6.4 },\n  { id: 3, nome: 'Carla', nota: 8.1 },\n];\n\n// Por id vem um aluno (ou undefined); por nota mínima vem uma lista. Tipos diferentes.\nfunction buscarAluno(id: number): Aluno | undefined;\nfunction buscarAluno(criterio: { notaMinima: number }): Aluno[];\nfunction buscarAluno(alvo: number | { notaMinima: number }): Aluno | undefined | Aluno[] {\n  if (typeof alvo === 'number') return turma.find((a) => a.id === alvo);\n  return turma.filter((a) => a.nota >= alvo.notaMinima);\n}\n\nconst porId = buscarAluno(2);\nconst aprovados = buscarAluno({ notaMinima: 7 });\n\nconsole.log('por id  :', porId?.nome ?? 'não achou');\nconsole.log('nota ≥ 7:', aprovados.map((a) => a.nome).join(', '), `(${aprovados.length})`);\n\n// Sem sobrecarga, `aprovados.map` não compilaria: o tipo seria a união dos três casos.\nconsole.log('\\nUse sobrecarga quando o RETORNO muda de forma. Quando só os parâmetros mudam');\nconsole.log('e a saída é a mesma, parâmetro opcional ou união resolvem com menos código.');",
+        "codigoJs": "const turma = [\n    {\n        id: 1,\n        nome: 'Ana',\n        nota: 9.2\n    },\n    {\n        id: 2,\n        nome: 'Bruno',\n        nota: 6.4\n    },\n    {\n        id: 3,\n        nome: 'Carla',\n        nota: 8.1\n    }\n];\nfunction buscarAluno(alvo) {\n    if (typeof alvo === 'number') return turma.find((a)=>a.id === alvo);\n    return turma.filter((a)=>a.nota >= alvo.notaMinima);\n}\nconst porId = buscarAluno(2);\nconst aprovados = buscarAluno({\n    notaMinima: 7\n});\nconsole.log('por id  :', porId?.nome ?? 'não achou');\nconsole.log('nota ≥ 7:', aprovados.map((a)=>a.nome).join(', '), `(${aprovados.length})`);\nconsole.log('\\nUse sobrecarga quando o RETORNO muda de forma. Quando só os parâmetros mudam');\nconsole.log('e a saída é a mesma, parâmetro opcional ou união resolvem com menos código.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "`this` em callback de evento",
+        "secao": "NA PRÁTICA",
+        "codigo": "// É o caso do `addEventListener`: dentro do handler, `this` é o elemento que disparou.\ntype Botao = { rotulo: string; aoClicar(este: (this: Botao) => void): void };\n\nfunction criarBotao(rotulo: string): Botao {\n  const botao: Botao = {\n    rotulo,\n    aoClicar(handler) { handler.call(botao); },     // `call` amarra o this\n  };\n  return botao;\n}\n\nconst salvar = criarBotao('Salvar');\nsalvar.aoClicar(function (this: Botao) {\n  console.log(`clicou em \"${this.rotulo}\"`);\n});\n\n// Arrow function NÃO tem `this` próprio — por isso ela não serve neste lugar.\nsalvar.aoClicar(() => console.log('arrow: aqui `this` não é o botão, é o de fora'));\n\nconsole.log('\\nRegra: `function` quando você precisa do `this` de quem chamou; arrow quando');\nconsole.log('você quer justamente o `this` de fora (dentro de um método de classe, por exemplo).');",
+        "codigoJs": "function criarBotao(rotulo) {\n    const botao = {\n        rotulo,\n        aoClicar (handler) {\n            handler.call(botao);\n        }\n    };\n    return botao;\n}\nconst salvar = criarBotao('Salvar');\nsalvar.aoClicar(function() {\n    console.log(`clicou em \"${this.rotulo}\"`);\n});\nsalvar.aoClicar(()=>console.log('arrow: aqui `this` não é o botão, é o de fora'));\nconsole.log('\\nRegra: `function` quando você precisa do `this` de quem chamou; arrow quando');\nconsole.log('você quer justamente o `this` de fora (dentro de um método de classe, por exemplo).');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "A implementação não confere as assinaturas",
+        "secao": "PEGADINHAS",
+        "codigo": "function formatar(valor: string): string;\nfunction formatar(valor: number): string;\n// A implementação promete `string` para os dois casos — mas quem garante é você.\nfunction formatar(valor: string | number): string {\n  if (typeof valor === 'number') return valor.toFixed(2);\n  return valor.trim();\n}\n\nconsole.log('número:', formatar(19.9));\nconsole.log('texto :', formatar('  caneca  ') + '|');\n\n// O buraco: a assinatura pode prometer algo que a implementação não cumpre, e o tsc aceita.\nfunction tamanho(valor: string): number;\nfunction tamanho(valor: unknown[]): number;\nfunction tamanho(valor: any): number {\n  return valor.length;             // `any` na implementação: ninguém confere mais nada\n}\n\nconsole.log('tamanho de texto:', tamanho('caneca'));\nconsole.log('tamanho de lista:', tamanho([1, 2, 3]));\n\nconsole.log('\\nÉ o preço da sobrecarga: a assinatura de implementação costuma virar `any` ou');\nconsole.log('uma união larga, e ali dentro a conferência afrouxa. Escreva pouco código nela.');",
+        "codigoJs": "function formatar(valor) {\n    if (typeof valor === 'number') return valor.toFixed(2);\n    return valor.trim();\n}\nconsole.log('número:', formatar(19.9));\nconsole.log('texto :', formatar('  caneca  ') + '|');\nfunction tamanho(valor) {\n    return valor.length;\n}\nconsole.log('tamanho de texto:', tamanho('caneca'));\nconsole.log('tamanho de lista:', tamanho([\n    1,\n    2,\n    3\n]));\nconsole.log('\\nÉ o preço da sobrecarga: a assinatura de implementação costuma virar `any` ou');\nconsole.log('uma união larga, e ali dentro a conferência afrouxa. Escreva pouco código nela.');\n"
+       }
+      ],
+      "resumo": [
+       "Sobrecarga = várias assinaturas + uma implementação; só as assinaturas são chamáveis.",
+       "Ela vale quando o TIPO DO RETORNO muda conforme o argumento — senão, use união.",
+       "As assinaturas somem no JavaScript gerado: são declaração pura.",
+       "`this: T` é um parâmetro falso que tipa o dono da função e não entra na chamada.",
+       "Arrow function não tem `this` próprio; `function` tem. É o que decide qual usar.",
+       "Dentro da implementação a conferência afrouxa — mantenha esse corpo curto."
+      ]
+     }
+    ]
+   },
+   {
+    "slug": "05-estreitar-tipos",
+    "titulo": "Estreitar Tipos",
+    "icone": "⇲",
+    "cor": "#b48ef0",
+    "resumo": "De um tipo largo para o certo: type guard e assertion.",
+    "topicos": [
+     {
+      "slug": "01-type-guards",
+      "arquivo": "typescript/src/05-estreitar-tipos/01-type-guards.ts",
+      "comando": "node src/05-estreitar-tipos/01-type-guards.ts",
+      "titulo": "Type guards",
+      "sessao": 5,
+      "oQueE": "uma conferência feita rodando que o TypeScript entende e usa para estreitar o tipo — depois do `if`, o valor deixa de ser \"um dos três\" e passa a ser um só.",
+      "quandoUsar": "sempre que um valor for união, `unknown`, ou puder ser null/undefined. É o caminho normal de sair de um tipo largo para o certo.",
+      "quandoNaoUsar": "no lugar de `as`. `as` finge; o type guard confere. Quando o dado vem de fora, só o type guard vale alguma coisa.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "`typeof`: o guard dos primitivos",
+        "secao": "ESSENCIAL",
+        "codigo": "function formatarValor(valor: string | number | boolean): string {\n  if (typeof valor === 'number') return `R$ ${valor.toFixed(2)}`;   // aqui é number\n  if (typeof valor === 'boolean') return valor ? 'sim' : 'não';     // aqui é boolean\n  return valor.trim().toUpperCase();                                // sobrou string\n}\n\nconsole.log(formatarValor(19.9));\nconsole.log(formatarValor(true));\nconsole.log(formatarValor('  pix  '));\n\n// O TypeScript acompanha a eliminação: na última linha, `boolean` e `number` já saíram.\n// @ts-expect-error — Property 'toFixed' does not exist on type 'string | number | boolean'.\nconsole.log((19.9 as string | number | boolean).toFixed(2));",
+        "codigoJs": "function formatarValor(valor) {\n    if (typeof valor === 'number') return `R$ ${valor.toFixed(2)}`;\n    if (typeof valor === 'boolean') return valor ? 'sim' : 'não';\n    return valor.trim().toUpperCase();\n}\nconsole.log(formatarValor(19.9));\nconsole.log(formatarValor(true));\nconsole.log(formatarValor('  pix  '));\nconsole.log(19.9.toFixed(2));\n"
+       },
+       {
+        "n": 2,
+        "titulo": "`in`: existe esta chave no objeto?",
+        "secao": "ESSENCIAL",
+        "codigo": "type PagamentoPix = { valor: number; chavePix: string };\ntype PagamentoCartao = { valor: number; bandeira: string; parcelas: number };\n\nfunction descreverPagamento(pagamento: PagamentoPix | PagamentoCartao): string {\n  if ('chavePix' in pagamento) return `pix para ${pagamento.chavePix}`;\n  return `${pagamento.bandeira} em ${pagamento.parcelas}x`;\n}\n\nconsole.log(descreverPagamento({ valor: 200, chavePix: 'ana@loja.dev' }));\nconsole.log(descreverPagamento({ valor: 200, bandeira: 'Visa', parcelas: 3 }));\n\n// @ts-expect-error — Property 'bandeira' does not exist on type 'PagamentoPix | PagamentoCartao'.\nconsole.log(({ valor: 200, chavePix: 'x' } as PagamentoPix | PagamentoCartao).bandeira);\n\nconsole.log('\\n`in` serve para união de objetos sem campo em comum que os separe. Quando dá');\nconsole.log('para acrescentar um campo `tipo`, a união discriminada lê melhor (tema 03).');",
+        "codigoJs": "function descreverPagamento(pagamento) {\n    if ('chavePix' in pagamento) return `pix para ${pagamento.chavePix}`;\n    return `${pagamento.bandeira} em ${pagamento.parcelas}x`;\n}\nconsole.log(descreverPagamento({\n    valor: 200,\n    chavePix: 'ana@loja.dev'\n}));\nconsole.log(descreverPagamento({\n    valor: 200,\n    bandeira: 'Visa',\n    parcelas: 3\n}));\nconsole.log({\n    valor: 200,\n    chavePix: 'x'\n}.bandeira);\nconsole.log('\\n`in` serve para união de objetos sem campo em comum que os separe. Quando dá');\nconsole.log('para acrescentar um campo `tipo`, a união discriminada lê melhor (tema 03).');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "`instanceof` e a conferência de null",
+        "secao": "ESSENCIAL",
+        "codigo": "function quandoAconteceu(quando: Date | string | null): string {\n  if (quando === null) return 'nunca';                    // tira o null\n  if (quando instanceof Date) return quando.toISOString().slice(0, 10);\n  return quando.padStart(10, '0');                        // sobrou string\n}\n\nconsole.log(quandoAconteceu(new Date('2026-08-28T12:00:00Z')));\nconsole.log(quandoAconteceu('28/08'));\nconsole.log(quandoAconteceu(null));\n\n// A conferência de \"existe\" também é guard — e cobre null E undefined de uma vez.\nfunction primeiroNome(nomeCompleto: string | null | undefined): string {\n  if (!nomeCompleto) return 'sem nome';\n  return nomeCompleto.split(' ')[0];\n}\n\nconsole.log(primeiroNome('Ana Souza'), '·', primeiroNome(null), '·', primeiroNome(undefined));\n\nconsole.log('\\nCuidado com `if (!valor)`: ele também derruba `0` e `\"\"`. Para número e texto,');\nconsole.log('escreva `valor !== undefined` ou `valor != null`, que pega os dois vazios.');",
+        "codigoJs": "function quandoAconteceu(quando) {\n    if (quando === null) return 'nunca';\n    if (quando instanceof Date) return quando.toISOString().slice(0, 10);\n    return quando.padStart(10, '0');\n}\nconsole.log(quandoAconteceu(new Date('2026-08-28T12:00:00Z')));\nconsole.log(quandoAconteceu('28/08'));\nconsole.log(quandoAconteceu(null));\nfunction primeiroNome(nomeCompleto) {\n    if (!nomeCompleto) return 'sem nome';\n    return nomeCompleto.split(' ')[0];\n}\nconsole.log(primeiroNome('Ana Souza'), '·', primeiroNome(null), '·', primeiroNome(undefined));\nconsole.log('\\nCuidado com `if (!valor)`: ele também derruba `0` e `\"\"`. Para número e texto,');\nconsole.log('escreva `valor !== undefined` ou `valor != null`, que pega os dois vazios.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Guard escrito por você: `valor is Tipo`",
+        "secao": "NA PRÁTICA",
+        "codigo": "type Aluno = { nome: string; matricula: string };\n\n// A assinatura `x is Aluno` é o que faz o TypeScript acreditar no resultado do `if`.\nfunction ehAluno(valor: unknown): valor is Aluno {\n  return (\n    typeof valor === 'object' && valor !== null &&\n    typeof (valor as Aluno).nome === 'string' &&\n    typeof (valor as Aluno).matricula === 'string'\n  );\n}\n\nconst vindosDaApi: unknown[] = [\n  { nome: 'Ana', matricula: 'A-1042' },\n  { nome: 'Bruno' },\n  'texto solto',\n  null,\n];\n\nfor (const item of vindosDaApi) {\n  // Sem o guard, `item.nome` nem compilaria: `item` é unknown.\n  if (ehAluno(item)) console.log('✓', item.matricula, item.nome);\n  else console.log('✕ ignorado:', JSON.stringify(item));\n}\n\nconsole.log('\\nEste é o padrão para tudo que chega de fetch, JSON.parse ou formulário: uma');\nconsole.log('função que CONFERE rodando e devolve `x is T`. É o `as` feito direito.');",
+        "codigoJs": "function ehAluno(valor) {\n    return typeof valor === 'object' && valor !== null && typeof valor.nome === 'string' && typeof valor.matricula === 'string';\n}\nconst vindosDaApi = [\n    {\n        nome: 'Ana',\n        matricula: 'A-1042'\n    },\n    {\n        nome: 'Bruno'\n    },\n    'texto solto',\n    null\n];\nfor (const item of vindosDaApi){\n    if (ehAluno(item)) console.log('✓', item.matricula, item.nome);\n    else console.log('✕ ignorado:', JSON.stringify(item));\n}\nconsole.log('\\nEste é o padrão para tudo que chega de fetch, JSON.parse ou formulário: uma');\nconsole.log('função que CONFERE rodando e devolve `x is T`. É o `as` feito direito.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Guard num filter, que é onde ele mais rende",
+        "secao": "NA PRÁTICA",
+        "codigo": "type Contato = { nome: string; email: string | null };\n\nconst contatos: Contato[] = [\n  { nome: 'Ana', email: 'ana@loja.dev' },\n  { nome: 'Bruno', email: null },\n  { nome: 'Carla', email: 'carla@loja.dev' },\n];\n\nconst emails = contatos.map((c) => c.email);                       // (string | null)[]\n// @ts-expect-error — 'emails[0]' is possibly 'null'.\nconsole.log(emails[0].toUpperCase());\n\n// Um filter comum não estreita o tipo: o TypeScript não sabe o que o callback conferiu.\nconst filtradoComum = emails.filter((e) => e !== null);            // string[] desde o TS 5.5\nconsole.log('filtrado:', filtradoComum.join(', '));\n\n// Em versão antiga (ou em caso mais complicado), o guard resolve explicitamente:\nconst naoEhNulo = (valor: string | null): valor is string => valor !== null;\nconsole.log('com guard:', emails.filter(naoEhNulo).map((e) => e.toUpperCase()).join(', '));\n\nconsole.log('\\nDesde o TypeScript 5.5 o `filter` simples já estreita sozinho em muitos casos.');\nconsole.log('O guard nomeado continua valendo para o que ele não alcança — e para reaproveitar.');",
+        "codigoJs": "const contatos = [\n    {\n        nome: 'Ana',\n        email: 'ana@loja.dev'\n    },\n    {\n        nome: 'Bruno',\n        email: null\n    },\n    {\n        nome: 'Carla',\n        email: 'carla@loja.dev'\n    }\n];\nconst emails = contatos.map((c)=>c.email);\nconsole.log(emails[0].toUpperCase());\nconst filtradoComum = emails.filter((e)=>e !== null);\nconsole.log('filtrado:', filtradoComum.join(', '));\nconst naoEhNulo = (valor)=>valor !== null;\nconsole.log('com guard:', emails.filter(naoEhNulo).map((e)=>e.toUpperCase()).join(', '));\nconsole.log('\\nDesde o TypeScript 5.5 o `filter` simples já estreita sozinho em muitos casos.');\nconsole.log('O guard nomeado continua valendo para o que ele não alcança — e para reaproveitar.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "O guard mente, e o TypeScript acredita",
+        "secao": "PEGADINHAS",
+        "codigo": "type Produto = { sku: string; preco: number };\n\n// Este guard só confere `sku`. Ele PROMETE Produto e entrega qualquer coisa com sku.\nfunction ehProdutoMalFeito(valor: unknown): valor is Produto {\n  return typeof valor === 'object' && valor !== null && 'sku' in valor;\n}\n\nconst suspeito: unknown = { sku: 'CAN-01' };            // sem preço\n\nif (ehProdutoMalFeito(suspeito)) {\n  console.log('o tsc garante: preco é number');\n  console.log('a realidade  :', suspeito.preco);\n  try {\n    console.log(suspeito.preco.toFixed(2));\n  } catch (erro) {\n    console.log('e estourou   :', (erro as Error).message);\n  }\n}\n\nconsole.log('\\n`x is T` não é conferido pelo compilador: é uma promessa sua, igual ao `as`.');\nconsole.log('A diferença é que o guard tem um lugar óbvio para conferir de verdade — use-o.');",
+        "codigoJs": "function ehProdutoMalFeito(valor) {\n    return typeof valor === 'object' && valor !== null && 'sku' in valor;\n}\nconst suspeito = {\n    sku: 'CAN-01'\n};\nif (ehProdutoMalFeito(suspeito)) {\n    console.log('o tsc garante: preco é number');\n    console.log('a realidade  :', suspeito.preco);\n    try {\n        console.log(suspeito.preco.toFixed(2));\n    } catch (erro) {\n        console.log('e estourou   :', erro.message);\n    }\n}\nconsole.log('\\n`x is T` não é conferido pelo compilador: é uma promessa sua, igual ao `as`.');\nconsole.log('A diferença é que o guard tem um lugar óbvio para conferir de verdade — use-o.');\n"
+       },
+       {
+        "n": 7,
+        "titulo": "`typeof null` é \"object\"",
+        "secao": "PEGADINHAS",
+        "codigo": "function contarChaves(valor: object | null): number {\n  // Sem a conferência de null, esta linha estouraria: `typeof null === \"object\"`.\n  if (valor === null) return 0;\n  return Object.keys(valor).length;\n}\n\nconsole.log('objeto:', contarChaves({ a: 1, b: 2 }));\nconsole.log('null  :', contarChaves(null));\nconsole.log('typeof null é:', typeof null, '← o bug mais antigo do JavaScript, ainda aqui');\n\nconsole.log('\\nPor isso todo guard de objeto tem duas partes: `typeof x === \"object\"` E');\nconsole.log('`x !== null`. Esquecer a segunda é o erro mais comum ao escrever guard na mão.');",
+        "codigoJs": "function contarChaves(valor) {\n    if (valor === null) return 0;\n    return Object.keys(valor).length;\n}\nconsole.log('objeto:', contarChaves({\n    a: 1,\n    b: 2\n}));\nconsole.log('null  :', contarChaves(null));\nconsole.log('typeof null é:', typeof null, '← o bug mais antigo do JavaScript, ainda aqui');\nconsole.log('\\nPor isso todo guard de objeto tem duas partes: `typeof x === \"object\"` E');\nconsole.log('`x !== null`. Esquecer a segunda é o erro mais comum ao escrever guard na mão.');\n"
+       }
+      ],
+      "resumo": [
+       "`typeof` para primitivo, `instanceof` para classe, `in` para chave de objeto.",
+       "Depois do `if`, o tipo estreita — e o `else` fica com o que sobrou.",
+       "`if (!valor)` também derruba 0 e ''; prefira `valor != null` quando for isso que você quer.",
+       "`função(x): x is T` é o guard escrito por você — o jeito certo de validar dado de fora.",
+       "Guard nomeado é o que faz `filter` devolver a lista já estreitada.",
+       "`x is T` é promessa, não prova: se o guard mentir, o erro volta a ser de execução."
+      ]
+     },
+     {
+      "slug": "02-assertions-e-structural",
+      "arquivo": "typescript/src/05-estreitar-tipos/02-assertions-e-structural.ts",
+      "comando": "node src/05-estreitar-tipos/02-assertions-e-structural.ts",
+      "titulo": "Type assertions e tipagem estrutural",
+      "sessao": 5,
+      "oQueE": "`as` é você afirmando um tipo que o compilador não conseguiu deduzir. Tipagem estrutural é a regra que decide o que encaixa em quê: não é o NOME do tipo que importa, é o formato.",
+      "quandoUsar": "`as` quando você sabe mais do que o compilador e não há como provar (o retorno de `querySelector`, uma constante congelada).",
+      "quandoNaoUsar": "`as` para calar um erro. Se o tipo não bate, ou o tipo está errado ou o código está — e `as` não conserta nenhum dos dois.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "`as`: quando você sabe mais que o compilador",
+        "secao": "ESSENCIAL",
+        "codigo": "const configuracaoBruta = JSON.parse('{\"porta\":3000,\"host\":\"localhost\"}');\nconsole.log('sem as, o tipo é any:', typeof configuracaoBruta.porta, configuracaoBruta.porta);\n\ntype Configuracao = { porta: number; host: string };\nconst configuracao = JSON.parse('{\"porta\":3000,\"host\":\"localhost\"}') as Configuracao;\n\nconsole.log(`servidor em ${configuracao.host}:${configuracao.porta}`);\nconsole.log('agora o editor completa:', configuracao.host.toUpperCase());\n\n// @ts-expect-error — Property 'protocolo' does not exist on type 'Configuracao'.\nconsole.log(configuracao.protocolo);\n\nconsole.log('\\n`as` não converte nada e não confere nada: ele só troca o que o compilador');\nconsole.log('acha que aquilo é. O valor rodando continua exatamente o mesmo.');",
+        "codigoJs": "const configuracaoBruta = JSON.parse('{\"porta\":3000,\"host\":\"localhost\"}');\nconsole.log('sem as, o tipo é any:', typeof configuracaoBruta.porta, configuracaoBruta.porta);\nconst configuracao = JSON.parse('{\"porta\":3000,\"host\":\"localhost\"}');\nconsole.log(`servidor em ${configuracao.host}:${configuracao.porta}`);\nconsole.log('agora o editor completa:', configuracao.host.toUpperCase());\nconsole.log(configuracao.protocolo);\nconsole.log('\\n`as` não converte nada e não confere nada: ele só troca o que o compilador');\nconsole.log('acha que aquilo é. O valor rodando continua exatamente o mesmo.');\n"
+       },
+       {
+        "n": 2,
+        "titulo": "`as` não é conversão",
+        "secao": "ESSENCIAL",
+        "codigo": "const textoNumerico = '42';\n\nconst fingindo = textoNumerico as unknown as number;   // o tsc aceita, o valor não muda\nconsole.log('typeof fingindo:', typeof fingindo, '← ainda é string');\nconsole.log('fingindo + 1   :', fingindo + 1, '← \"421\", porque é concatenação');\n\nconst convertendo = Number(textoNumerico);             // isto sim converte, rodando\nconsole.log('typeof convertendo:', typeof convertendo);\nconsole.log('convertendo + 1   :', convertendo + 1);\n\n// O TypeScript nem deixa fazer o `as` direto entre tipos que não se encontram.\n// @ts-expect-error — Conversion of type 'string' to type 'number' may be a mistake.\nconst direto = textoNumerico as number;\nconsole.log('e mesmo assim, rodando:', typeof direto);\n\nconsole.log('\\nQuando você precisa do `as unknown as X` para o compilador aceitar, é sinal de');\nconsole.log('que você está mentindo duas vezes. Quase sempre falta uma conversão de verdade.');",
+        "codigoJs": "const textoNumerico = '42';\nconst fingindo = textoNumerico;\nconsole.log('typeof fingindo:', typeof fingindo, '← ainda é string');\nconsole.log('fingindo + 1   :', fingindo + 1, '← \"421\", porque é concatenação');\nconst convertendo = Number(textoNumerico);\nconsole.log('typeof convertendo:', typeof convertendo);\nconsole.log('convertendo + 1   :', convertendo + 1);\nconst direto = textoNumerico;\nconsole.log('e mesmo assim, rodando:', typeof direto);\nconsole.log('\\nQuando você precisa do `as unknown as X` para o compilador aceitar, é sinal de');\nconsole.log('que você está mentindo duas vezes. Quase sempre falta uma conversão de verdade.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "Tipagem estrutural: o formato manda, não o nome",
+        "secao": "ESSENCIAL",
+        "codigo": "type Ponto = { x: number; y: number };\ntype Coordenada = { x: number; y: number };            // outro nome, mesmo formato\n\nconst ponto: Ponto = { x: 3, y: 4 };\nconst coordenada: Coordenada = ponto;                  // encaixa: o formato é o mesmo\n\nconsole.log('distância:', Math.hypot(coordenada.x, coordenada.y));\n\n// Um objeto com campos A MAIS também encaixa — desde que não seja literal na hora.\nconst pontoTridimensional = { x: 1, y: 2, z: 3 };\nconst comoPonto: Ponto = pontoTridimensional;\nconsole.log('aceitou o z sobrando:', JSON.stringify(comoPonto));\n\n// Mas literal escrito na hora é conferido de perto: é a \"excess property check\".\n// @ts-expect-error — Object literal may only specify known properties.\nconst literal: Ponto = { x: 1, y: 2, z: 3 };\nconsole.log('literal, rodando:', Object.keys(literal).join(','));\n\nconsole.log('\\nEm Java ou C#, `Ponto` e `Coordenada` seriam tipos diferentes. No TypeScript,');\nconsole.log('se o formato serve, encaixa — inclusive vindo de uma classe que você nem conhece.');",
+        "codigoJs": "const ponto = {\n    x: 3,\n    y: 4\n};\nconst coordenada = ponto;\nconsole.log('distância:', Math.hypot(coordenada.x, coordenada.y));\nconst pontoTridimensional = {\n    x: 1,\n    y: 2,\n    z: 3\n};\nconst comoPonto = pontoTridimensional;\nconsole.log('aceitou o z sobrando:', JSON.stringify(comoPonto));\nconst literal = {\n    x: 1,\n    y: 2,\n    z: 3\n};\nconsole.log('literal, rodando:', Object.keys(literal).join(','));\nconsole.log('\\nEm Java ou C#, `Ponto` e `Coordenada` seriam tipos diferentes. No TypeScript,');\nconsole.log('se o formato serve, encaixa — inclusive vindo de uma classe que você nem conhece.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "`as const`: a constante que vira contrato",
+        "secao": "NA PRÁTICA",
+        "codigo": "const ROTAS = {\n  home: '/',\n  alunos: '/alunos',\n  pedidos: '/pedidos',\n} as const;\n\ntype Rota = (typeof ROTAS)[keyof typeof ROTAS];        // '/' | '/alunos' | '/pedidos'\n\nfunction navegar(rota: Rota): string { return `GET ${rota}`; }\n\nconsole.log(navegar(ROTAS.alunos));\nconsole.log(navegar('/pedidos'));\n\n// @ts-expect-error — Argument of type '\"/relatorios\"' is not assignable to parameter of type 'Rota'.\nconsole.log(navegar('/relatorios'));\n\nconsole.log('\\nA lista de rotas está escrita UMA vez. O tipo sai dela, e uma rota nova entra');\nconsole.log('no tipo sozinha. É o uso mais rentável de `as const` que existe.');",
+        "codigoJs": "const ROTAS = {\n    home: '/',\n    alunos: '/alunos',\n    pedidos: '/pedidos'\n};\nfunction navegar(rota) {\n    return `GET ${rota}`;\n}\nconsole.log(navegar(ROTAS.alunos));\nconsole.log(navegar('/pedidos'));\nconsole.log(navegar('/relatorios'));\nconsole.log('\\nA lista de rotas está escrita UMA vez. O tipo sai dela, e uma rota nova entra');\nconsole.log('no tipo sozinha. É o uso mais rentável de `as const` que existe.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Estrutural é o que faz \"dependência\" ficar barata",
+        "secao": "NA PRÁTICA",
+        "codigo": "// A função só pede o formato de que precisa. Qualquer objeto que o cumpra serve.\ntype RegistradorDeLog = { info(mensagem: string): void };\n\nfunction processarPedido(id: number, log: RegistradorDeLog): void {\n  log.info(`processando pedido ${id}`);\n  log.info(`pedido ${id} concluído`);\n}\n\n// O de produção...\nconst logDoConsole: RegistradorDeLog = { info: (m) => console.log(`[info] ${m}`) };\n// ...e o de teste, que não precisa herdar nem implementar nada.\nconst linhasCapturadas: string[] = [];\nconst logDeTeste = { info: (m: string) => { linhasCapturadas.push(m); } };\n\nprocessarPedido(1042, logDoConsole);\nprocessarPedido(1043, logDeTeste);\n\nconsole.log('capturado no teste:', linhasCapturadas.length, 'linhas ·', linhasCapturadas[0]);\n\nconsole.log('\\nNenhum `implements`, nenhuma classe. O objeto de teste encaixa porque tem o');\nconsole.log('método certo — e é por isso que testar TypeScript costuma dar pouco trabalho.');",
+        "codigoJs": "function processarPedido(id, log) {\n    log.info(`processando pedido ${id}`);\n    log.info(`pedido ${id} concluído`);\n}\nconst logDoConsole = {\n    info: (m)=>console.log(`[info] ${m}`)\n};\nconst linhasCapturadas = [];\nconst logDeTeste = {\n    info: (m)=>{\n        linhasCapturadas.push(m);\n    }\n};\nprocessarPedido(1042, logDoConsole);\nprocessarPedido(1043, logDeTeste);\nconsole.log('capturado no teste:', linhasCapturadas.length, 'linhas ·', linhasCapturadas[0]);\nconsole.log('\\nNenhum `implements`, nenhuma classe. O objeto de teste encaixa porque tem o');\nconsole.log('método certo — e é por isso que testar TypeScript costuma dar pouco trabalho.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`as` esconde o erro até a hora errada",
+        "secao": "PEGADINHAS",
+        "codigo": "type UsuarioCompleto = { id: number; nome: string; email: string };\n\n// O servidor devolveu menos campos do que o tipo promete. O `as` engole isso calado.\nconst parcial = JSON.parse('{\"id\":7,\"nome\":\"Ana\"}') as UsuarioCompleto;\n\nconsole.log('id e nome  :', parcial.id, parcial.nome);\nconsole.log('email      :', parcial.email, '← undefined, e o tipo jurava que era string');\ntry {\n  console.log(parcial.email.toLowerCase());\n} catch (erro) {\n  console.log('e estourou :', (erro as Error).message);\n}\n\nconsole.log('\\nO erro não some com `as` — ele muda de lugar, e de hora. Sai da linha do');\nconsole.log('`JSON.parse`, onde seria fácil tratar, e vai para onde alguém usou o campo.');\nconsole.log('Dado de fora pede type guard (tópico anterior), não asserção.');",
+        "codigoJs": "const parcial = JSON.parse('{\"id\":7,\"nome\":\"Ana\"}');\nconsole.log('id e nome  :', parcial.id, parcial.nome);\nconsole.log('email      :', parcial.email, '← undefined, e o tipo jurava que era string');\ntry {\n    console.log(parcial.email.toLowerCase());\n} catch (erro) {\n    console.log('e estourou :', erro.message);\n}\nconsole.log('\\nO erro não some com `as` — ele muda de lugar, e de hora. Sai da linha do');\nconsole.log('`JSON.parse`, onde seria fácil tratar, e vai para onde alguém usou o campo.');\nconsole.log('Dado de fora pede type guard (tópico anterior), não asserção.');\n"
+       },
+       {
+        "n": 7,
+        "titulo": "Objeto vazio encaixa em quase tudo",
+        "secao": "PEGADINHAS",
+        "codigo": "type Filtros = { termo?: string; ativo?: boolean; limite?: number };\n\nconst nenhumFiltro: Filtros = {};                      // todos opcionais: `{}` serve\nconsole.log('sem filtro:', JSON.stringify(nenhumFiltro));\n\n// E o contrário também: um objeto com tudo cabe num tipo que não pede nada.\nconst qualquerCoisa: object = { a: 1, b: 2 };\nconsole.log('em object :', JSON.stringify(qualquerCoisa));\n\n// Por isso um tipo só de campos opcionais protege menos do que parece.\nfunction buscar(filtros: Filtros): string {\n  return `termo=${filtros.termo ?? '*'} ativo=${filtros.ativo ?? '*'} limite=${filtros.limite ?? 10}`;\n}\nconsole.log(buscar({}));\n\n// @ts-expect-error — Object literal may only specify known properties. Did you mean 'termo'?\nconsole.log(buscar({ term: 'ana' }));\n\nconsole.log('\\nA única defesa de um tipo todo opcional é a conferência de propriedade a mais.');\nconsole.log('Ela vale para literal escrito na chamada — e some se o objeto vier de uma variável.');",
+        "codigoJs": "const nenhumFiltro = {};\nconsole.log('sem filtro:', JSON.stringify(nenhumFiltro));\nconst qualquerCoisa = {\n    a: 1,\n    b: 2\n};\nconsole.log('em object :', JSON.stringify(qualquerCoisa));\nfunction buscar(filtros) {\n    return `termo=${filtros.termo ?? '*'} ativo=${filtros.ativo ?? '*'} limite=${filtros.limite ?? 10}`;\n}\nconsole.log(buscar({}));\nconsole.log(buscar({\n    term: 'ana'\n}));\nconsole.log('\\nA única defesa de um tipo todo opcional é a conferência de propriedade a mais.');\nconsole.log('Ela vale para literal escrito na chamada — e some se o objeto vier de uma variável.');\n"
+       }
+      ],
+      "resumo": [
+       "`as` troca o que o compilador acha; não converte, não confere e não protege.",
+       "`as unknown as X` é sinal de que falta uma conversão de verdade.",
+       "O TypeScript é estrutural: encaixa quem tem o formato, não quem tem o nome.",
+       "Literal escrito na hora é conferido de perto e recusa chave a mais; variável, não.",
+       "`as const` num objeto de constantes gera a união de valores sem repetir a lista.",
+       "Para dado que vem de fora, `as` adia o erro — type guard resolve."
+      ]
+     }
+    ]
+   },
+   {
+    "slug": "06-classes",
+    "titulo": "Classes Tipadas",
+    "icone": "⬢",
+    "cor": "#f78fb3",
+    "resumo": "private, herança, abstract e implements.",
+    "topicos": [
+     {
+      "slug": "01-modificadores-de-acesso",
+      "arquivo": "typescript/src/06-classes/01-modificadores-de-acesso.ts",
+      "comando": "node --experimental-transform-types src/06-classes/01-modificadores-de-acesso.ts",
+      "titulo": "Modificadores de acesso",
+      "sessao": 6,
+      "oQueE": "`public`, `private`, `protected` e `readonly` — quem pode ler e escrever cada campo de uma classe. E a propriedade de parâmetro, que declara o campo no próprio construtor.",
+      "quandoUsar": "`private` por padrão em tudo que é detalhe interno; abra em `public` só o que a classe promete a quem usa.",
+      "quandoNaoUsar": "não confunda com segurança. `private` é conferência de compilação; o `#campo` do JavaScript é o que existe de verdade rodando.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "public, private e readonly",
+        "secao": "ESSENCIAL",
+        "codigo": "class ContaCorrente {\n  public readonly titular: string;      // qualquer um lê, ninguém troca\n  private saldo: number;                // só a própria classe enxerga\n\n  constructor(titular: string, saldoInicial: number) {\n    this.titular = titular;\n    this.saldo = saldoInicial;\n  }\n\n  depositar(valor: number): void { this.saldo += valor; }\n  extrato(): string { return `${this.titular}: R$ ${this.saldo.toFixed(2)}`; }\n}\n\nconst conta = new ContaCorrente('Ana Souza', 250);\nconta.depositar(100);\nconsole.log(conta.extrato());\nconsole.log('titular:', conta.titular);\n\n// @ts-expect-error — Property 'saldo' is private and only accessible within class 'ContaCorrente'.\nconsole.log(conta.saldo);\n\n// @ts-expect-error — Cannot assign to 'titular' because it is a read-only property.\nconta.titular = 'Outra pessoa';\n\nconsole.log('rodando, os dois estão lá:', JSON.stringify(conta));",
+        "codigoJs": "class ContaCorrente {\n    titular;\n    saldo;\n    constructor(titular, saldoInicial){\n        this.titular = titular;\n        this.saldo = saldoInicial;\n    }\n    depositar(valor) {\n        this.saldo += valor;\n    }\n    extrato() {\n        return `${this.titular}: R$ ${this.saldo.toFixed(2)}`;\n    }\n}\nconst conta = new ContaCorrente('Ana Souza', 250);\nconta.depositar(100);\nconsole.log(conta.extrato());\nconsole.log('titular:', conta.titular);\nconsole.log(conta.saldo);\nconta.titular = 'Outra pessoa';\nconsole.log('rodando, os dois estão lá:', JSON.stringify(conta));\n"
+       },
+       {
+        "n": 2,
+        "titulo": "Propriedade de parâmetro: o atalho do construtor",
+        "secao": "ESSENCIAL",
+        "codigo": "// Escrever o campo, o parâmetro e a atribuição é a mesma coisa três vezes. O modificador\n// no parâmetro faz as três de uma vez.\nclass Produto {\n  constructor(\n    public readonly sku: string,\n    public nome: string,\n    private precoDeCusto: number,\n  ) {}\n\n  precoDeVenda(margem: number): number { return this.precoDeCusto * (1 + margem); }\n}\n\nconst caneca = new Produto('CAN-01', 'Caneca', 8);\nconsole.log(`${caneca.sku} ${caneca.nome}: R$ ${caneca.precoDeVenda(1.5).toFixed(2)}`);\n\n// @ts-expect-error — Property 'precoDeCusto' is private.\nconsole.log(caneca.precoDeCusto);\n\nconsole.log('campos criados:', Object.keys(caneca).join(', '));\nconsole.log('\\nSem modificador nenhum, o parâmetro seria só um parâmetro: nada de campo.');\nconsole.log('É por isso que os quatro arquivos deste tema pedem a flag no `node`: o atalho');\nconsole.log('não é tipo que se apague, é código que precisa ser gerado.');",
+        "codigoJs": "class Produto {\n    sku;\n    nome;\n    precoDeCusto;\n    constructor(sku, nome, precoDeCusto){\n        this.sku = sku;\n        this.nome = nome;\n        this.precoDeCusto = precoDeCusto;\n    }\n    precoDeVenda(margem) {\n        return this.precoDeCusto * (1 + margem);\n    }\n}\nconst caneca = new Produto('CAN-01', 'Caneca', 8);\nconsole.log(`${caneca.sku} ${caneca.nome}: R$ ${caneca.precoDeVenda(1.5).toFixed(2)}`);\nconsole.log(caneca.precoDeCusto);\nconsole.log('campos criados:', Object.keys(caneca).join(', '));\nconsole.log('\\nSem modificador nenhum, o parâmetro seria só um parâmetro: nada de campo.');\nconsole.log('É por isso que os quatro arquivos deste tema pedem a flag no `node`: o atalho');\nconsole.log('não é tipo que se apague, é código que precisa ser gerado.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "`protected`: a filha vê, o mundo não",
+        "secao": "ESSENCIAL",
+        "codigo": "class Funcionario {\n  constructor(protected nome: string, protected salarioBase: number) {}\n  descrever(): string { return `${this.nome}: R$ ${this.salarioTotal().toFixed(2)}`; }\n  protected salarioTotal(): number { return this.salarioBase; }\n}\n\nclass Vendedor extends Funcionario {\n  constructor(nome: string, salarioBase: number, private comissao: number) {\n    super(nome, salarioBase);\n  }\n  // A filha lê `salarioBase` e reescreve `salarioTotal` — os dois são protected.\n  protected override salarioTotal(): number { return this.salarioBase + this.comissao; }\n}\n\nconsole.log(new Funcionario('Ana', 3200).descrever());\nconsole.log(new Vendedor('Bruno', 3200, 850).descrever());\n\nconst bruno = new Vendedor('Bruno', 3200, 850);\n// @ts-expect-error — Property 'salarioBase' is protected and only accessible within class 'Funcionario' and its subclasses.\nconsole.log(bruno.salarioBase);\n\nconsole.log('\\n`private` a filha também não vê. `protected` é o meio-termo: fechado para');\nconsole.log('fora, aberto para a herança. Use quando a subclasse PRECISA daquilo.');",
+        "codigoJs": "class Funcionario {\n    nome;\n    salarioBase;\n    constructor(nome, salarioBase){\n        this.nome = nome;\n        this.salarioBase = salarioBase;\n    }\n    descrever() {\n        return `${this.nome}: R$ ${this.salarioTotal().toFixed(2)}`;\n    }\n    salarioTotal() {\n        return this.salarioBase;\n    }\n}\nclass Vendedor extends Funcionario {\n    comissao;\n    constructor(nome, salarioBase, comissao){\n        super(nome, salarioBase), this.comissao = comissao;\n    }\n    salarioTotal() {\n        return this.salarioBase + this.comissao;\n    }\n}\nconsole.log(new Funcionario('Ana', 3200).descrever());\nconsole.log(new Vendedor('Bruno', 3200, 850).descrever());\nconst bruno = new Vendedor('Bruno', 3200, 850);\nconsole.log(bruno.salarioBase);\nconsole.log('\\n`private` a filha também não vê. `protected` é o meio-termo: fechado para');\nconsole.log('fora, aberto para a herança. Use quando a subclasse PRECISA daquilo.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "`private` na prática: guardar o invariante",
+        "secao": "NA PRÁTICA",
+        "codigo": "// O saldo nunca pode ficar negativo. Com o campo aberto, ninguém garante isso.\nclass Estoque {\n  private quantidade = 0;\n  private readonly movimentos: string[] = [];\n\n  constructor(public readonly sku: string) {}\n\n  entrada(n: number): void {\n    if (n <= 0) throw new Error('entrada precisa ser positiva');\n    this.quantidade += n;\n    this.movimentos.push(`+${n}`);\n  }\n\n  saida(n: number): boolean {\n    if (n > this.quantidade) return false;           // a regra mora aqui dentro\n    this.quantidade -= n;\n    this.movimentos.push(`-${n}`);\n    return true;\n  }\n\n  get disponivel(): number { return this.quantidade; }\n  get historico(): string { return this.movimentos.join(' '); }\n}\n\nconst estoque = new Estoque('CAN-01');\nestoque.entrada(10);\nconsole.log('tirar 3 :', estoque.saida(3), '· restam', estoque.disponivel);\nconsole.log('tirar 20:', estoque.saida(20), '· restam', estoque.disponivel);\nconsole.log('histórico:', estoque.historico);\n\nconsole.log('\\nCom `quantidade` pública, qualquer linha do sistema poderia fazer');\nconsole.log('`estoque.quantidade = -5`. É disso que `private` protege: não do invasor, do colega.');",
+        "codigoJs": "class Estoque {\n    sku;\n    quantidade = 0;\n    movimentos = [];\n    constructor(sku){\n        this.sku = sku;\n    }\n    entrada(n) {\n        if (n <= 0) throw new Error('entrada precisa ser positiva');\n        this.quantidade += n;\n        this.movimentos.push(`+${n}`);\n    }\n    saida(n) {\n        if (n > this.quantidade) return false;\n        this.quantidade -= n;\n        this.movimentos.push(`-${n}`);\n        return true;\n    }\n    get disponivel() {\n        return this.quantidade;\n    }\n    get historico() {\n        return this.movimentos.join(' ');\n    }\n}\nconst estoque = new Estoque('CAN-01');\nestoque.entrada(10);\nconsole.log('tirar 3 :', estoque.saida(3), '· restam', estoque.disponivel);\nconsole.log('tirar 20:', estoque.saida(20), '· restam', estoque.disponivel);\nconsole.log('histórico:', estoque.historico);\nconsole.log('\\nCom `quantidade` pública, qualquer linha do sistema poderia fazer');\nconsole.log('`estoque.quantidade = -5`. É disso que `private` protege: não do invasor, do colega.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "`#campo`: o privado que existe rodando",
+        "secao": "NA PRÁTICA",
+        "codigo": "class SenhaComPrivateTs {\n  constructor(private valor: string) {}\n  conferir(tentativa: string): boolean { return this.valor === tentativa; }\n}\n\nclass SenhaComHash {\n  #valor: string;                                    // `#` é sintaxe do JavaScript, não do TS\n  constructor(valor: string) { this.#valor = valor; }\n  conferir(tentativa: string): boolean { return this.#valor === tentativa; }\n}\n\nconst comTs = new SenhaComPrivateTs('123456');\nconst comHash = new SenhaComHash('123456');\n\nconsole.log('confere:', comTs.conferir('123456'), comHash.conferir('123456'));\nconsole.log('private do TS no JSON:', JSON.stringify(comTs), '← a senha vazou');\nconsole.log('# do JavaScript      :', JSON.stringify(comHash), '← nada aqui');\n\nconsole.log('\\nDois níveis diferentes: `private` some ao compilar e o campo continua um campo');\nconsole.log('comum; `#` é privado de verdade, e nem `Object.keys` alcança. Para segredo, `#`.');",
+        "codigoJs": "class SenhaComPrivateTs {\n    valor;\n    constructor(valor){\n        this.valor = valor;\n    }\n    conferir(tentativa) {\n        return this.valor === tentativa;\n    }\n}\nclass SenhaComHash {\n    #valor;\n    constructor(valor){\n        this.#valor = valor;\n    }\n    conferir(tentativa) {\n        return this.#valor === tentativa;\n    }\n}\nconst comTs = new SenhaComPrivateTs('123456');\nconst comHash = new SenhaComHash('123456');\nconsole.log('confere:', comTs.conferir('123456'), comHash.conferir('123456'));\nconsole.log('private do TS no JSON:', JSON.stringify(comTs), '← a senha vazou');\nconsole.log('# do JavaScript      :', JSON.stringify(comHash), '← nada aqui');\nconsole.log('\\nDois níveis diferentes: `private` some ao compilar e o campo continua um campo');\nconsole.log('comum; `#` é privado de verdade, e nem `Object.keys` alcança. Para segredo, `#`.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`private` não impede nada rodando",
+        "secao": "PEGADINHAS",
+        "codigo": "class Cofre {\n  constructor(private segredo: string) {}\n  abrir(chave: string): string { return chave === 'sesamo' ? this.segredo : 'trancado'; }\n}\n\nconst cofre = new Cofre('o mapa do tesouro');\nconsole.log('pela porta:', cofre.abrir('sesamo'));\n\n// Duas linhas que o compilador aceita e que ignoram o `private` por completo.\nconsole.log('pelo índice:', (cofre as unknown as Record<string, string>)['segredo']);\nconsole.log('pelo JSON  :', JSON.stringify(cofre));\n\nconsole.log('\\n`private` é combinado entre você e o compilador. Ele organiza o código e');\nconsole.log('documenta a intenção — não esconde dado de ninguém em tempo de execução.');",
+        "codigoJs": "class Cofre {\n    segredo;\n    constructor(segredo){\n        this.segredo = segredo;\n    }\n    abrir(chave) {\n        return chave === 'sesamo' ? this.segredo : 'trancado';\n    }\n}\nconst cofre = new Cofre('o mapa do tesouro');\nconsole.log('pela porta:', cofre.abrir('sesamo'));\nconsole.log('pelo índice:', cofre['segredo']);\nconsole.log('pelo JSON  :', JSON.stringify(cofre));\nconsole.log('\\n`private` é combinado entre você e o compilador. Ele organiza o código e');\nconsole.log('documenta a intenção — não esconde dado de ninguém em tempo de execução.');\n"
+       }
+      ],
+      "resumo": [
+       "`public` (padrão) abre, `private` fecha, `protected` abre só para as filhas.",
+       "`readonly` deixa ler e proíbe atribuir depois do construtor.",
+       "Modificador no parâmetro do construtor cria o campo e atribui — sem repetir três vezes.",
+       "Comece tudo `private` e abra só o que a classe promete.",
+       "`private` some ao compilar; `#campo` é privado de verdade, inclusive no JSON.",
+       "Nada disso é segurança: é organização. Segredo de verdade não mora no cliente."
+      ]
+     },
+     {
+      "slug": "02-heranca-e-abstract",
+      "arquivo": "typescript/src/06-classes/02-heranca-e-abstract.ts",
+      "comando": "node --experimental-transform-types src/06-classes/02-heranca-e-abstract.ts",
+      "titulo": "Herança e classe abstrata",
+      "sessao": 6,
+      "oQueE": "`extends` faz uma classe herdar campos e métodos de outra. `abstract` marca a classe que não pode ser instanciada e o método que a filha é obrigada a escrever.",
+      "quandoUsar": "quando as classes são mesmo variações de uma coisa só (formas de pagamento, tipos de funcionário) e compartilham comportamento de verdade.",
+      "quandoNaoUsar": "para reaproveitar código. Herança amarra os dois para sempre — quando o que você quer é só reusar, componha: guarde o outro objeto dentro.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "`extends` e `super`",
+        "secao": "ESSENCIAL",
+        "codigo": "class Veiculo {\n  constructor(protected placa: string, protected ano: number) {}\n\n  descrever(): string { return `${this.placa} (${this.ano})`; }\n  idade(anoAtual: number): number { return anoAtual - this.ano; }\n}\n\nclass Caminhao extends Veiculo {\n  constructor(placa: string, ano: number, private cargaEmToneladas: number) {\n    super(placa, ano);                     // obrigatório antes de qualquer `this`\n  }\n\n  // `override` deixa claro que está reescrevendo — e o tsc confere se o método existe mesmo.\n  override descrever(): string {\n    return `${super.descrever()} — ${this.cargaEmToneladas}t`;\n  }\n}\n\nconsole.log(new Veiculo('ABC-1234', 2018).descrever());\nconsole.log(new Caminhao('XYZ-9876', 2020, 12).descrever());\nconsole.log('idade herdada:', new Caminhao('XYZ-9876', 2020, 12).idade(2026), 'anos');\n\nclass ComErroDeDigitacao extends Veiculo {\n  // @ts-expect-error — This member cannot have an 'override' modifier because it is not declared in the base class.\n  override descreverr(): string { return 'nunca chamado'; }\n}\nconsole.log('a classe existe assim mesmo:', new ComErroDeDigitacao('A', 2020).descrever());",
+        "codigoJs": "class Veiculo {\n    placa;\n    ano;\n    constructor(placa, ano){\n        this.placa = placa;\n        this.ano = ano;\n    }\n    descrever() {\n        return `${this.placa} (${this.ano})`;\n    }\n    idade(anoAtual) {\n        return anoAtual - this.ano;\n    }\n}\nclass Caminhao extends Veiculo {\n    cargaEmToneladas;\n    constructor(placa, ano, cargaEmToneladas){\n        super(placa, ano), this.cargaEmToneladas = cargaEmToneladas;\n    }\n    descrever() {\n        return `${super.descrever()} — ${this.cargaEmToneladas}t`;\n    }\n}\nconsole.log(new Veiculo('ABC-1234', 2018).descrever());\nconsole.log(new Caminhao('XYZ-9876', 2020, 12).descrever());\nconsole.log('idade herdada:', new Caminhao('XYZ-9876', 2020, 12).idade(2026), 'anos');\nclass ComErroDeDigitacao extends Veiculo {\n    descreverr() {\n        return 'nunca chamado';\n    }\n}\nconsole.log('a classe existe assim mesmo:', new ComErroDeDigitacao('A', 2020).descrever());\n"
+       },
+       {
+        "n": 2,
+        "titulo": "`abstract`: o molde que não vira objeto",
+        "secao": "ESSENCIAL",
+        "codigo": "abstract class MeioDePagamento {\n  constructor(protected valor: number) {}\n\n  // Sem corpo: cada filha escreve o seu. Quem não escrever não compila.\n  abstract taxa(): number;\n  abstract nome(): string;\n\n  // Com corpo: escrito uma vez, vale para todas.\n  totalCobrado(): string {\n    return `${this.nome().padEnd(8)} R$ ${(this.valor + this.taxa()).toFixed(2)}`;\n  }\n}\n\nclass Pix extends MeioDePagamento {\n  nome(): string { return 'pix'; }\n  taxa(): number { return 0; }\n}\n\nclass Cartao extends MeioDePagamento {\n  constructor(valor: number, private parcelas: number) { super(valor); }\n  nome(): string { return `cartão${this.parcelas}x`; }\n  taxa(): number { return this.valor * 0.049 * this.parcelas; }\n}\n\nfor (const pagamento of [new Pix(200), new Cartao(200, 1), new Cartao(200, 3)])\n  console.log(pagamento.totalCobrado());\n\n// @ts-expect-error — Cannot create an instance of an abstract class.\nconsole.log(new MeioDePagamento(200));",
+        "codigoJs": "class MeioDePagamento {\n    valor;\n    constructor(valor){\n        this.valor = valor;\n    }\n    totalCobrado() {\n        return `${this.nome().padEnd(8)} R$ ${(this.valor + this.taxa()).toFixed(2)}`;\n    }\n}\nclass Pix extends MeioDePagamento {\n    nome() {\n        return 'pix';\n    }\n    taxa() {\n        return 0;\n    }\n}\nclass Cartao extends MeioDePagamento {\n    parcelas;\n    constructor(valor, parcelas){\n        super(valor), this.parcelas = parcelas;\n    }\n    nome() {\n        return `cartão${this.parcelas}x`;\n    }\n    taxa() {\n        return this.valor * 0.049 * this.parcelas;\n    }\n}\nfor (const pagamento of [\n    new Pix(200),\n    new Cartao(200, 1),\n    new Cartao(200, 3)\n])console.log(pagamento.totalCobrado());\nconsole.log(new MeioDePagamento(200));\n"
+       },
+       {
+        "n": 3,
+        "titulo": "A filha é obrigada a cumprir o contrato",
+        "secao": "ESSENCIAL",
+        "codigo": "abstract class Relatorio {\n  abstract linhas(): string[];\n  imprimir(): void {\n    console.log(`— ${this.constructor.name} —`);\n    for (const linha of this.linhas()) console.log('  ' + linha);\n  }\n}\n\nclass RelatorioDeVendas extends Relatorio {\n  linhas(): string[] { return ['Ana: R$ 1.630,00', 'Bruno: R$ 890,00']; }\n}\n\nnew RelatorioDeVendas().imprimir();\n\n// @ts-expect-error — Non-abstract class 'RelatorioVazio' does not implement inherited abstract member 'linhas'.\nclass RelatorioVazio extends Relatorio {}\nconsole.log('rodando, a classe existe:', typeof RelatorioVazio);\n\nconsole.log('\\nO erro aparece na DECLARAÇÃO da classe, não quando alguém tenta usar. É a');\nconsole.log('diferença entre `abstract` e um método que só lança \"não implementado\".');",
+        "codigoJs": "class Relatorio {\n    imprimir() {\n        console.log(`— ${this.constructor.name} —`);\n        for (const linha of this.linhas())console.log('  ' + linha);\n    }\n}\nclass RelatorioDeVendas extends Relatorio {\n    linhas() {\n        return [\n            'Ana: R$ 1.630,00',\n            'Bruno: R$ 890,00'\n        ];\n    }\n}\nnew RelatorioDeVendas().imprimir();\nclass RelatorioVazio extends Relatorio {\n}\nconsole.log('rodando, a classe existe:', typeof RelatorioVazio);\nconsole.log('\\nO erro aparece na DECLARAÇÃO da classe, não quando alguém tenta usar. É a');\nconsole.log('diferença entre `abstract` e um método que só lança \"não implementado\".');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Polimorfismo: uma lista, vários comportamentos",
+        "secao": "NA PRÁTICA",
+        "codigo": "abstract class Notificacao {\n  constructor(protected destinatario: string) {}\n  abstract enviar(mensagem: string): string;\n}\n\nclass PorEmail extends Notificacao {\n  enviar(mensagem: string): string { return `✉ ${this.destinatario}: ${mensagem}`; }\n}\nclass PorSms extends Notificacao {\n  enviar(mensagem: string): string { return `📱 ${this.destinatario}: ${mensagem.slice(0, 20)}…`; }\n}\nclass PorPush extends Notificacao {\n  constructor(destinatario: string, private aplicativo: string) { super(destinatario); }\n  enviar(mensagem: string): string { return `🔔 ${this.aplicativo}/${this.destinatario}: ${mensagem}`; }\n}\n\n// O tipo da lista é o da mãe. Quem decide o que acontece é o objeto, não o `if`.\nconst canais: Notificacao[] = [\n  new PorEmail('ana@loja.dev'),\n  new PorSms('81 99999-0000'),\n  new PorPush('ana', 'Loja'),\n];\n\nfor (const canal of canais) console.log(canal.enviar('Seu pedido saiu para entrega'));\n\nconsole.log('\\nAcrescentar um canal novo é criar uma classe. Nenhum `switch` existente muda —');\nconsole.log('é a diferença prática entre herança e uma união de literais com switch.');",
+        "codigoJs": "class Notificacao {\n    destinatario;\n    constructor(destinatario){\n        this.destinatario = destinatario;\n    }\n}\nclass PorEmail extends Notificacao {\n    enviar(mensagem) {\n        return `✉ ${this.destinatario}: ${mensagem}`;\n    }\n}\nclass PorSms extends Notificacao {\n    enviar(mensagem) {\n        return `📱 ${this.destinatario}: ${mensagem.slice(0, 20)}…`;\n    }\n}\nclass PorPush extends Notificacao {\n    aplicativo;\n    constructor(destinatario, aplicativo){\n        super(destinatario), this.aplicativo = aplicativo;\n    }\n    enviar(mensagem) {\n        return `🔔 ${this.aplicativo}/${this.destinatario}: ${mensagem}`;\n    }\n}\nconst canais = [\n    new PorEmail('ana@loja.dev'),\n    new PorSms('81 99999-0000'),\n    new PorPush('ana', 'Loja')\n];\nfor (const canal of canais)console.log(canal.enviar('Seu pedido saiu para entrega'));\nconsole.log('\\nAcrescentar um canal novo é criar uma classe. Nenhum `switch` existente muda —');\nconsole.log('é a diferença prática entre herança e uma união de literais com switch.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Quando NÃO herdar: componha",
+        "secao": "NA PRÁTICA",
+        "codigo": "// Herança errada: \"carrinho é uma lista\" não é verdade — carrinho TEM uma lista.\nclass CarrinhoHerdado extends Array<{ nome: string; preco: number }> {\n  total(): number { return this.reduce((s, i) => s + i.preco, 0); }\n}\nconst herdado = new CarrinhoHerdado();\nherdado.push({ nome: 'Caneca', preco: 19.9 });\nherdado.length = 0;                                  // a API do Array vazou junto\nconsole.log('herdando :', herdado.total().toFixed(2), '← alguém zerou o carrinho pelo length');\n\n// Composição: o carrinho guarda a lista e mostra só o que ele promete.\nclass Carrinho {\n  private itens: { nome: string; preco: number }[] = [];\n  adicionar(nome: string, preco: number): void { this.itens.push({ nome, preco }); }\n  total(): number { return this.itens.reduce((s, i) => s + i.preco, 0); }\n  get quantidade(): number { return this.itens.length; }\n}\nconst carrinho = new Carrinho();\ncarrinho.adicionar('Caneca', 19.9);\ncarrinho.adicionar('Caderno', 32.5);\nconsole.log('compondo :', carrinho.total().toFixed(2), `(${carrinho.quantidade} itens)`);\n\n// @ts-expect-error — Property 'length' does not exist on type 'Carrinho'.\ncarrinho.length = 0;\n\nconsole.log('\\nA pergunta é \"É UM?\", não \"preciso dos métodos dele?\". Carrinho não é lista.');",
+        "codigoJs": "class CarrinhoHerdado extends Array {\n    total() {\n        return this.reduce((s, i)=>s + i.preco, 0);\n    }\n}\nconst herdado = new CarrinhoHerdado();\nherdado.push({\n    nome: 'Caneca',\n    preco: 19.9\n});\nherdado.length = 0;\nconsole.log('herdando :', herdado.total().toFixed(2), '← alguém zerou o carrinho pelo length');\nclass Carrinho {\n    itens = [];\n    adicionar(nome, preco) {\n        this.itens.push({\n            nome,\n            preco\n        });\n    }\n    total() {\n        return this.itens.reduce((s, i)=>s + i.preco, 0);\n    }\n    get quantidade() {\n        return this.itens.length;\n    }\n}\nconst carrinho = new Carrinho();\ncarrinho.adicionar('Caneca', 19.9);\ncarrinho.adicionar('Caderno', 32.5);\nconsole.log('compondo :', carrinho.total().toFixed(2), `(${carrinho.quantidade} itens)`);\ncarrinho.length = 0;\nconsole.log('\\nA pergunta é \"É UM?\", não \"preciso dos métodos dele?\". Carrinho não é lista.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`super()` antes de qualquer `this`",
+        "secao": "PEGADINHAS",
+        "codigo": "class Base {\n  constructor(protected nome: string) {}\n}\n\nclass FilhaCorreta extends Base {\n  private etiqueta: string;\n  constructor(nome: string) {\n    super(nome);                                     // primeiro\n    this.etiqueta = `[${this.nome}]`;                // depois\n  }\n  mostrar(): string { return this.etiqueta; }\n}\n\nconsole.log(new FilhaCorreta('Ana').mostrar());\n\nclass FilhaErrada extends Base {\n  private etiqueta: string;\n  constructor(nome: string) {\n    // @ts-expect-error — 'super' must be called before accessing 'this' in the constructor of a derived class.\n    this.etiqueta = `[${nome}]`;\n    super(nome);\n  }\n  mostrar(): string { return this.etiqueta; }\n}\n\ntry {\n  console.log(new FilhaErrada('Bruno').mostrar());\n} catch (erro) {\n  console.log('rodando  :', (erro as Error).message);\n}\n\nconsole.log('\\nAqui o JavaScript é tão rígido quanto o TypeScript: antes do `super()`, o');\nconsole.log('objeto ainda não existe. O tsc só avisa mais cedo.');",
+        "codigoJs": "class Base {\n    nome;\n    constructor(nome){\n        this.nome = nome;\n    }\n}\nclass FilhaCorreta extends Base {\n    etiqueta;\n    constructor(nome){\n        super(nome);\n        this.etiqueta = `[${this.nome}]`;\n    }\n    mostrar() {\n        return this.etiqueta;\n    }\n}\nconsole.log(new FilhaCorreta('Ana').mostrar());\nclass FilhaErrada extends Base {\n    etiqueta;\n    constructor(nome){\n        this.etiqueta = `[${nome}]`;\n        super(nome);\n    }\n    mostrar() {\n        return this.etiqueta;\n    }\n}\ntry {\n    console.log(new FilhaErrada('Bruno').mostrar());\n} catch (erro) {\n    console.log('rodando  :', erro.message);\n}\nconsole.log('\\nAqui o JavaScript é tão rígido quanto o TypeScript: antes do `super()`, o');\nconsole.log('objeto ainda não existe. O tsc só avisa mais cedo.');\n"
+       }
+      ],
+      "resumo": [
+       "`extends` herda campos e métodos; `super()` chama o construtor da mãe.",
+       "`override` documenta a reescrita e faz o tsc conferir que o método existe na mãe.",
+       "`abstract class` não vira objeto; `abstract método()` obriga a filha a escrever.",
+       "O erro de \"faltou implementar\" aparece na declaração da classe, não no uso.",
+       "Polimorfismo: lista tipada pela mãe, comportamento decidido pelo objeto.",
+       "Herança só quando \"é um\" for verdade. Para reusar código, componha."
+      ]
+     },
+     {
+      "slug": "03-implements-e-interface",
+      "arquivo": "typescript/src/06-classes/03-implements-e-interface.ts",
+      "comando": "node --experimental-transform-types src/06-classes/03-implements-e-interface.ts",
+      "titulo": "implements e interface na classe",
+      "sessao": 6,
+      "oQueE": "`implements` diz que a classe cumpre um contrato descrito por uma interface. Diferente de `extends`, não vem nada pronto: a classe escreve tudo.",
+      "quandoUsar": "quando várias classes sem nada em comum precisam ser usadas do mesmo jeito — três repositórios, três formas de exportar, três gateways de pagamento.",
+      "quandoNaoUsar": "quando não há duas implementações. Interface para uma classe só é cerimônia — o próprio formato da classe já é o contrato.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "`implements`: o contrato conferido",
+        "secao": "ESSENCIAL",
+        "codigo": "interface Exportador {\n  extensao: string;\n  exportar(linhas: string[][]): string;\n}\n\nclass ExportadorCsv implements Exportador {\n  extensao = 'csv';\n  exportar(linhas: string[][]): string { return linhas.map((l) => l.join(';')).join('\\n'); }\n}\n\nclass ExportadorJson implements Exportador {\n  extensao = 'json';\n  exportar(linhas: string[][]): string { return JSON.stringify(linhas); }\n}\n\nconst dados = [['sku', 'preco'], ['CAN-01', '19.90'], ['CAD-02', '32.50']];\nfor (const exportador of [new ExportadorCsv(), new ExportadorJson()] as Exportador[])\n  console.log(`.${exportador.extensao}:`, exportador.exportar(dados).split('\\n')[0], '…');\n\n// @ts-expect-error — Class 'ExportadorTorto' incorrectly implements interface 'Exportador'.\nclass ExportadorTorto implements Exportador {\n  extensao = 'txt';\n  // falta o método `exportar`\n}\nconsole.log('a classe existe assim mesmo:', new ExportadorTorto().extensao);",
+        "codigoJs": "class ExportadorCsv {\n    extensao = 'csv';\n    exportar(linhas) {\n        return linhas.map((l)=>l.join(';')).join('\\n');\n    }\n}\nclass ExportadorJson {\n    extensao = 'json';\n    exportar(linhas) {\n        return JSON.stringify(linhas);\n    }\n}\nconst dados = [\n    [\n        'sku',\n        'preco'\n    ],\n    [\n        'CAN-01',\n        '19.90'\n    ],\n    [\n        'CAD-02',\n        '32.50'\n    ]\n];\nfor (const exportador of [\n    new ExportadorCsv(),\n    new ExportadorJson()\n])console.log(`.${exportador.extensao}:`, exportador.exportar(dados).split('\\n')[0], '…');\nclass ExportadorTorto {\n    extensao = 'txt';\n}\nconsole.log('a classe existe assim mesmo:', new ExportadorTorto().extensao);\n"
+       },
+       {
+        "n": 2,
+        "titulo": "`implements` não dá nada de graça",
+        "secao": "ESSENCIAL",
+        "codigo": "interface Somavel {\n  somar(valor: number): void;\n  total(): number;\n}\n\nclass Caixa implements Somavel {\n  private acumulado = 0;                      // tudo escrito aqui: nada vem da interface\n  somar(valor: number): void { this.acumulado += valor; }\n  total(): number { return this.acumulado; }\n}\n\nconst caixa = new Caixa();\ncaixa.somar(19.9);\ncaixa.somar(32.5);\nconsole.log('caixa:', caixa.total().toFixed(2));\n\nconsole.log('\\n`extends` HERDA implementação; `implements` só CONFERE que ela existe. Uma classe');\nconsole.log('estende no máximo uma classe, mas implementa quantas interfaces quiser.');",
+        "codigoJs": "class Caixa {\n    acumulado = 0;\n    somar(valor) {\n        this.acumulado += valor;\n    }\n    total() {\n        return this.acumulado;\n    }\n}\nconst caixa = new Caixa();\ncaixa.somar(19.9);\ncaixa.somar(32.5);\nconsole.log('caixa:', caixa.total().toFixed(2));\nconsole.log('\\n`extends` HERDA implementação; `implements` só CONFERE que ela existe. Uma classe');\nconsole.log('estende no máximo uma classe, mas implementa quantas interfaces quiser.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "Várias interfaces na mesma classe",
+        "secao": "ESSENCIAL",
+        "codigo": "interface Identificavel { readonly id: number; }\ninterface Serializavel { paraJson(): string; }\ninterface Comparavel<T> { comparar(outro: T): number; }\n\nclass Pedido implements Identificavel, Serializavel, Comparavel<Pedido> {\n  constructor(readonly id: number, private total: number) {}\n\n  paraJson(): string { return JSON.stringify({ id: this.id, total: this.total }); }\n  comparar(outro: Pedido): number { return this.total - outro.total; }\n}\n\nconst pedidos = [new Pedido(3, 89.9), new Pedido(1, 240), new Pedido(2, 19.9)];\npedidos.sort((a, b) => a.comparar(b));\n\nfor (const pedido of pedidos) console.log(pedido.paraJson());\n\n// @ts-expect-error — Cannot assign to 'id' because it is a read-only property.\npedidos[0].id = 99;\n\nconsole.log('\\nCada interface descreve UMA capacidade. É o contrário de uma classe-mãe gorda');\nconsole.log('que tenta prever tudo — e encaixa muito melhor em código que vai crescer.');",
+        "codigoJs": "class Pedido {\n    id;\n    total;\n    constructor(id, total){\n        this.id = id;\n        this.total = total;\n    }\n    paraJson() {\n        return JSON.stringify({\n            id: this.id,\n            total: this.total\n        });\n    }\n    comparar(outro) {\n        return this.total - outro.total;\n    }\n}\nconst pedidos = [\n    new Pedido(3, 89.9),\n    new Pedido(1, 240),\n    new Pedido(2, 19.9)\n];\npedidos.sort((a, b)=>a.comparar(b));\nfor (const pedido of pedidos)console.log(pedido.paraJson());\npedidos[0].id = 99;\nconsole.log('\\nCada interface descreve UMA capacidade. É o contrário de uma classe-mãe gorda');\nconsole.log('que tenta prever tudo — e encaixa muito melhor em código que vai crescer.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Trocar a implementação sem tocar em quem usa",
+        "secao": "NA PRÁTICA",
+        "codigo": "interface RepositorioDeAlunos {\n  salvar(nome: string): number;\n  listar(): string[];\n}\n\nclass RepositorioEmMemoria implements RepositorioDeAlunos {\n  private alunos: string[] = [];\n  salvar(nome: string): number { return this.alunos.push(nome); }\n  listar(): string[] { return [...this.alunos]; }\n}\n\nclass RepositorioComLog implements RepositorioDeAlunos {\n  constructor(private interno: RepositorioDeAlunos) {}       // embrulha outro repositório\n  salvar(nome: string): number {\n    console.log(`  [log] salvando ${nome}`);\n    return this.interno.salvar(nome);\n  }\n  listar(): string[] { return this.interno.listar(); }\n}\n\n// A função só conhece a interface: não sabe nem se importa qual das duas chegou.\nfunction cadastrarTurma(repositorio: RepositorioDeAlunos, nomes: string[]): void {\n  for (const nome of nomes) repositorio.salvar(nome);\n  console.log('  turma:', repositorio.listar().join(', '));\n}\n\nconsole.log('sem log:');\ncadastrarTurma(new RepositorioEmMemoria(), ['Ana', 'Bruno']);\nconsole.log('com log:');\ncadastrarTurma(new RepositorioComLog(new RepositorioEmMemoria()), ['Carla', 'Diego']);\n\nconsole.log('\\nÉ o mesmo desenho do banco em `node/08-sequelize`: trocar MySQL por memória');\nconsole.log('nos testes não muda uma linha de quem chama.');",
+        "codigoJs": "class RepositorioEmMemoria {\n    alunos = [];\n    salvar(nome) {\n        return this.alunos.push(nome);\n    }\n    listar() {\n        return [\n            ...this.alunos\n        ];\n    }\n}\nclass RepositorioComLog {\n    interno;\n    constructor(interno){\n        this.interno = interno;\n    }\n    salvar(nome) {\n        console.log(`  [log] salvando ${nome}`);\n        return this.interno.salvar(nome);\n    }\n    listar() {\n        return this.interno.listar();\n    }\n}\nfunction cadastrarTurma(repositorio, nomes) {\n    for (const nome of nomes)repositorio.salvar(nome);\n    console.log('  turma:', repositorio.listar().join(', '));\n}\nconsole.log('sem log:');\ncadastrarTurma(new RepositorioEmMemoria(), [\n    'Ana',\n    'Bruno'\n]);\nconsole.log('com log:');\ncadastrarTurma(new RepositorioComLog(new RepositorioEmMemoria()), [\n    'Carla',\n    'Diego'\n]);\nconsole.log('\\nÉ o mesmo desenho do banco em `node/08-sequelize`: trocar MySQL por memória');\nconsole.log('nos testes não muda uma linha de quem chama.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "A interface como tipo do construtor",
+        "secao": "NA PRÁTICA",
+        "codigo": "interface Forma { area(): number; }\n\nclass Quadrado implements Forma {\n  constructor(private lado: number) {}\n  area(): number { return this.lado ** 2; }\n}\nclass Circulo implements Forma {\n  constructor(private raio: number) {}\n  area(): number { return Math.PI * this.raio ** 2; }\n}\n\n// `new (...) => Forma` é o tipo de uma CLASSE que produz Forma, não de uma forma pronta.\ntype ConstrutorDeForma = new (medida: number) => Forma;\n\nconst fabricas: Record<string, ConstrutorDeForma> = { quadrado: Quadrado, circulo: Circulo };\n\nfunction criar(tipo: string, medida: number): string {\n  const Classe = fabricas[tipo];\n  if (!Classe) return `${tipo}: desconhecido`;\n  return `${tipo.padEnd(9)} área ${new Classe(medida).area().toFixed(2)}`;\n}\n\nconsole.log(criar('quadrado', 4));\nconsole.log(criar('circulo', 4));\nconsole.log(criar('triangulo', 4));",
+        "codigoJs": "class Quadrado {\n    lado;\n    constructor(lado){\n        this.lado = lado;\n    }\n    area() {\n        return this.lado ** 2;\n    }\n}\nclass Circulo {\n    raio;\n    constructor(raio){\n        this.raio = raio;\n    }\n    area() {\n        return Math.PI * this.raio ** 2;\n    }\n}\nconst fabricas = {\n    quadrado: Quadrado,\n    circulo: Circulo\n};\nfunction criar(tipo, medida) {\n    const Classe = fabricas[tipo];\n    if (!Classe) return `${tipo}: desconhecido`;\n    return `${tipo.padEnd(9)} área ${new Classe(medida).area().toFixed(2)}`;\n}\nconsole.log(criar('quadrado', 4));\nconsole.log(criar('circulo', 4));\nconsole.log(criar('triangulo', 4));\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`implements` não muda o tipo do que a classe entrega",
+        "secao": "PEGADINHAS",
+        "codigo": "interface ComNome { nome: string; }\n\nclass Cliente implements ComNome {\n  nome = 'Ana';\n  telefone = '81 99999-0000';        // campo a mais: a interface não proíbe\n}\n\nconst cliente = new Cliente();\nconsole.log('pelo tipo da classe:', cliente.nome, cliente.telefone);\n\nconst comoInterface: ComNome = cliente;\nconsole.log('pelo tipo da interface:', comoInterface.nome);\n\n// @ts-expect-error — Property 'telefone' does not exist on type 'ComNome'.\nconsole.log(comoInterface.telefone);\n\nconsole.log('\\n`implements` é um piso, não um teto: a classe pode ter mais. O que limita é o');\nconsole.log('TIPO DA VARIÁVEL — e é justamente essa limitação que faz a troca ser segura.');",
+        "codigoJs": "class Cliente {\n    nome = 'Ana';\n    telefone = '81 99999-0000';\n}\nconst cliente = new Cliente();\nconsole.log('pelo tipo da classe:', cliente.nome, cliente.telefone);\nconst comoInterface = cliente;\nconsole.log('pelo tipo da interface:', comoInterface.nome);\nconsole.log(comoInterface.telefone);\nconsole.log('\\n`implements` é um piso, não um teto: a classe pode ter mais. O que limita é o');\nconsole.log('TIPO DA VARIÁVEL — e é justamente essa limitação que faz a troca ser segura.');\n"
+       },
+       {
+        "n": 7,
+        "titulo": "Interface não descreve o construtor",
+        "secao": "PEGADINHAS",
+        "codigo": "interface ComIdentificador { id: number; }\n\n// Isto descreve a INSTÂNCIA. Não há como exigir \"toda classe que implementa tem\n// que receber um id no construtor\": a interface não enxerga o construtor.\nclass PorParametro implements ComIdentificador {\n  constructor(public id: number) {}\n}\nclass PorSorteio implements ComIdentificador {\n  id = 42;                                    // não recebe nada, e cumpre igual\n}\n\nconsole.log('por parâmetro:', new PorParametro(7).id);\nconsole.log('por sorteio  :', new PorSorteio().id);\n\nconsole.log('\\nPara exigir a forma do construtor, o tipo é outro: `new (id: number) => T`,');\nconsole.log('como o `ConstrutorDeForma` do bloco 5. Interface só fala da instância.');",
+        "codigoJs": "class PorParametro {\n    id;\n    constructor(id){\n        this.id = id;\n    }\n}\nclass PorSorteio {\n    id = 42;\n}\nconsole.log('por parâmetro:', new PorParametro(7).id);\nconsole.log('por sorteio  :', new PorSorteio().id);\nconsole.log('\\nPara exigir a forma do construtor, o tipo é outro: `new (id: number) => T`,');\nconsole.log('como o `ConstrutorDeForma` do bloco 5. Interface só fala da instância.');\n"
+       }
+      ],
+      "resumo": [
+       "`implements` confere o contrato; ao contrário de `extends`, não traz implementação.",
+       "Uma classe estende no máximo uma classe, e implementa quantas interfaces quiser.",
+       "Interfaces pequenas (uma capacidade cada) envelhecem melhor que uma classe-mãe grande.",
+       "Programar contra a interface é o que deixa trocar a implementação nos testes.",
+       "`new (x: T) => U` é o tipo de uma classe; interface descreve só a instância.",
+       "A classe pode ter mais do que a interface pede — quem limita é o tipo da variável."
+      ]
+     },
+     {
+      "slug": "04-static-e-getters",
+      "arquivo": "typescript/src/06-classes/04-static-e-getters.ts",
+      "comando": "node --experimental-transform-types src/06-classes/04-static-e-getters.ts",
+      "titulo": "static, getters e construtor privado",
+      "sessao": 6,
+      "oQueE": "`static` pertence à classe, não ao objeto. `get`/`set` são métodos que se leem como propriedade. Construtor `private` tira de todo mundo o direito de dar `new`.",
+      "quandoUsar": "`static` para fábrica e constante da classe; `get` para valor derivado; construtor privado quando a criação precisa passar por uma validação.",
+      "quandoNaoUsar": "`set` que faz mais do que guardar. Quem lê `objeto.x = 1` não espera uma chamada de rede ali — nesse caso, escreva um método com nome.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "`static`: pertence à classe",
+        "secao": "ESSENCIAL",
+        "codigo": "class Pedido {\n  static readonly TAXA_DE_SERVICO = 0.05;      // constante da classe\n  static quantidadeCriada = 0;                 // contador compartilhado por todos\n\n  constructor(public readonly id: number, private valor: number) {\n    Pedido.quantidadeCriada++;                 // pela CLASSE, não por `this`\n  }\n\n  static total(pedidos: Pedido[]): number {    // método que não precisa de um pedido\n    return pedidos.reduce((s, p) => s + p.comTaxa(), 0);\n  }\n\n  comTaxa(): number { return this.valor * (1 + Pedido.TAXA_DE_SERVICO); }\n}\n\nconst pedidos = [new Pedido(1, 100), new Pedido(2, 250)];\nconsole.log('taxa      :', Pedido.TAXA_DE_SERVICO);\nconsole.log('criados   :', Pedido.quantidadeCriada);\nconsole.log('total     :', Pedido.total(pedidos).toFixed(2));\n\n// @ts-expect-error — Property 'TAXA_DE_SERVICO' is a static member of type 'Pedido'.\nconsole.log(pedidos[0].TAXA_DE_SERVICO);",
+        "codigoJs": "class Pedido {\n    id;\n    valor;\n    static TAXA_DE_SERVICO = 0.05;\n    static quantidadeCriada = 0;\n    constructor(id, valor){\n        this.id = id;\n        this.valor = valor;\n        Pedido.quantidadeCriada++;\n    }\n    static total(pedidos) {\n        return pedidos.reduce((s, p)=>s + p.comTaxa(), 0);\n    }\n    comTaxa() {\n        return this.valor * (1 + Pedido.TAXA_DE_SERVICO);\n    }\n}\nconst pedidos = [\n    new Pedido(1, 100),\n    new Pedido(2, 250)\n];\nconsole.log('taxa      :', Pedido.TAXA_DE_SERVICO);\nconsole.log('criados   :', Pedido.quantidadeCriada);\nconsole.log('total     :', Pedido.total(pedidos).toFixed(2));\nconsole.log(pedidos[0].TAXA_DE_SERVICO);\n"
+       },
+       {
+        "n": 2,
+        "titulo": "`get` e `set`: método com cara de propriedade",
+        "secao": "ESSENCIAL",
+        "codigo": "class Temperatura {\n  private celsius = 0;\n\n  get fahrenheit(): number { return this.celsius * 1.8 + 32; }\n  set fahrenheit(valor: number) { this.celsius = (valor - 32) / 1.8; }\n\n  get emCelsius(): number { return this.celsius; }\n}\n\nconst temperatura = new Temperatura();\ntemperatura.fahrenheit = 212;                  // parece atribuição, é chamada de método\nconsole.log('212 °F =', temperatura.emCelsius.toFixed(1), '°C');\n\ntemperatura.fahrenheit = 32;\nconsole.log('32 °F  =', temperatura.emCelsius.toFixed(1), '°C');\nconsole.log('de volta a °F:', temperatura.fahrenheit.toFixed(0));\n\n// Sem `set`, o get vira só de leitura — e o tsc cobra.\n// @ts-expect-error — Cannot assign to 'emCelsius' because it is a read-only property.\ntemperatura.emCelsius = 100;",
+        "codigoJs": "class Temperatura {\n    celsius = 0;\n    get fahrenheit() {\n        return this.celsius * 1.8 + 32;\n    }\n    set fahrenheit(valor) {\n        this.celsius = (valor - 32) / 1.8;\n    }\n    get emCelsius() {\n        return this.celsius;\n    }\n}\nconst temperatura = new Temperatura();\ntemperatura.fahrenheit = 212;\nconsole.log('212 °F =', temperatura.emCelsius.toFixed(1), '°C');\ntemperatura.fahrenheit = 32;\nconsole.log('32 °F  =', temperatura.emCelsius.toFixed(1), '°C');\nconsole.log('de volta a °F:', temperatura.fahrenheit.toFixed(0));\ntemperatura.emCelsius = 100;\n"
+       },
+       {
+        "n": 3,
+        "titulo": "Construtor privado e fábrica estática",
+        "secao": "ESSENCIAL",
+        "codigo": "// Só a própria classe pode dar `new`. Quem está de fora passa pela fábrica, que valida.\nclass Cpf {\n  private constructor(public readonly numero: string) {}\n\n  static criar(bruto: string): Cpf | null {\n    const digitos = bruto.replace(/\\D/g, '');\n    if (digitos.length !== 11) return null;\n    return new Cpf(digitos);\n  }\n\n  formatado(): string {\n    return this.numero.replace(/(\\d{3})(\\d{3})(\\d{3})(\\d{2})/, '$1.$2.$3-$4');\n  }\n}\n\nconst valido = Cpf.criar('529.982.247-25');\nconst invalido = Cpf.criar('123');\n\nconsole.log('válido  :', valido?.formatado() ?? 'recusado');\nconsole.log('inválido:', invalido?.formatado() ?? 'recusado');\n\n// @ts-expect-error — Constructor of class 'Cpf' is private and only accessible within the class declaration.\nconsole.log(new Cpf('qualquer coisa').numero);\n\nconsole.log('\\nA partir daqui, um valor do tipo `Cpf` no sistema inteiro é um CPF que já');\nconsole.log('passou pela validação. O tipo deixa de ser rótulo e passa a ser garantia.');",
+        "codigoJs": "class Cpf {\n    numero;\n    constructor(numero){\n        this.numero = numero;\n    }\n    static criar(bruto) {\n        const digitos = bruto.replace(/\\D/g, '');\n        if (digitos.length !== 11) return null;\n        return new Cpf(digitos);\n    }\n    formatado() {\n        return this.numero.replace(/(\\d{3})(\\d{3})(\\d{3})(\\d{2})/, '$1.$2.$3-$4');\n    }\n}\nconst valido = Cpf.criar('529.982.247-25');\nconst invalido = Cpf.criar('123');\nconsole.log('válido  :', valido?.formatado() ?? 'recusado');\nconsole.log('inválido:', invalido?.formatado() ?? 'recusado');\nconsole.log(new Cpf('qualquer coisa').numero);\nconsole.log('\\nA partir daqui, um valor do tipo `Cpf` no sistema inteiro é um CPF que já');\nconsole.log('passou pela validação. O tipo deixa de ser rótulo e passa a ser garantia.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "`get` para valor derivado",
+        "secao": "NA PRÁTICA",
+        "codigo": "class NotaFiscal {\n  private itens: { descricao: string; preco: number; quantidade: number }[] = [];\n\n  adicionar(descricao: string, preco: number, quantidade: number): void {\n    this.itens.push({ descricao, preco, quantidade });\n  }\n\n  // Derivado: calculado toda vez, nunca guardado — não tem como ficar desatualizado.\n  get subtotal(): number { return this.itens.reduce((s, i) => s + i.preco * i.quantidade, 0); }\n  get imposto(): number { return this.subtotal * 0.12; }\n  get total(): number { return this.subtotal + this.imposto; }\n  get vazia(): boolean { return this.itens.length === 0; }\n}\n\nconst nota = new NotaFiscal();\nconsole.log('vazia?', nota.vazia);\n\nnota.adicionar('Caneca', 19.9, 2);\nnota.adicionar('Caderno', 32.5, 1);\n\nconsole.log(`subtotal R$ ${nota.subtotal.toFixed(2)}`);\nconsole.log(`imposto  R$ ${nota.imposto.toFixed(2)}`);\nconsole.log(`total    R$ ${nota.total.toFixed(2)}`);\n\nconsole.log('\\nSe `total` fosse um campo comum, alguém teria que lembrar de recalculá-lo a');\nconsole.log('cada `adicionar`. Com `get`, esquecer não é uma opção.');",
+        "codigoJs": "class NotaFiscal {\n    itens = [];\n    adicionar(descricao, preco, quantidade) {\n        this.itens.push({\n            descricao,\n            preco,\n            quantidade\n        });\n    }\n    get subtotal() {\n        return this.itens.reduce((s, i)=>s + i.preco * i.quantidade, 0);\n    }\n    get imposto() {\n        return this.subtotal * 0.12;\n    }\n    get total() {\n        return this.subtotal + this.imposto;\n    }\n    get vazia() {\n        return this.itens.length === 0;\n    }\n}\nconst nota = new NotaFiscal();\nconsole.log('vazia?', nota.vazia);\nnota.adicionar('Caneca', 19.9, 2);\nnota.adicionar('Caderno', 32.5, 1);\nconsole.log(`subtotal R$ ${nota.subtotal.toFixed(2)}`);\nconsole.log(`imposto  R$ ${nota.imposto.toFixed(2)}`);\nconsole.log(`total    R$ ${nota.total.toFixed(2)}`);\nconsole.log('\\nSe `total` fosse um campo comum, alguém teria que lembrar de recalculá-lo a');\nconsole.log('cada `adicionar`. Com `get`, esquecer não é uma opção.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Fábricas nomeadas, em vez de um construtor com tudo",
+        "secao": "NA PRÁTICA",
+        "codigo": "class Periodo {\n  private constructor(readonly inicio: string, readonly fim: string) {}\n\n  static de(inicio: string, fim: string): Periodo { return new Periodo(inicio, fim); }\n  static mesInteiro(ano: number, mes: number): Periodo {\n    const ultimo = new Date(Date.UTC(ano, mes, 0)).getUTCDate();\n    const dois = (n: number) => String(n).padStart(2, '0');\n    return new Periodo(`${ano}-${dois(mes)}-01`, `${ano}-${dois(mes)}-${dois(ultimo)}`);\n  }\n  static hoje(dia: string): Periodo { return new Periodo(dia, dia); }\n\n  descrever(): string { return this.inicio === this.fim ? this.inicio : `${this.inicio} a ${this.fim}`; }\n}\n\nconsole.log('mês inteiro:', Periodo.mesInteiro(2026, 2).descrever());\nconsole.log('intervalo  :', Periodo.de('2026-08-01', '2026-08-15').descrever());\nconsole.log('um dia     :', Periodo.hoje('2026-08-28').descrever());\n\nconsole.log('\\nTrês construtores com nome, em vez de um `new Periodo(a, b, tipo, flag)` que');\nconsole.log('ninguém entende na hora de chamar. `static` é o que torna isso possível.');",
+        "codigoJs": "class Periodo {\n    inicio;\n    fim;\n    constructor(inicio, fim){\n        this.inicio = inicio;\n        this.fim = fim;\n    }\n    static de(inicio, fim) {\n        return new Periodo(inicio, fim);\n    }\n    static mesInteiro(ano, mes) {\n        const ultimo = new Date(Date.UTC(ano, mes, 0)).getUTCDate();\n        const dois = (n)=>String(n).padStart(2, '0');\n        return new Periodo(`${ano}-${dois(mes)}-01`, `${ano}-${dois(mes)}-${dois(ultimo)}`);\n    }\n    static hoje(dia) {\n        return new Periodo(dia, dia);\n    }\n    descrever() {\n        return this.inicio === this.fim ? this.inicio : `${this.inicio} a ${this.fim}`;\n    }\n}\nconsole.log('mês inteiro:', Periodo.mesInteiro(2026, 2).descrever());\nconsole.log('intervalo  :', Periodo.de('2026-08-01', '2026-08-15').descrever());\nconsole.log('um dia     :', Periodo.hoje('2026-08-28').descrever());\nconsole.log('\\nTrês construtores com nome, em vez de um `new Periodo(a, b, tipo, flag)` que');\nconsole.log('ninguém entende na hora de chamar. `static` é o que torna isso possível.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`static` não enxerga `this` da instância",
+        "secao": "PEGADINHAS",
+        "codigo": "class Contador {\n  private valor = 0;\n\n  incrementar(): void { this.valor++; }\n\n  static reiniciarTodos(contadores: Contador[]): void {\n    // @ts-expect-error — Property 'valor' does not exist on type 'typeof Contador'.\n    console.log(this.valor);\n    for (const c of contadores) c.zerar();\n  }\n\n  zerar(): void { this.valor = 0; }\n  get atual(): number { return this.valor; }\n}\n\nconst a = new Contador();\nconst b = new Contador();\na.incrementar(); a.incrementar(); b.incrementar();\nconsole.log('antes :', a.atual, b.atual);\n\nContador.reiniciarTodos([a, b]);\nconsole.log('depois:', a.atual, b.atual);\n\nconsole.log('\\nDentro de um método `static`, `this` é a própria CLASSE. Não existe objeto');\nconsole.log('nenhum ali — por isso o método recebe a lista por parâmetro.');",
+        "codigoJs": "class Contador {\n    valor = 0;\n    incrementar() {\n        this.valor++;\n    }\n    static reiniciarTodos(contadores) {\n        console.log(this.valor);\n        for (const c of contadores)c.zerar();\n    }\n    zerar() {\n        this.valor = 0;\n    }\n    get atual() {\n        return this.valor;\n    }\n}\nconst a = new Contador();\nconst b = new Contador();\na.incrementar();\na.incrementar();\nb.incrementar();\nconsole.log('antes :', a.atual, b.atual);\nContador.reiniciarTodos([\n    a,\n    b\n]);\nconsole.log('depois:', a.atual, b.atual);\nconsole.log('\\nDentro de um método `static`, `this` é a própria CLASSE. Não existe objeto');\nconsole.log('nenhum ali — por isso o método recebe a lista por parâmetro.');\n"
+       },
+       {
+        "n": 7,
+        "titulo": "`get` que faz trabalho pesado engana quem lê",
+        "secao": "PEGADINHAS",
+        "codigo": "class RelatorioPesado {\n  private vezesCalculado = 0;\n\n  get resumo(): string {\n    this.vezesCalculado++;                     // efeito colateral escondido numa leitura\n    let soma = 0;\n    for (let i = 0; i < 200000; i++) soma += i;\n    return `soma ${soma}`;\n  }\n\n  get quantasVezes(): number { return this.vezesCalculado; }\n}\n\nconst relatorio = new RelatorioPesado();\nconsole.log(relatorio.resumo);\nconsole.log(relatorio.resumo);\nconsole.log('calculado', relatorio.quantasVezes, 'vezes ← duas leituras, dois cálculos inteiros');\n\nconsole.log('\\nQuem escreve `if (r.resumo)` num laço não imagina que está recalculando tudo.');\nconsole.log('Se custa caro ou tem efeito, use um método com nome de verbo: `calcularResumo()`.');",
+        "codigoJs": "class RelatorioPesado {\n    vezesCalculado = 0;\n    get resumo() {\n        this.vezesCalculado++;\n        let soma = 0;\n        for(let i = 0; i < 200000; i++)soma += i;\n        return `soma ${soma}`;\n    }\n    get quantasVezes() {\n        return this.vezesCalculado;\n    }\n}\nconst relatorio = new RelatorioPesado();\nconsole.log(relatorio.resumo);\nconsole.log(relatorio.resumo);\nconsole.log('calculado', relatorio.quantasVezes, 'vezes ← duas leituras, dois cálculos inteiros');\nconsole.log('\\nQuem escreve `if (r.resumo)` num laço não imagina que está recalculando tudo.');\nconsole.log('Se custa caro ou tem efeito, use um método com nome de verbo: `calcularResumo()`.');\n"
+       }
+      ],
+      "resumo": [
+       "`static` pertence à classe: constante, contador e fábrica. Ali `this` é a classe.",
+       "`get`/`set` são métodos com cara de propriedade — bons para valor derivado.",
+       "`get` sem `set` é propriedade só de leitura, e o tsc cobra.",
+       "Construtor `private` + fábrica estática obriga a criação a passar pela validação.",
+       "Fábricas com nome substituem o construtor de seis parâmetros que ninguém decora.",
+       "`get` caro ou com efeito colateral engana quem lê: aí escreva um método."
+      ]
+     }
+    ]
+   },
+   {
+    "slug": "07-generics",
+    "titulo": "Generics",
+    "icone": "⌇",
+    "cor": "#ffb86c",
+    "resumo": "Tipo que vira parâmetro: reaproveitar sem perder o tipo.",
+    "topicos": [
+     {
+      "slug": "01-o-basico",
+      "arquivo": "typescript/src/07-generics/01-o-basico.ts",
+      "comando": "node src/07-generics/01-o-basico.ts",
+      "titulo": "Generics: o básico",
+      "sessao": 7,
+      "oQueE": "um tipo que vira parâmetro. Em vez de escrever a função para `string` e de novo para `number`, você escreve uma vez com um `<T>` que se ajusta a quem chamou.",
+      "quandoUsar": "quando a função ou a classe funciona igual para qualquer tipo e o tipo que entra decide o que sai — `primeiro`, `Caixa`, `Repositorio`.",
+      "quandoNaoUsar": "com um `<T>` que aparece uma vez só. Se o tipo não conecta entrada e saída, ele não está fazendo nada — ali cabia `unknown`.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "O problema: `any` perde o tipo pelo caminho",
+        "secao": "ESSENCIAL",
+        "codigo": "function primeiroComAny(lista: any[]): any { return lista[0]; }\n\nconst nomeSolto = primeiroComAny(['Ana', 'Bruno']);\nconsole.log('com any:', nomeSolto.toUpperCase());   // passa, e está certo\ntry {\n  console.log(nomeSolto.toFixed(2));                // o tsc também deixa passar\n} catch (erro) {\n  console.log('com any:', (erro as Error).message, '← só rodando o erro aparece');\n}\n\n// Com generic, o tipo entra e sai: `T` é `string` porque a lista era de string.\nfunction primeiro<T>(lista: T[]): T | undefined { return lista[0]; }\n\nconst nome = primeiro(['Ana', 'Bruno']);            // string | undefined\nconst nota = primeiro([9.2, 6.4]);                  // number | undefined\n\nconsole.log('com generic:', nome?.toUpperCase(), '·', nota?.toFixed(1));\n\ntry {\n  // @ts-expect-error — Property 'toFixed' does not exist on type 'string'.\n  console.log(nome?.toFixed(2));\n} catch (erro) {\n  console.log('com generic:', (erro as Error).message, '← agora o tsc avisa antes');\n}",
+        "codigoJs": "function primeiroComAny(lista) {\n    return lista[0];\n}\nconst nomeSolto = primeiroComAny([\n    'Ana',\n    'Bruno'\n]);\nconsole.log('com any:', nomeSolto.toUpperCase());\ntry {\n    console.log(nomeSolto.toFixed(2));\n} catch (erro) {\n    console.log('com any:', erro.message, '← só rodando o erro aparece');\n}\nfunction primeiro(lista) {\n    return lista[0];\n}\nconst nome = primeiro([\n    'Ana',\n    'Bruno'\n]);\nconst nota = primeiro([\n    9.2,\n    6.4\n]);\nconsole.log('com generic:', nome?.toUpperCase(), '·', nota?.toFixed(1));\ntry {\n    console.log(nome?.toFixed(2));\n} catch (erro) {\n    console.log('com generic:', erro.message, '← agora o tsc avisa antes');\n}\n"
+       },
+       {
+        "n": 2,
+        "titulo": "Quem preenche o `T` é a chamada",
+        "secao": "ESSENCIAL",
+        "codigo": "function embrulhar<T>(valor: T): { conteudo: T; embrulhadoEm: string } {\n  return { conteudo: valor, embrulhadoEm: '2026-08-28' };\n}\n\nconst comTexto = embrulhar('Caneca');               // T = string\nconst comObjeto = embrulhar({ sku: 'CAN-01', preco: 19.9 });  // T = { sku: string; preco: number }\n\nconsole.log(comTexto.conteudo.toUpperCase());\nconsole.log(comObjeto.conteudo.sku, '→', comObjeto.conteudo.preco.toFixed(2));\n\n// Dá para dizer o tipo na mão, quando a dedução não é a que você quer.\nconst explicito = embrulhar<string | null>(null);\nconsole.log('explícito:', explicito.conteudo ?? '(vazio)');\n\n// @ts-expect-error — Property 'sku' does not exist on type 'string'.\nconsole.log(comTexto.conteudo.sku);\n\nconsole.log('\\nNa maior parte das vezes você NÃO escreve o `<string>`: o TypeScript deduz');\nconsole.log('pelo argumento. Escrever só quando ele deduz mais largo ou mais estreito do que');\nconsole.log('você queria.');",
+        "codigoJs": "function embrulhar(valor) {\n    return {\n        conteudo: valor,\n        embrulhadoEm: '2026-08-28'\n    };\n}\nconst comTexto = embrulhar('Caneca');\nconst comObjeto = embrulhar({\n    sku: 'CAN-01',\n    preco: 19.9\n});\nconsole.log(comTexto.conteudo.toUpperCase());\nconsole.log(comObjeto.conteudo.sku, '→', comObjeto.conteudo.preco.toFixed(2));\nconst explicito = embrulhar(null);\nconsole.log('explícito:', explicito.conteudo ?? '(vazio)');\nconsole.log(comTexto.conteudo.sku);\nconsole.log('\\nNa maior parte das vezes você NÃO escreve o `<string>`: o TypeScript deduz');\nconsole.log('pelo argumento. Escrever só quando ele deduz mais largo ou mais estreito do que');\nconsole.log('você queria.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "Mais de um parâmetro de tipo",
+        "secao": "ESSENCIAL",
+        "codigo": "function parear<A, B>(primeiro: A, segundo: B): [A, B] { return [primeiro, segundo]; }\n\nconst parNomeIdade = parear('Ana', 30);\nconst parSkuPreco = parear('CAN-01', 19.9);\n\nconsole.log(`${parNomeIdade[0]} tem ${parNomeIdade[1]} anos`);\nconsole.log(`${parSkuPreco[0]} custa R$ ${parSkuPreco[1].toFixed(2)}`);\n\n// A troca clássica, que só é possível porque os dois tipos têm nome.\nfunction inverter<A, B>(par: [A, B]): [B, A] { return [par[1], par[0]]; }\n\nconst invertido = inverter(parNomeIdade);           // [number, string]\nconsole.log('invertido:', invertido[0] + 1, invertido[1].toLowerCase());\n\ntry {\n  // @ts-expect-error — Property 'toLowerCase' does not exist on type 'number'.\n  console.log(invertido[0].toLowerCase());\n} catch (erro) {\n  console.log('trocado   :', (erro as Error).message, '← a posição 0 agora é number');\n}",
+        "codigoJs": "function parear(primeiro, segundo) {\n    return [\n        primeiro,\n        segundo\n    ];\n}\nconst parNomeIdade = parear('Ana', 30);\nconst parSkuPreco = parear('CAN-01', 19.9);\nconsole.log(`${parNomeIdade[0]} tem ${parNomeIdade[1]} anos`);\nconsole.log(`${parSkuPreco[0]} custa R$ ${parSkuPreco[1].toFixed(2)}`);\nfunction inverter(par) {\n    return [\n        par[1],\n        par[0]\n    ];\n}\nconst invertido = inverter(parNomeIdade);\nconsole.log('invertido:', invertido[0] + 1, invertido[1].toLowerCase());\ntry {\n    console.log(invertido[0].toLowerCase());\n} catch (erro) {\n    console.log('trocado   :', erro.message, '← a posição 0 agora é number');\n}\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Classe genérica: a mesma estrutura para qualquer conteúdo",
+        "secao": "NA PRÁTICA",
+        "codigo": "class Fila<T> {\n  private itens: T[] = [];\n\n  entrar(item: T): void { this.itens.push(item); }\n  sair(): T | undefined { return this.itens.shift(); }\n  get tamanho(): number { return this.itens.length; }\n  espiar(): T | undefined { return this.itens[0]; }\n}\n\nconst senhas = new Fila<number>();\nsenhas.entrar(101);\nsenhas.entrar(102);\nconsole.log('próxima senha:', senhas.espiar(), '· na fila:', senhas.tamanho);\nconsole.log('chamou       :', senhas.sair(), '· restam:', senhas.tamanho);\n\ntype Tarefa = { titulo: string; prioridade: number };\nconst tarefas = new Fila<Tarefa>();\ntarefas.entrar({ titulo: 'Conferir estoque', prioridade: 1 });\ntarefas.entrar({ titulo: 'Fechar caixa', prioridade: 2 });\nconsole.log('próxima tarefa:', tarefas.espiar()?.titulo);\n\n// @ts-expect-error — Argument of type 'string' is not assignable to parameter of type 'number'.\nsenhas.entrar('103');\n\nconsole.log('\\nUma classe, dois usos, zero duplicação — e cada fila continua sabendo o que');\nconsole.log('guarda. É por isso que `Array<T>`, `Map<K, V>` e `Promise<T>` são genéricos.');",
+        "codigoJs": "class Fila {\n    itens = [];\n    entrar(item) {\n        this.itens.push(item);\n    }\n    sair() {\n        return this.itens.shift();\n    }\n    get tamanho() {\n        return this.itens.length;\n    }\n    espiar() {\n        return this.itens[0];\n    }\n}\nconst senhas = new Fila();\nsenhas.entrar(101);\nsenhas.entrar(102);\nconsole.log('próxima senha:', senhas.espiar(), '· na fila:', senhas.tamanho);\nconsole.log('chamou       :', senhas.sair(), '· restam:', senhas.tamanho);\nconst tarefas = new Fila();\ntarefas.entrar({\n    titulo: 'Conferir estoque',\n    prioridade: 1\n});\ntarefas.entrar({\n    titulo: 'Fechar caixa',\n    prioridade: 2\n});\nconsole.log('próxima tarefa:', tarefas.espiar()?.titulo);\nsenhas.entrar('103');\nconsole.log('\\nUma classe, dois usos, zero duplicação — e cada fila continua sabendo o que');\nconsole.log('guarda. É por isso que `Array<T>`, `Map<K, V>` e `Promise<T>` são genéricos.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "O generic que atravessa a assíncrona",
+        "secao": "NA PRÁTICA",
+        "codigo": "// `Promise<T>` é genérica: o que a promessa entrega segue o tipo lá de dentro.\nasync function buscarPorId<T>(tabela: Record<number, T>, id: number): Promise<T | null> {\n  await new Promise((resolver) => setTimeout(resolver, 1));\n  return tabela[id] ?? null;\n}\n\nconst alunos = { 1: { nome: 'Ana', nota: 9.2 }, 2: { nome: 'Bruno', nota: 6.4 } };\nconst cidades = { 1: 'Belo Horizonte', 2: 'Recife' };\n\n(async () => {\n  const aluno = await buscarPorId(alunos, 1);\n  const cidade = await buscarPorId(cidades, 2);\n  const nenhum = await buscarPorId(alunos, 99);\n\n  console.log('aluno :', aluno?.nome, aluno?.nota.toFixed(1));\n  console.log('cidade:', cidade?.toUpperCase());\n  console.log('id 99 :', nenhum ?? 'não encontrado');\n})();",
+        "codigoJs": "async function buscarPorId(tabela, id) {\n    await new Promise((resolver)=>setTimeout(resolver, 1));\n    return tabela[id] ?? null;\n}\nconst alunos = {\n    1: {\n        nome: 'Ana',\n        nota: 9.2\n    },\n    2: {\n        nome: 'Bruno',\n        nota: 6.4\n    }\n};\nconst cidades = {\n    1: 'Belo Horizonte',\n    2: 'Recife'\n};\n(async ()=>{\n    const aluno = await buscarPorId(alunos, 1);\n    const cidade = await buscarPorId(cidades, 2);\n    const nenhum = await buscarPorId(alunos, 99);\n    console.log('aluno :', aluno?.nome, aluno?.nota.toFixed(1));\n    console.log('cidade:', cidade?.toUpperCase());\n    console.log('id 99 :', nenhum ?? 'não encontrado');\n})();\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`<T>` que aparece uma vez só não serve para nada",
+        "secao": "PEGADINHAS",
+        "codigo": "// Aqui `T` não conecta nada: entra e some. A função aceita qualquer coisa e devolve string.\nfunction descreverInutil<T>(valor: T): string { return `recebi ${typeof valor}`; }\n\nconsole.log(descreverInutil('texto'), '·', descreverInutil(42));\n\n// A versão honesta diz a mesma coisa e é mais fácil de ler.\nfunction descreverHonesto(valor: unknown): string { return `recebi ${typeof valor}`; }\nconsole.log(descreverHonesto('texto'), '·', descreverHonesto(42));\n\n// Pior ainda: o generic que só existe para o chamador escolher o retorno.\nfunction comoSeFosse<T>(valor: unknown): T { return valor as T; }\nconst mentira = comoSeFosse<number>('42');\nconsole.log('typeof mentira:', typeof mentira, '← o tipo diz number, e é string');\n\nconsole.log('\\nA regra: `T` precisa aparecer pelo menos DUAS vezes — uma na entrada e outra');\nconsole.log('na saída. Se aparece uma vez, ele não está ligando nada, e `unknown` é mais honesto.');",
+        "codigoJs": "function descreverInutil(valor) {\n    return `recebi ${typeof valor}`;\n}\nconsole.log(descreverInutil('texto'), '·', descreverInutil(42));\nfunction descreverHonesto(valor) {\n    return `recebi ${typeof valor}`;\n}\nconsole.log(descreverHonesto('texto'), '·', descreverHonesto(42));\nfunction comoSeFosse(valor) {\n    return valor;\n}\nconst mentira = comoSeFosse('42');\nconsole.log('typeof mentira:', typeof mentira, '← o tipo diz number, e é string');\nconsole.log('\\nA regra: `T` precisa aparecer pelo menos DUAS vezes — uma na entrada e outra');\nconsole.log('na saída. Se aparece uma vez, ele não está ligando nada, e `unknown` é mais honesto.');\n"
+       }
+      ],
+      "resumo": [
+       "Generic é tipo virando parâmetro: escreve uma vez, serve para qualquer tipo.",
+       "Ao contrário de `any`, o tipo que entra é o que sai — nada se perde no caminho.",
+       "Quase sempre o TypeScript deduz o `T` pela chamada; escreva `<string>` só quando precisar.",
+       "`<A, B>` para mais de um tipo — é o que permite `[A, B]` virar `[B, A]`.",
+       "Classe genérica: `Fila<T>`, como `Array<T>`, `Map<K, V>` e `Promise<T>`.",
+       "`T` que aparece uma vez só não conecta nada — ali o certo era `unknown`."
+      ]
+     },
+     {
+      "slug": "02-restricoes-com-extends",
+      "arquivo": "typescript/src/07-generics/02-restricoes-com-extends.ts",
+      "comando": "node src/07-generics/02-restricoes-com-extends.ts",
+      "titulo": "Restrições com extends",
+      "sessao": 7,
+      "oQueE": "`<T extends X>` limita o que pode entrar no lugar de `T`. Sem a restrição, `T` é qualquer coisa e nada pode ser feito com ele lá dentro.",
+      "quandoUsar": "quando a função precisa de alguma garantia sobre o `T` — que ele tenha `length`, que tenha `id`, que seja uma chave do objeto.",
+      "quandoNaoUsar": "para restringir a um tipo só. `<T extends Produto>(p: T)` com um único uso é só `(p: Produto)` escrito de forma complicada.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "Sem restrição, `T` não sabe fazer nada",
+        "secao": "ESSENCIAL",
+        "codigo": "function medirSemRestricao<T>(valor: T): number {\n  // @ts-expect-error — Property 'length' does not exist on type 'T'.\n  return valor.length;\n}\nconsole.log('sem restrição, rodando:', medirSemRestricao('caneca'), medirSemRestricao(42));\n\n// Com `extends`, o compilador passa a saber que existe `length` — e a chamada é conferida.\nfunction medir<T extends { length: number }>(valor: T): number { return valor.length; }\n\nconsole.log('texto:', medir('caneca'));\nconsole.log('lista:', medir([1, 2, 3]));\nconsole.log('objeto com length:', medir({ length: 7, nome: 'qualquer coisa' }));\n\n// @ts-expect-error — Argument of type 'number' is not assignable to parameter of type '{ length: number; }'.\nconsole.log(medir(42));",
+        "codigoJs": "function medirSemRestricao(valor) {\n    return valor.length;\n}\nconsole.log('sem restrição, rodando:', medirSemRestricao('caneca'), medirSemRestricao(42));\nfunction medir(valor) {\n    return valor.length;\n}\nconsole.log('texto:', medir('caneca'));\nconsole.log('lista:', medir([\n    1,\n    2,\n    3\n]));\nconsole.log('objeto com length:', medir({\n    length: 7,\n    nome: 'qualquer coisa'\n}));\nconsole.log(medir(42));\n"
+       },
+       {
+        "n": 2,
+        "titulo": "Restringir para poder usar o campo",
+        "secao": "ESSENCIAL",
+        "codigo": "type ComId = { id: number };\n\nfunction indexarPorId<T extends ComId>(itens: T[]): Map<number, T> {\n  const mapa = new Map<number, T>();\n  for (const item of itens) mapa.set(item.id, item);   // só compila por causa do `extends`\n  return mapa;\n}\n\nconst alunos = [\n  { id: 1, nome: 'Ana', nota: 9.2 },\n  { id: 2, nome: 'Bruno', nota: 6.4 },\n];\nconst porId = indexarPorId(alunos);\n\n// O `T` guardou o tipo COMPLETO: `nome` e `nota` continuam ali, não só o `id`.\nconsole.log('aluno 2:', porId.get(2)?.nome, porId.get(2)?.nota.toFixed(1));\n\n// @ts-expect-error — Property 'id' is missing in type '{ nome: string; }'.\nindexarPorId([{ nome: 'Carla' }]);\n\nconsole.log('\\nSe a assinatura fosse `(itens: ComId[]): Map<number, ComId>`, o retorno perderia');\nconsole.log('`nome` e `nota`. É isso que o generic com restrição preserva.');",
+        "codigoJs": "function indexarPorId(itens) {\n    const mapa = new Map();\n    for (const item of itens)mapa.set(item.id, item);\n    return mapa;\n}\nconst alunos = [\n    {\n        id: 1,\n        nome: 'Ana',\n        nota: 9.2\n    },\n    {\n        id: 2,\n        nome: 'Bruno',\n        nota: 6.4\n    }\n];\nconst porId = indexarPorId(alunos);\nconsole.log('aluno 2:', porId.get(2)?.nome, porId.get(2)?.nota.toFixed(1));\nindexarPorId([\n    {\n        nome: 'Carla'\n    }\n]);\nconsole.log('\\nSe a assinatura fosse `(itens: ComId[]): Map<number, ComId>`, o retorno perderia');\nconsole.log('`nome` e `nota`. É isso que o generic com restrição preserva.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "`keyof`: restringir à chave de um objeto",
+        "secao": "ESSENCIAL",
+        "codigo": "function pegar<T extends object, K extends keyof T>(objeto: T, chave: K): T[K] {\n  return objeto[chave];\n}\n\nconst produto = { sku: 'CAN-01', preco: 19.9, ativo: true };\n\nconst sku = pegar(produto, 'sku');        // string\nconst preco = pegar(produto, 'preco');    // number\nconst ativo = pegar(produto, 'ativo');    // boolean\n\nconsole.log(sku.toUpperCase(), preco.toFixed(2), ativo ? 'ativo' : 'inativo');\n\n// @ts-expect-error — Argument of type '\"estoque\"' is not assignable to parameter of type '\"sku\" | \"preco\" | \"ativo\"'.\nconsole.log(pegar(produto, 'estoque'));\n\nconsole.log('\\nRepare que cada chamada devolveu um tipo diferente, e nenhuma precisou de `as`.');\nconsole.log('`T[K]` é o tipo do valor daquela chave — o próximo tópico é só sobre isso.');",
+        "codigoJs": "function pegar(objeto, chave) {\n    return objeto[chave];\n}\nconst produto = {\n    sku: 'CAN-01',\n    preco: 19.9,\n    ativo: true\n};\nconst sku = pegar(produto, 'sku');\nconst preco = pegar(produto, 'preco');\nconst ativo = pegar(produto, 'ativo');\nconsole.log(sku.toUpperCase(), preco.toFixed(2), ativo ? 'ativo' : 'inativo');\nconsole.log(pegar(produto, 'estoque'));\nconsole.log('\\nRepare que cada chamada devolveu um tipo diferente, e nenhuma precisou de `as`.');\nconsole.log('`T[K]` é o tipo do valor daquela chave — o próximo tópico é só sobre isso.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Ordenar por qualquer campo, sem perder o tipo",
+        "secao": "NA PRÁTICA",
+        "codigo": "function ordenarPor<T, K extends keyof T>(itens: T[], campo: K, direcao: 'asc' | 'desc' = 'asc'): T[] {\n  const sinal = direcao === 'asc' ? 1 : -1;\n  return [...itens].sort((a, b) => (a[campo] < b[campo] ? -sinal : a[campo] > b[campo] ? sinal : 0));\n}\n\nconst vendas = [\n  { vendedor: 'Carla', total: 430, mes: 'jan' },\n  { vendedor: 'Ana', total: 1200, mes: 'fev' },\n  { vendedor: 'Bruno', total: 890, mes: 'jan' },\n];\n\nconsole.log('por total (desc):', ordenarPor(vendas, 'total', 'desc').map((v) => v.vendedor).join(' > '));\nconsole.log('por vendedor    :', ordenarPor(vendas, 'vendedor').map((v) => v.vendedor).join(' < '));\n\n// @ts-expect-error — Argument of type '\"comissao\"' is not assignable to parameter of type 'keyof ...'.\nordenarPor(vendas, 'comissao');\n\nconsole.log('\\nUma função para qualquer lista de qualquer formato, com o nome do campo');\nconsole.log('conferido pelo compilador. Sem generic, isso seria `(itens: any[], campo: string)`.');",
+        "codigoJs": "function ordenarPor(itens, campo, direcao = 'asc') {\n    const sinal = direcao === 'asc' ? 1 : -1;\n    return [\n        ...itens\n    ].sort((a, b)=>a[campo] < b[campo] ? -sinal : a[campo] > b[campo] ? sinal : 0);\n}\nconst vendas = [\n    {\n        vendedor: 'Carla',\n        total: 430,\n        mes: 'jan'\n    },\n    {\n        vendedor: 'Ana',\n        total: 1200,\n        mes: 'fev'\n    },\n    {\n        vendedor: 'Bruno',\n        total: 890,\n        mes: 'jan'\n    }\n];\nconsole.log('por total (desc):', ordenarPor(vendas, 'total', 'desc').map((v)=>v.vendedor).join(' > '));\nconsole.log('por vendedor    :', ordenarPor(vendas, 'vendedor').map((v)=>v.vendedor).join(' < '));\nordenarPor(vendas, 'comissao');\nconsole.log('\\nUma função para qualquer lista de qualquer formato, com o nome do campo');\nconsole.log('conferido pelo compilador. Sem generic, isso seria `(itens: any[], campo: string)`.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Valor padrão para o parâmetro de tipo",
+        "secao": "NA PRÁTICA",
+        "codigo": "type Resposta<T = string> = { status: number; corpo: T };\n\nconst respostaDeTexto: Resposta = { status: 200, corpo: 'tudo certo' };\nconst respostaDeLista: Resposta<{ id: number }[]> = { status: 200, corpo: [{ id: 1 }, { id: 2 }] };\n\nconsole.log(`${respostaDeTexto.status}: ${respostaDeTexto.corpo.toUpperCase()}`);\nconsole.log(`${respostaDeLista.status}: ${respostaDeLista.corpo.length} itens`);\n\n// O padrão também funciona em função e em classe.\nclass Cache<T = unknown> {\n  private dados = new Map<string, T>();\n  guardar(chave: string, valor: T): void { this.dados.set(chave, valor); }\n  buscar(chave: string): T | undefined { return this.dados.get(chave); }\n}\n\nconst cachePrecos = new Cache<number>();\ncachePrecos.guardar('CAN-01', 19.9);\nconsole.log('cache:', cachePrecos.buscar('CAN-01')?.toFixed(2), '·', cachePrecos.buscar('XXX') ?? 'vazio');\n\n// @ts-expect-error — Argument of type 'string' is not assignable to parameter of type 'number'.\ncachePrecos.guardar('CAD-02', '32.50');",
+        "codigoJs": "const respostaDeTexto = {\n    status: 200,\n    corpo: 'tudo certo'\n};\nconst respostaDeLista = {\n    status: 200,\n    corpo: [\n        {\n            id: 1\n        },\n        {\n            id: 2\n        }\n    ]\n};\nconsole.log(`${respostaDeTexto.status}: ${respostaDeTexto.corpo.toUpperCase()}`);\nconsole.log(`${respostaDeLista.status}: ${respostaDeLista.corpo.length} itens`);\nclass Cache {\n    dados = new Map();\n    guardar(chave, valor) {\n        this.dados.set(chave, valor);\n    }\n    buscar(chave) {\n        return this.dados.get(chave);\n    }\n}\nconst cachePrecos = new Cache();\ncachePrecos.guardar('CAN-01', 19.9);\nconsole.log('cache:', cachePrecos.buscar('CAN-01')?.toFixed(2), '·', cachePrecos.buscar('XXX') ?? 'vazio');\ncachePrecos.guardar('CAD-02', '32.50');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`extends` com um tipo só é generic desnecessário",
+        "secao": "PEGADINHAS",
+        "codigo": "type Produto = { sku: string; preco: number };\n\n// Aqui `T` não faz nada: entra Produto, sai string. É `(p: Produto): string` com rodeio.\nfunction etiquetaComplicada<T extends Produto>(produto: T): string {\n  return `${produto.sku}: R$ ${produto.preco.toFixed(2)}`;\n}\n\n// A versão simples faz o mesmo, e qualquer objeto compatível continua servindo.\nfunction etiqueta(produto: Produto): string {\n  return `${produto.sku}: R$ ${produto.preco.toFixed(2)}`;\n}\n\nconst comExtras = { sku: 'CAN-01', preco: 19.9, estoque: 12 };\nconsole.log('complicada:', etiquetaComplicada(comExtras));\nconsole.log('simples   :', etiqueta(comExtras), '← aceita igual, por tipagem estrutural');\n\nconsole.log('\\nO generic só se paga quando o `T` REAPARECE no retorno. Se a função devolve');\nconsole.log('sempre o mesmo tipo, a restrição sozinha não justifica o `<T>`.');",
+        "codigoJs": "function etiquetaComplicada(produto) {\n    return `${produto.sku}: R$ ${produto.preco.toFixed(2)}`;\n}\nfunction etiqueta(produto) {\n    return `${produto.sku}: R$ ${produto.preco.toFixed(2)}`;\n}\nconst comExtras = {\n    sku: 'CAN-01',\n    preco: 19.9,\n    estoque: 12\n};\nconsole.log('complicada:', etiquetaComplicada(comExtras));\nconsole.log('simples   :', etiqueta(comExtras), '← aceita igual, por tipagem estrutural');\nconsole.log('\\nO generic só se paga quando o `T` REAPARECE no retorno. Se a função devolve');\nconsole.log('sempre o mesmo tipo, a restrição sozinha não justifica o `<T>`.');\n"
+       },
+       {
+        "n": 7,
+        "titulo": "`object` não é o mesmo que \"qualquer objeto útil\"",
+        "secao": "PEGADINHAS",
+        "codigo": "function contarChaves<T extends object>(valor: T): number { return Object.keys(valor).length; }\n\nconsole.log('objeto:', contarChaves({ a: 1, b: 2 }));\nconsole.log('lista :', contarChaves([1, 2, 3]), '← array também é object');\nconsole.log('função:', contarChaves(() => {}), '← função também');\n\n// @ts-expect-error — Argument of type 'string' is not assignable to parameter of type 'object'.\ncontarChaves('texto');\n\nconsole.log('\\n`extends object` deixa entrar array, função, Date e Map. Quando você quer');\nconsole.log('mesmo \"um objeto de dados\", `extends Record<string, unknown>` é mais preciso.');",
+        "codigoJs": "function contarChaves(valor) {\n    return Object.keys(valor).length;\n}\nconsole.log('objeto:', contarChaves({\n    a: 1,\n    b: 2\n}));\nconsole.log('lista :', contarChaves([\n    1,\n    2,\n    3\n]), '← array também é object');\nconsole.log('função:', contarChaves(()=>{}), '← função também');\ncontarChaves('texto');\nconsole.log('\\n`extends object` deixa entrar array, função, Date e Map. Quando você quer');\nconsole.log('mesmo \"um objeto de dados\", `extends Record<string, unknown>` é mais preciso.');\n"
+       }
+      ],
+      "resumo": [
+       "`<T extends X>` é o que dá ao compilador alguma certeza sobre o `T`.",
+       "Sem restrição, nada pode ser feito com `T` lá dentro — nem ler `.length`.",
+       "`K extends keyof T` restringe a chave, e `T[K]` devolve o tipo daquele campo.",
+       "`<T = string>` dá um padrão para quem não quiser escolher.",
+       "Restrição a um tipo só, sem `T` no retorno, é generic sem função — simplifique.",
+       "`extends object` aceita array, função e Date; `Record<string, unknown>` é mais estreito."
+      ]
+     },
+     {
+      "slug": "03-keyof-e-typeof",
+      "arquivo": "typescript/src/07-generics/03-keyof-e-typeof.ts",
+      "comando": "node src/07-generics/03-keyof-e-typeof.ts",
+      "titulo": "keyof, typeof e tipos indexados",
+      "sessao": 7,
+      "oQueE": "três operadores que trabalham em cima de tipos. `keyof T` é a união das chaves de `T`; `typeof valor` pega o tipo de um valor que já existe; `T['campo']` pega o tipo de um campo.",
+      "quandoUsar": "quando o tipo pode ser DERIVADO de algo que já está escrito — um objeto de configuração, uma constante, outro tipo.",
+      "quandoNaoUsar": "quando derivar deixa o tipo ilegível. Um alias com nome próprio vale mais do que uma expressão de tipo de três linhas.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "`keyof`: as chaves viram uma união",
+        "secao": "ESSENCIAL",
+        "codigo": "type Produto = { sku: string; nome: string; preco: number };\ntype CampoDeProduto = keyof Produto;              // 'sku' | 'nome' | 'preco'\n\nconst camposParaMostrar: CampoDeProduto[] = ['sku', 'preco'];\n\nconst caneca: Produto = { sku: 'CAN-01', nome: 'Caneca', preco: 19.9 };\nfor (const campo of camposParaMostrar) console.log(`${campo.padEnd(6)} ${caneca[campo]}`);\n\n// @ts-expect-error — Type '\"estoque\"' is not assignable to type 'keyof Produto'.\nconst invalido: CampoDeProduto = 'estoque';\nconsole.log('rodando, é só um texto:', invalido);\n\nconsole.log('\\nA lista de campos está escrita UMA vez, no tipo. Acrescentar `estoque` ao');\nconsole.log('`Produto` acrescenta ao `CampoDeProduto` sozinho — não há segunda lista para esquecer.');",
+        "codigoJs": "const camposParaMostrar = [\n    'sku',\n    'preco'\n];\nconst caneca = {\n    sku: 'CAN-01',\n    nome: 'Caneca',\n    preco: 19.9\n};\nfor (const campo of camposParaMostrar)console.log(`${campo.padEnd(6)} ${caneca[campo]}`);\nconst invalido = 'estoque';\nconsole.log('rodando, é só um texto:', invalido);\nconsole.log('\\nA lista de campos está escrita UMA vez, no tipo. Acrescentar `estoque` ao');\nconsole.log('`Produto` acrescenta ao `CampoDeProduto` sozinho — não há segunda lista para esquecer.');\n"
+       },
+       {
+        "n": 2,
+        "titulo": "`typeof`: do valor para o tipo",
+        "secao": "ESSENCIAL",
+        "codigo": "// Aqui a fonte da verdade é o objeto, não o tipo. O tipo sai dele.\nconst configuracaoPadrao = {\n  ambiente: 'producao',\n  porta: 3000,\n  tentativas: 3,\n  debug: false,\n};\n\ntype Configuracao = typeof configuracaoPadrao;    // { ambiente: string; porta: number; ... }\n\nfunction subir(config: Configuracao): string {\n  return `${config.ambiente}:${config.porta} (debug=${config.debug})`;\n}\n\nconsole.log(subir(configuracaoPadrao));\nconsole.log(subir({ ...configuracaoPadrao, ambiente: 'local', debug: true }));\n\n// @ts-expect-error — Property 'debug' is missing in type '{ ambiente: string; porta: number; tentativas: number; }'.\nsubir({ ambiente: 'local', porta: 8080, tentativas: 1 });\n\nconsole.log('\\nCuidado com o nome: `typeof` AQUI é operador de tipo, não o `typeof` que roda.');\nconsole.log('São dois operadores diferentes com o mesmo nome — o de tipo só existe em anotação.');",
+        "codigoJs": "const configuracaoPadrao = {\n    ambiente: 'producao',\n    porta: 3000,\n    tentativas: 3,\n    debug: false\n};\nfunction subir(config) {\n    return `${config.ambiente}:${config.porta} (debug=${config.debug})`;\n}\nconsole.log(subir(configuracaoPadrao));\nconsole.log(subir({\n    ...configuracaoPadrao,\n    ambiente: 'local',\n    debug: true\n}));\nsubir({\n    ambiente: 'local',\n    porta: 8080,\n    tentativas: 1\n});\nconsole.log('\\nCuidado com o nome: `typeof` AQUI é operador de tipo, não o `typeof` que roda.');\nconsole.log('São dois operadores diferentes com o mesmo nome — o de tipo só existe em anotação.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "`T['campo']`: o tipo de um campo",
+        "secao": "ESSENCIAL",
+        "codigo": "type Pedido = {\n  id: number;\n  status: 'pendente' | 'pago' | 'enviado';\n  itens: { sku: string; quantidade: number }[];\n};\n\ntype Status = Pedido['status'];                   // 'pendente' | 'pago' | 'enviado'\ntype Item = Pedido['itens'][number];              // { sku: string; quantidade: number }\n\nfunction proximoStatus(atual: Status): Status {\n  return atual === 'pendente' ? 'pago' : atual === 'pago' ? 'enviado' : 'enviado';\n}\n\nconst item: Item = { sku: 'CAN-01', quantidade: 2 };\nconsole.log('item :', item.sku, `x${item.quantidade}`);\nconsole.log('fluxo:', ['pendente', 'pago', 'enviado'].map((s) => proximoStatus(s as Status)).join(' → '));\n\n// @ts-expect-error — Type '\"cancelado\"' is not assignable to type 'Status'.\nconsole.log(proximoStatus('cancelado'));\n\nconsole.log('\\n`Pedido[\"itens\"][number]` é o truque para pegar o tipo de UM item de uma lista.');\nconsole.log('Sem ele, seria preciso extrair o tipo do item para um alias só para poder citá-lo.');",
+        "codigoJs": "function proximoStatus(atual) {\n    return atual === 'pendente' ? 'pago' : atual === 'pago' ? 'enviado' : 'enviado';\n}\nconst item = {\n    sku: 'CAN-01',\n    quantidade: 2\n};\nconsole.log('item :', item.sku, `x${item.quantidade}`);\nconsole.log('fluxo:', [\n    'pendente',\n    'pago',\n    'enviado'\n].map((s)=>proximoStatus(s)).join(' → '));\nconsole.log(proximoStatus('cancelado'));\nconsole.log('\\n`Pedido[\"itens\"][number]` é o truque para pegar o tipo de UM item de uma lista.');\nconsole.log('Sem ele, seria preciso extrair o tipo do item para um alias só para poder citá-lo.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Os três juntos: um formulário tipado pela constante",
+        "secao": "NA PRÁTICA",
+        "codigo": "const CAMPOS_DO_FORMULARIO = {\n  nome: { rotulo: 'Nome completo', obrigatorio: true },\n  email: { rotulo: 'E-mail', obrigatorio: true },\n  telefone: { rotulo: 'Telefone', obrigatorio: false },\n} as const;\n\ntype NomeDoCampo = keyof typeof CAMPOS_DO_FORMULARIO;      // 'nome' | 'email' | 'telefone'\ntype Preenchimento = Record<NomeDoCampo, string>;\n\nfunction validar(valores: Preenchimento): string[] {\n  const erros: string[] = [];\n  for (const campo of Object.keys(CAMPOS_DO_FORMULARIO) as NomeDoCampo[]) {\n    const definicao = CAMPOS_DO_FORMULARIO[campo];\n    if (definicao.obrigatorio && !valores[campo].trim()) erros.push(`${definicao.rotulo} é obrigatório`);\n  }\n  return erros;\n}\n\nconsole.log('completo :', validar({ nome: 'Ana', email: 'ana@loja.dev', telefone: '' }));\nconsole.log('faltando :', validar({ nome: '', email: '', telefone: '81 99999-0000' }));\n\n// @ts-expect-error — Property 'telefone' is missing in type '{ nome: string; email: string; }'.\nvalidar({ nome: 'Ana', email: 'ana@loja.dev' });\n\nconsole.log('\\nUm campo novo na constante entra no tipo, na validação e na conferência de');\nconsole.log('quem chama, tudo de uma vez. Nada foi escrito duas vezes.');",
+        "codigoJs": "const CAMPOS_DO_FORMULARIO = {\n    nome: {\n        rotulo: 'Nome completo',\n        obrigatorio: true\n    },\n    email: {\n        rotulo: 'E-mail',\n        obrigatorio: true\n    },\n    telefone: {\n        rotulo: 'Telefone',\n        obrigatorio: false\n    }\n};\nfunction validar(valores) {\n    const erros = [];\n    for (const campo of Object.keys(CAMPOS_DO_FORMULARIO)){\n        const definicao = CAMPOS_DO_FORMULARIO[campo];\n        if (definicao.obrigatorio && !valores[campo].trim()) erros.push(`${definicao.rotulo} é obrigatório`);\n    }\n    return erros;\n}\nconsole.log('completo :', validar({\n    nome: 'Ana',\n    email: 'ana@loja.dev',\n    telefone: ''\n}));\nconsole.log('faltando :', validar({\n    nome: '',\n    email: '',\n    telefone: '81 99999-0000'\n}));\nvalidar({\n    nome: 'Ana',\n    email: 'ana@loja.dev'\n});\nconsole.log('\\nUm campo novo na constante entra no tipo, na validação e na conferência de');\nconsole.log('quem chama, tudo de uma vez. Nada foi escrito duas vezes.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "`keyof` para um tradutor de nomes de coluna",
+        "secao": "NA PRÁTICA",
+        "codigo": "type LinhaDoBanco = { user_name: string; created_at: string; total_amount: number };\ntype LinhaDoApp = { nome: string; criadoEm: string; total: number };\n\n// O mapa é conferido dos dois lados: chave de um, valor do outro.\nconst DE_PARA: Record<keyof LinhaDoBanco, keyof LinhaDoApp> = {\n  user_name: 'nome',\n  created_at: 'criadoEm',\n  total_amount: 'total',\n};\n\nfunction traduzir(linha: LinhaDoBanco): LinhaDoApp {\n  return { nome: linha.user_name, criadoEm: linha.created_at, total: linha.total_amount };\n}\n\nconst doBanco: LinhaDoBanco = { user_name: 'Ana', created_at: '2026-08-28', total_amount: 249.9 };\nconsole.log('de → para:', Object.entries(DE_PARA).map(([de, para]) => `${de}→${para}`).join(' · '));\nconsole.log('traduzido:', JSON.stringify(traduzir(doBanco)));\n\n// @ts-expect-error — Type '\"nomeDoUsuario\"' is not assignable to type 'keyof LinhaDoApp'.\nconst mapaTorto: Record<keyof LinhaDoBanco, keyof LinhaDoApp> = { ...DE_PARA, user_name: 'nomeDoUsuario' };\nconsole.log('rodando, o mapa torto existe:', mapaTorto.user_name);",
+        "codigoJs": "const DE_PARA = {\n    user_name: 'nome',\n    created_at: 'criadoEm',\n    total_amount: 'total'\n};\nfunction traduzir(linha) {\n    return {\n        nome: linha.user_name,\n        criadoEm: linha.created_at,\n        total: linha.total_amount\n    };\n}\nconst doBanco = {\n    user_name: 'Ana',\n    created_at: '2026-08-28',\n    total_amount: 249.9\n};\nconsole.log('de → para:', Object.entries(DE_PARA).map(([de, para])=>`${de}→${para}`).join(' · '));\nconsole.log('traduzido:', JSON.stringify(traduzir(doBanco)));\nconst mapaTorto = {\n    ...DE_PARA,\n    user_name: 'nomeDoUsuario'\n};\nconsole.log('rodando, o mapa torto existe:', mapaTorto.user_name);\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`Object.keys` devolve `string[]`, não `keyof T`",
+        "secao": "PEGADINHAS",
+        "codigo": "const precos = { 'CAN-01': 19.9, 'CAD-02': 32.5 };\n\nconst chaves = Object.keys(precos);               // string[] — não 'CAN-01' | 'CAD-02'\n// @ts-expect-error — Type 'string' can't be used to index type '{ \"CAN-01\": number; ... }'.\nconsole.log(chaves.map((c) => precos[c]));\n\n// Os dois jeitos honestos: afirmar o tipo, ou usar `Object.entries`, que já vem em par.\nconst chavesTipadas = Object.keys(precos) as (keyof typeof precos)[];\nconsole.log('com as     :', chavesTipadas.map((c) => precos[c].toFixed(2)).join(' · '));\nconsole.log('com entries:', Object.entries(precos).map(([sku, p]) => `${sku}=${p.toFixed(2)}`).join(' · '));\n\nconsole.log('\\nO TypeScript não promete que as chaves são só essas: por tipagem estrutural,');\nconsole.log('o objeto pode ter mais campos do que o tipo declara. Por isso `Object.keys` é largo.');",
+        "codigoJs": "const precos = {\n    'CAN-01': 19.9,\n    'CAD-02': 32.5\n};\nconst chaves = Object.keys(precos);\nconsole.log(chaves.map((c)=>precos[c]));\nconst chavesTipadas = Object.keys(precos);\nconsole.log('com as     :', chavesTipadas.map((c)=>precos[c].toFixed(2)).join(' · '));\nconsole.log('com entries:', Object.entries(precos).map(([sku, p])=>`${sku}=${p.toFixed(2)}`).join(' · '));\nconsole.log('\\nO TypeScript não promete que as chaves são só essas: por tipagem estrutural,');\nconsole.log('o objeto pode ter mais campos do que o tipo declara. Por isso `Object.keys` é largo.');\n"
+       }
+      ],
+      "resumo": [
+       "`keyof T` é a união das chaves de `T` — a lista de campos sem escrever a lista.",
+       "`typeof valor` (em anotação) pega o tipo de algo que já existe: constante, objeto, função.",
+       "`T['campo']` pega o tipo de um campo; `T['lista'][number]` pega o do item.",
+       "`keyof typeof CONSTANTE` é a dupla mais usada: a constante vira a fonte do tipo.",
+       "Derivar evita a segunda lista que sempre esquece de ser atualizada.",
+       "`Object.keys` devolve `string[]` de propósito — o objeto pode ter mais do que o tipo diz."
+      ]
+     },
+     {
+      "slug": "04-utility-types",
+      "arquivo": "typescript/src/07-generics/04-utility-types.ts",
+      "comando": "node src/07-generics/04-utility-types.ts",
+      "titulo": "Utility types",
+      "sessao": 7,
+      "oQueE": "tipos genéricos que já vêm com o TypeScript e produzem um tipo novo a partir de outro: `Partial`, `Required`, `Pick`, `Omit`, `Record`, `Readonly`, `ReturnType`.",
+      "quandoUsar": "quando o tipo novo é o antigo com uma diferença — o corpo de um PATCH, a versão pública de um usuário, o mapa de um valor por chave.",
+      "quandoNaoUsar": "empilhados. `Partial<Omit<Pick<T, A>, B>>` ninguém lê — nesse ponto, escreva o tipo com as mãos e dê um nome a ele.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "`Partial` e `Required`",
+        "secao": "ESSENCIAL",
+        "codigo": "type Aluno = { id: number; nome: string; email: string; nota: number };\n\n// PATCH manda só o que mudou: todo campo vira opcional.\ntype AlunoParaAtualizar = Partial<Aluno>;\n\nfunction atualizar(atual: Aluno, mudancas: AlunoParaAtualizar): Aluno {\n  return { ...atual, ...mudancas };\n}\n\nconst ana: Aluno = { id: 1, nome: 'Ana Souza', email: 'ana@escola.dev', nota: 8.4 };\nconsole.log('nota nova:', JSON.stringify(atualizar(ana, { nota: 9.2 })));\nconsole.log('sem nada :', JSON.stringify(atualizar(ana, {})));\n\n// @ts-expect-error — Object literal may only specify known properties. Did you mean 'nota'?\natualizar(ana, { notaa: 10 });\n\n// `Required` faz o contrário: opcional vira obrigatório.\ntype ConfiguracaoParcial = { host?: string; porta?: number };\ntype ConfiguracaoCompleta = Required<ConfiguracaoParcial>;\n\nconst completa: ConfiguracaoCompleta = { host: 'localhost', porta: 3000 };\nconsole.log('completa :', `${completa.host}:${completa.porta}`);\n\n// @ts-expect-error — Property 'porta' is missing.\nconst faltando: ConfiguracaoCompleta = { host: 'localhost' };\nconsole.log('rodando  :', JSON.stringify(faltando));",
+        "codigoJs": "function atualizar(atual, mudancas) {\n    return {\n        ...atual,\n        ...mudancas\n    };\n}\nconst ana = {\n    id: 1,\n    nome: 'Ana Souza',\n    email: 'ana@escola.dev',\n    nota: 8.4\n};\nconsole.log('nota nova:', JSON.stringify(atualizar(ana, {\n    nota: 9.2\n})));\nconsole.log('sem nada :', JSON.stringify(atualizar(ana, {})));\natualizar(ana, {\n    notaa: 10\n});\nconst completa = {\n    host: 'localhost',\n    porta: 3000\n};\nconsole.log('completa :', `${completa.host}:${completa.porta}`);\nconst faltando = {\n    host: 'localhost'\n};\nconsole.log('rodando  :', JSON.stringify(faltando));\n"
+       },
+       {
+        "n": 2,
+        "titulo": "`Pick` e `Omit`: escolher ou tirar campos",
+        "secao": "ESSENCIAL",
+        "codigo": "type Usuario = { id: number; nome: string; email: string; senhaHash: string; criadoEm: string };\n\ntype UsuarioPublico = Omit<Usuario, 'senhaHash'>;             // tudo, menos a senha\ntype ResumoDeUsuario = Pick<Usuario, 'id' | 'nome'>;          // só estes dois\n\nconst doBanco: Usuario = {\n  id: 7, nome: 'Ana', email: 'ana@loja.dev',\n  senhaHash: '$2a$08$abc...', criadoEm: '2026-08-01',\n};\n\nconst paraApi: UsuarioPublico = (({ senhaHash, ...resto }) => resto)(doBanco);\nconst paraLista: ResumoDeUsuario = { id: doBanco.id, nome: doBanco.nome };\n\nconsole.log('público:', JSON.stringify(paraApi));\nconsole.log('resumo :', JSON.stringify(paraLista));\n\n// @ts-expect-error — Property 'senhaHash' does not exist on type 'UsuarioPublico'.\nconsole.log(paraApi.senhaHash);\n\nconsole.log('\\n`Omit` é a defesa mais barata contra vazar campo: o tipo do que sai da API é');\nconsole.log('derivado do tipo do banco, e o campo novo e sensível não entra sozinho na resposta.');",
+        "codigoJs": "const doBanco = {\n    id: 7,\n    nome: 'Ana',\n    email: 'ana@loja.dev',\n    senhaHash: '$2a$08$abc...',\n    criadoEm: '2026-08-01'\n};\nconst paraApi = (({ senhaHash, ...resto })=>resto)(doBanco);\nconst paraLista = {\n    id: doBanco.id,\n    nome: doBanco.nome\n};\nconsole.log('público:', JSON.stringify(paraApi));\nconsole.log('resumo :', JSON.stringify(paraLista));\nconsole.log(paraApi.senhaHash);\nconsole.log('\\n`Omit` é a defesa mais barata contra vazar campo: o tipo do que sai da API é');\nconsole.log('derivado do tipo do banco, e o campo novo e sensível não entra sozinho na resposta.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "`Record`: um valor por chave",
+        "secao": "ESSENCIAL",
+        "codigo": "type Nivel = 'baixo' | 'medio' | 'alto';\n\n// `Record<K, V>` cobra TODAS as chaves de K — esquecer uma é erro.\nconst CORES: Record<Nivel, string> = { baixo: 'verde', medio: 'amarelo', alto: 'vermelho' };\n\nfor (const nivel of Object.keys(CORES) as Nivel[]) console.log(`${nivel.padEnd(6)} ${CORES[nivel]}`);\n\n// @ts-expect-error — Property 'alto' is missing in type '{ baixo: string; medio: string; }'.\nconst incompleto: Record<Nivel, string> = { baixo: 'verde', medio: 'amarelo' };\nconsole.log('incompleto, rodando:', Object.keys(incompleto).length, 'chaves');\n\n// Com chave `string`, `Record` vira o dicionário aberto de sempre.\nconst estoque: Record<string, number> = { 'CAN-01': 12, 'CAD-02': 0 };\nestoque['CAN-02'] = 40;\nconsole.log('estoque:', Object.entries(estoque).map(([k, v]) => `${k}=${v}`).join(' · '));\n\nconsole.log('\\nCom união de literais, `Record` obriga a tratar todos os casos. É a versão em');\nconsole.log('objeto do switch exaustivo do tema 02.');",
+        "codigoJs": "const CORES = {\n    baixo: 'verde',\n    medio: 'amarelo',\n    alto: 'vermelho'\n};\nfor (const nivel of Object.keys(CORES))console.log(`${nivel.padEnd(6)} ${CORES[nivel]}`);\nconst incompleto = {\n    baixo: 'verde',\n    medio: 'amarelo'\n};\nconsole.log('incompleto, rodando:', Object.keys(incompleto).length, 'chaves');\nconst estoque = {\n    'CAN-01': 12,\n    'CAD-02': 0\n};\nestoque['CAN-02'] = 40;\nconsole.log('estoque:', Object.entries(estoque).map(([k, v])=>`${k}=${v}`).join(' · '));\nconsole.log('\\nCom união de literais, `Record` obriga a tratar todos os casos. É a versão em');\nconsole.log('objeto do switch exaustivo do tema 02.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "O ciclo de vida de um registro, em três tipos",
+        "secao": "NA PRÁTICA",
+        "codigo": "type Contato = {\n  id: number;\n  nome: string;\n  email: string;\n  criadoEm: string;\n};\n\ntype ContatoNovo = Omit<Contato, 'id' | 'criadoEm'>;          // o que o formulário manda\ntype ContatoEditado = Partial<ContatoNovo>;                   // o que o PATCH manda\ntype ContatoNaLista = Pick<Contato, 'id' | 'nome'>;           // o que a listagem devolve\n\nconst banco: Contato[] = [];\n\nfunction criar(novo: ContatoNovo): Contato {\n  const contato: Contato = { id: banco.length + 1, criadoEm: '2026-08-28', ...novo };\n  banco.push(contato);\n  return contato;\n}\nfunction editar(id: number, mudancas: ContatoEditado): Contato | null {\n  const atual = banco.find((c) => c.id === id);\n  if (!atual) return null;\n  Object.assign(atual, mudancas);\n  return atual;\n}\nconst listar = (): ContatoNaLista[] => banco.map(({ id, nome }) => ({ id, nome }));\n\nconsole.log('criado :', JSON.stringify(criar({ nome: 'Ana', email: 'ana@loja.dev' })));\ncriar({ nome: 'Bruno', email: 'bruno@loja.dev' });\nconsole.log('editado:', JSON.stringify(editar(1, { email: 'ana.souza@loja.dev' })));\nconsole.log('lista  :', JSON.stringify(listar()));\n\n// @ts-expect-error — Object literal may only specify known properties. 'id' does not exist in type 'ContatoNovo'.\ncriar({ id: 99, nome: 'Carla', email: 'carla@loja.dev' });\n\nconsole.log('\\nQuatro tipos, uma fonte. Acrescentar `telefone` ao `Contato` acrescenta nos');\nconsole.log('três derivados — e o compilador aponta onde falta preencher.');",
+        "codigoJs": "const banco = [];\nfunction criar(novo) {\n    const contato = {\n        id: banco.length + 1,\n        criadoEm: '2026-08-28',\n        ...novo\n    };\n    banco.push(contato);\n    return contato;\n}\nfunction editar(id, mudancas) {\n    const atual = banco.find((c)=>c.id === id);\n    if (!atual) return null;\n    Object.assign(atual, mudancas);\n    return atual;\n}\nconst listar = ()=>banco.map(({ id, nome })=>({\n            id,\n            nome\n        }));\nconsole.log('criado :', JSON.stringify(criar({\n    nome: 'Ana',\n    email: 'ana@loja.dev'\n})));\ncriar({\n    nome: 'Bruno',\n    email: 'bruno@loja.dev'\n});\nconsole.log('editado:', JSON.stringify(editar(1, {\n    email: 'ana.souza@loja.dev'\n})));\nconsole.log('lista  :', JSON.stringify(listar()));\ncriar({\n    id: 99,\n    nome: 'Carla',\n    email: 'carla@loja.dev'\n});\nconsole.log('\\nQuatro tipos, uma fonte. Acrescentar `telefone` ao `Contato` acrescenta nos');\nconsole.log('três derivados — e o compilador aponta onde falta preencher.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "`ReturnType` e `Parameters`: o tipo que sai da função",
+        "secao": "NA PRÁTICA",
+        "codigo": "function montarResposta(status: number, corpo: unknown, cabecalhos: Record<string, string> = {}) {\n  return { status, corpo, cabecalhos, enviadoEm: '2026-08-28T10:00:00Z' };\n}\n\ntype Resposta = ReturnType<typeof montarResposta>;\ntype ArgumentosDaResposta = Parameters<typeof montarResposta>;\n\nfunction registrar(resposta: Resposta): string {\n  return `${resposta.status} em ${resposta.enviadoEm.slice(11, 19)}`;\n}\n\nconst argumentos: ArgumentosDaResposta = [200, { ok: true }, { 'content-type': 'application/json' }];\nconsole.log(registrar(montarResposta(...argumentos)));\nconsole.log(registrar(montarResposta(404, { erro: 'não encontrado' })));\n\ntry {\n  // @ts-expect-error — Property 'enviadoEm' is missing in type '{ status: number; corpo: unknown; cabecalhos: {}; }'.\n  console.log(registrar({ status: 200, corpo: null, cabecalhos: {} }));\n} catch (erro) {\n  console.log('faltando um campo:', (erro as Error).message);\n}\n\nconsole.log('\\nÚtil quando a função é a fonte da verdade e você não quer escrever o tipo do');\nconsole.log('retorno duas vezes. Também aparece muito com bibliotecas que não exportam o tipo.');",
+        "codigoJs": "function montarResposta(status, corpo, cabecalhos = {}) {\n    return {\n        status,\n        corpo,\n        cabecalhos,\n        enviadoEm: '2026-08-28T10:00:00Z'\n    };\n}\nfunction registrar(resposta) {\n    return `${resposta.status} em ${resposta.enviadoEm.slice(11, 19)}`;\n}\nconst argumentos = [\n    200,\n    {\n        ok: true\n    },\n    {\n        'content-type': 'application/json'\n    }\n];\nconsole.log(registrar(montarResposta(...argumentos)));\nconsole.log(registrar(montarResposta(404, {\n    erro: 'não encontrado'\n})));\ntry {\n    console.log(registrar({\n        status: 200,\n        corpo: null,\n        cabecalhos: {}\n    }));\n} catch (erro) {\n    console.log('faltando um campo:', erro.message);\n}\nconsole.log('\\nÚtil quando a função é a fonte da verdade e você não quer escrever o tipo do');\nconsole.log('retorno duas vezes. Também aparece muito com bibliotecas que não exportam o tipo.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`Partial` some com a garantia, e o resto do código não sabe",
+        "secao": "PEGADINHAS",
+        "codigo": "type Endereco = { rua: string; numero: number; cidade: string };\n\n// Parece inofensivo: \"vou aceitar o endereço incompleto e completo depois\".\nfunction salvarEndereco(endereco: Partial<Endereco>): string {\n  // Todos os campos agora podem ser undefined, e o código tem que tratar todos.\n  return `${endereco.rua ?? '?'}, ${endereco.numero ?? '?'} — ${endereco.cidade ?? '?'}`;\n}\n\nconsole.log('completo :', salvarEndereco({ rua: 'Rua A', numero: 100, cidade: 'Recife' }));\nconsole.log('vazio    :', salvarEndereco({}), '← o tipo aceitou, e não sobrou nada');\n\n// Quando só alguns campos são opcionais, diga QUAIS — em vez de afrouxar tudo.\ntype EnderecoParaSalvar = Omit<Endereco, 'numero'> & { numero?: number };\nconst semNumero: EnderecoParaSalvar = { rua: 'Rua A', cidade: 'Recife' };\nconsole.log('preciso  :', `${semNumero.rua}, ${semNumero.numero ?? 's/n'} — ${semNumero.cidade}`);\n\n// @ts-expect-error — Property 'rua' is missing in type '{ cidade: string; }'.\nconst semRua: EnderecoParaSalvar = { cidade: 'Recife' };\nconsole.log('rodando  :', JSON.stringify(semRua));\n\nconsole.log('\\n`Partial` é ótimo para PATCH e péssimo como remendo. Ele não afrouxa um campo:');\nconsole.log('afrouxa todos, e a partir dali ninguém mais sabe o que pode contar que existe.');",
+        "codigoJs": "function salvarEndereco(endereco) {\n    return `${endereco.rua ?? '?'}, ${endereco.numero ?? '?'} — ${endereco.cidade ?? '?'}`;\n}\nconsole.log('completo :', salvarEndereco({\n    rua: 'Rua A',\n    numero: 100,\n    cidade: 'Recife'\n}));\nconsole.log('vazio    :', salvarEndereco({}), '← o tipo aceitou, e não sobrou nada');\nconst semNumero = {\n    rua: 'Rua A',\n    cidade: 'Recife'\n};\nconsole.log('preciso  :', `${semNumero.rua}, ${semNumero.numero ?? 's/n'} — ${semNumero.cidade}`);\nconst semRua = {\n    cidade: 'Recife'\n};\nconsole.log('rodando  :', JSON.stringify(semRua));\nconsole.log('\\n`Partial` é ótimo para PATCH e péssimo como remendo. Ele não afrouxa um campo:');\nconsole.log('afrouxa todos, e a partir dali ninguém mais sabe o que pode contar que existe.');\n"
+       }
+      ],
+      "resumo": [
+       "`Partial<T>` deixa tudo opcional (o corpo de um PATCH); `Required<T>` faz o contrário.",
+       "`Pick<T, K>` escolhe campos; `Omit<T, K>` tira — é a defesa contra vazar `senhaHash`.",
+       "`Record<K, V>` cobra todas as chaves quando `K` é união de literais.",
+       "Derive os tipos de entrada e de saída do tipo principal: uma fonte, vários usos.",
+       "`ReturnType<typeof f>` e `Parameters<typeof f>` pegam o tipo a partir da função.",
+       "`Partial` como remendo afrouxa TUDO — diga quais campos são opcionais."
+      ]
+     }
+    ]
+   },
+   {
+    "slug": "08-extras",
+    "titulo": "Extras",
+    "icone": "◇",
+    "cor": "#8b95a8",
+    "resumo": "Decorator e o tipo das bibliotecas de fora.",
+    "topicos": [
+     {
+      "slug": "01-decorators",
+      "arquivo": "typescript/src/08-extras/01-decorators.ts",
+      "comando": "node src/08-extras/01-decorators.ts",
+      "titulo": "Decorators",
+      "sessao": 8,
+      "oQueE": "uma função que embrulha uma classe, um método ou uma propriedade para acrescentar comportamento sem mexer no código dela. O `@` é só o açúcar.",
+      "quandoUsar": "quando um mesmo cuidado se repete em muitos métodos — log, medir tempo, exigir permissão. É o que NestJS, TypeORM e Angular fazem o tempo todo.",
+      "quandoNaoUsar": "em código seu, na maior parte das vezes. Um decorator esconde o que acontece; uma função com nome, chamada na linha, é mais fácil de seguir.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "Um decorator é só uma função que embrulha",
+        "secao": "ESSENCIAL",
+        "codigo": "// Sem o `@` nenhum: é isso que a sintaxe faz por baixo.\nfunction comLog(original: (valor: number) => number, nome: string) {\n  return (valor: number): number => {\n    const resultado = original(valor);\n    console.log(`  [log] ${nome}(${valor}) → ${resultado}`);\n    return resultado;\n  };\n}\n\nconst dobrar = (n: number) => n * 2;\nconst dobrarComLog = comLog(dobrar, 'dobrar');\n\nconsole.log('sem decorar:', dobrar(21));\nconsole.log('decorado   :');\ndobrarComLog(21);\ndobrarComLog(5);\n\nconsole.log('\\nDecorator é exatamente isso: pega a função original, devolve outra que faz');\nconsole.log('algo a mais e chama a de dentro. O `@` só muda de lugar quem escreve a chamada.');",
+        "codigoJs": "function comLog(original, nome) {\n    return (valor)=>{\n        const resultado = original(valor);\n        console.log(`  [log] ${nome}(${valor}) → ${resultado}`);\n        return resultado;\n    };\n}\nconst dobrar = (n)=>n * 2;\nconst dobrarComLog = comLog(dobrar, 'dobrar');\nconsole.log('sem decorar:', dobrar(21));\nconsole.log('decorado   :');\ndobrarComLog(21);\ndobrarComLog(5);\nconsole.log('\\nDecorator é exatamente isso: pega a função original, devolve outra que faz');\nconsole.log('algo a mais e chama a de dentro. O `@` só muda de lugar quem escreve a chamada.');\n"
+       },
+       {
+        "n": 2,
+        "titulo": "O mesmo, agora num método de classe",
+        "secao": "ESSENCIAL",
+        "codigo": "type Metodo = (...argumentos: never[]) => unknown;\n\nfunction medirTempo<T extends Metodo>(original: T, nome: string): T {\n  return function (this: unknown, ...argumentos: Parameters<T>) {\n    const inicio = Date.now();\n    const resultado = original.apply(this, argumentos);\n    console.log(`  [tempo] ${nome} levou ${Date.now() - inicio}ms`);\n    return resultado;\n  } as T;\n}\n\nclass Relatorio {\n  private vendas = [1200, 890, 430, 275];\n\n  total(): number { return this.vendas.reduce((a, b) => a + b, 0); }\n  media(): number { return this.total() / this.vendas.length; }\n}\n\n// Aplicando na mão, sem `@`: troca o método no protótipo.\nRelatorio.prototype.total = medirTempo(Relatorio.prototype.total, 'total');\n\nconst relatorio = new Relatorio();\nconsole.log('total:', relatorio.total());\nconsole.log('média:', relatorio.media().toFixed(2), '← chama `total` por dentro, e o log aparece');\n\nconsole.log('\\nÉ o que um `@medirTempo` em cima de `total()` faria — sem precisar de flag de');\nconsole.log('compilador nenhuma, e sem esconder de onde vem o comportamento.');",
+        "codigoJs": "function medirTempo(original, nome) {\n    return function(...argumentos) {\n        const inicio = Date.now();\n        const resultado = original.apply(this, argumentos);\n        console.log(`  [tempo] ${nome} levou ${Date.now() - inicio}ms`);\n        return resultado;\n    };\n}\nclass Relatorio {\n    vendas = [\n        1200,\n        890,\n        430,\n        275\n    ];\n    total() {\n        return this.vendas.reduce((a, b)=>a + b, 0);\n    }\n    media() {\n        return this.total() / this.vendas.length;\n    }\n}\nRelatorio.prototype.total = medirTempo(Relatorio.prototype.total, 'total');\nconst relatorio = new Relatorio();\nconsole.log('total:', relatorio.total());\nconsole.log('média:', relatorio.media().toFixed(2), '← chama `total` por dentro, e o log aparece');\nconsole.log('\\nÉ o que um `@medirTempo` em cima de `total()` faria — sem precisar de flag de');\nconsole.log('compilador nenhuma, e sem esconder de onde vem o comportamento.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "A sintaxe `@`, e por que ela não roda aqui",
+        "secao": "ESSENCIAL",
+        "codigo": "const exemplo = [\n  '// tsconfig.json: \"experimentalDecorators\": true   (o formato legado, de TypeScript 4)',\n  '',\n  'function Congelado(alvo: Function) {',\n  '  Object.freeze(alvo);',\n  '  Object.freeze(alvo.prototype);',\n  '}',\n  '',\n  '@Congelado',\n  'class Configuracao {',\n  '  @naoNegativo tentativas = 3;',\n  '',\n  '  @medirTempo',\n  '  recarregar() { /* ... */ }',\n  '}',\n];\nfor (const linha of exemplo) console.log('  ' + linha);\n\nconsole.log('\\nEsta sintaxe NÃO roda com `node arquivo.ts`: o removedor de tipos do Node só');\nconsole.log('apaga tipo, e decorator vira código. Para usar `@` de verdade é preciso compilar');\nconsole.log('com o `tsc` (ou com ts-node / tsx), e é o que NestJS e TypeORM pedem no setup.');\nconsole.log('Por isso este tópico ensina o mecanismo — que é o que importa — sem o açúcar.');",
+        "codigoJs": "const exemplo = [\n    '// tsconfig.json: \"experimentalDecorators\": true   (o formato legado, de TypeScript 4)',\n    '',\n    'function Congelado(alvo: Function) {',\n    '  Object.freeze(alvo);',\n    '  Object.freeze(alvo.prototype);',\n    '}',\n    '',\n    '@Congelado',\n    'class Configuracao {',\n    '  @naoNegativo tentativas = 3;',\n    '',\n    '  @medirTempo',\n    '  recarregar() { /* ... */ }',\n    '}'\n];\nfor (const linha of exemplo)console.log('  ' + linha);\nconsole.log('\\nEsta sintaxe NÃO roda com `node arquivo.ts`: o removedor de tipos do Node só');\nconsole.log('apaga tipo, e decorator vira código. Para usar `@` de verdade é preciso compilar');\nconsole.log('com o `tsc` (ou com ts-node / tsx), e é o que NestJS e TypeORM pedem no setup.');\nconsole.log('Por isso este tópico ensina o mecanismo — que é o que importa — sem o açúcar.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "O caso de verdade: exigir permissão",
+        "secao": "NA PRÁTICA",
+        "codigo": "type Usuario = { nome: string; papel: 'admin' | 'comum' };\n\nfunction exigirAdmin<T extends (...a: never[]) => string>(original: T, nome: string): T {\n  return function (this: { usuario: Usuario }, ...argumentos: Parameters<T>): string {\n    if (this.usuario.papel !== 'admin') return `403 — ${nome} exige admin`;\n    return original.apply(this, argumentos) as string;\n  } as T;\n}\n\nclass PainelAdministrativo {\n  usuario: Usuario;\n  constructor(usuario: Usuario) { this.usuario = usuario; }\n  apagarTudo(): string { return `tudo apagado por ${this.usuario.nome}`; }\n  verRelatorio(): string { return `relatório para ${this.usuario.nome}`; }\n}\n\nPainelAdministrativo.prototype.apagarTudo = exigirAdmin(PainelAdministrativo.prototype.apagarTudo, 'apagarTudo');\n\nconst admin = new PainelAdministrativo({ nome: 'Ana', papel: 'admin' });\nconst comum = new PainelAdministrativo({ nome: 'Bruno', papel: 'comum' });\n\nconsole.log('admin :', admin.apagarTudo());\nconsole.log('comum :', comum.apagarTudo());\nconsole.log('comum :', comum.verRelatorio(), '← este método não foi decorado');\n\nconsole.log('\\nCom `@exigirAdmin` em cima do método, a regra fica visível na linha de cima');\nconsole.log('dele. É a razão real de existir do decorator: a política ao lado do código.');",
+        "codigoJs": "function exigirAdmin(original, nome) {\n    return function(...argumentos) {\n        if (this.usuario.papel !== 'admin') return `403 — ${nome} exige admin`;\n        return original.apply(this, argumentos);\n    };\n}\nclass PainelAdministrativo {\n    usuario;\n    constructor(usuario){\n        this.usuario = usuario;\n    }\n    apagarTudo() {\n        return `tudo apagado por ${this.usuario.nome}`;\n    }\n    verRelatorio() {\n        return `relatório para ${this.usuario.nome}`;\n    }\n}\nPainelAdministrativo.prototype.apagarTudo = exigirAdmin(PainelAdministrativo.prototype.apagarTudo, 'apagarTudo');\nconst admin = new PainelAdministrativo({\n    nome: 'Ana',\n    papel: 'admin'\n});\nconst comum = new PainelAdministrativo({\n    nome: 'Bruno',\n    papel: 'comum'\n});\nconsole.log('admin :', admin.apagarTudo());\nconsole.log('comum :', comum.apagarTudo());\nconsole.log('comum :', comum.verRelatorio(), '← este método não foi decorado');\nconsole.log('\\nCom `@exigirAdmin` em cima do método, a regra fica visível na linha de cima');\nconsole.log('dele. É a razão real de existir do decorator: a política ao lado do código.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "Decorator de classe: registrar num catálogo",
+        "secao": "NA PRÁTICA",
+        "codigo": "const CATALOGO = new Map<string, new () => { executar(): string }>();\n\nfunction registrar(nome: string) {\n  return function <T extends new () => { executar(): string }>(Classe: T): T {\n    CATALOGO.set(nome, Classe);\n    return Classe;\n  };\n}\n\nclass EnviarEmail { executar(): string { return 'e-mail enviado'; } }\nclass GerarNota { executar(): string { return 'nota gerada'; } }\n\nregistrar('email')(EnviarEmail);          // `@registrar('email')` faria isto\nregistrar('nota')(GerarNota);\n\nfor (const [nome, Classe] of CATALOGO) console.log(`${nome.padEnd(6)} → ${new Classe().executar()}`);\n\nconsole.log('\\nÉ o desenho do `@Controller` do NestJS e do `@Entity` do TypeORM: o decorator');\nconsole.log('não muda a classe, ele a ANOTA num registro que o framework lê depois.');",
+        "codigoJs": "const CATALOGO = new Map();\nfunction registrar(nome) {\n    return function(Classe) {\n        CATALOGO.set(nome, Classe);\n        return Classe;\n    };\n}\nclass EnviarEmail {\n    executar() {\n        return 'e-mail enviado';\n    }\n}\nclass GerarNota {\n    executar() {\n        return 'nota gerada';\n    }\n}\nregistrar('email')(EnviarEmail);\nregistrar('nota')(GerarNota);\nfor (const [nome, Classe] of CATALOGO)console.log(`${nome.padEnd(6)} → ${new Classe().executar()}`);\nconsole.log('\\nÉ o desenho do `@Controller` do NestJS e do `@Entity` do TypeORM: o decorator');\nconsole.log('não muda a classe, ele a ANOTA num registro que o framework lê depois.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "Dois formatos incompatíveis com o mesmo `@`",
+        "secao": "PEGADINHAS",
+        "codigo": "const formatos = [\n  ['Legado (TS 4)', 'experimentalDecorators: true', '(alvo, chave, descritor)'],\n  ['Padrão (TS 5+)', 'nenhuma flag: já é padrão', '(valor, contexto)'],\n];\n\nconst largura = [18, 32, 26];\nconst linha = (colunas: string[]) => colunas.map((c, i) => c.padEnd(largura[i])).join('');\nconsole.log(linha(['FORMATO', 'COMO LIGAR', 'O QUE A FUNÇÃO RECEBE']));\nconsole.log(linha(['─'.repeat(16), '─'.repeat(30), '─'.repeat(24)]));\nfor (const f of formatos) console.log(linha(f));\n\nconsole.log('\\nA mesma sintaxe `@`, duas assinaturas que não se encaixam. Decorator copiado de');\nconsole.log('um tutorial antigo quebra em projeto novo, e vice-versa. Antes de escrever um,');\nconsole.log('confira qual formato o seu tsconfig está usando — e o que a biblioteca espera.');\nconsole.log('Angular, NestJS e TypeORM ainda pedem o legado.');",
+        "codigoJs": "const formatos = [\n    [\n        'Legado (TS 4)',\n        'experimentalDecorators: true',\n        '(alvo, chave, descritor)'\n    ],\n    [\n        'Padrão (TS 5+)',\n        'nenhuma flag: já é padrão',\n        '(valor, contexto)'\n    ]\n];\nconst largura = [\n    18,\n    32,\n    26\n];\nconst linha = (colunas)=>colunas.map((c, i)=>c.padEnd(largura[i])).join('');\nconsole.log(linha([\n    'FORMATO',\n    'COMO LIGAR',\n    'O QUE A FUNÇÃO RECEBE'\n]));\nconsole.log(linha([\n    '─'.repeat(16),\n    '─'.repeat(30),\n    '─'.repeat(24)\n]));\nfor (const f of formatos)console.log(linha(f));\nconsole.log('\\nA mesma sintaxe `@`, duas assinaturas que não se encaixam. Decorator copiado de');\nconsole.log('um tutorial antigo quebra em projeto novo, e vice-versa. Antes de escrever um,');\nconsole.log('confira qual formato o seu tsconfig está usando — e o que a biblioteca espera.');\nconsole.log('Angular, NestJS e TypeORM ainda pedem o legado.');\n"
+       }
+      ],
+      "resumo": [
+       "Decorator é uma função que embrulha classe, método ou propriedade — o `@` é açúcar.",
+       "O mecanismo é o de sempre: recebe o original, devolve outro que chama o de dentro.",
+       "`node arquivo.ts` não roda a sintaxe `@`: ela vira código, e exige `tsc`, ts-node ou tsx.",
+       "Vale quando o mesmo cuidado se repete em muitos métodos: log, tempo, permissão.",
+       "Decorator de classe costuma só REGISTRAR a classe — é o que os frameworks leem depois.",
+       "Existem dois formatos incompatíveis (legado e padrão); confira o do seu projeto."
+      ]
+     },
+     {
+      "slug": "02-bibliotecas-e-types",
+      "arquivo": "typescript/src/08-extras/02-bibliotecas-e-types.ts",
+      "comando": "node src/08-extras/02-bibliotecas-e-types.ts",
+      "titulo": "Bibliotecas de fora e declaration files",
+      "sessao": 8,
+      "oQueE": "como o TypeScript descobre o tipo de código que não é dele — o `.d.ts`, que é um arquivo só de declarações, sem nenhuma linha que rode.",
+      "quandoUsar": "`@types/alguma-coisa` quando a biblioteca é JavaScript puro; um `.d.ts` seu quando não existe pacote de tipos e você não quer `any` espalhado.",
+      "quandoNaoUsar": "não descreva a biblioteca inteira. Declare só o que você usa — o resto é trabalho jogado fora e mais uma coisa para desatualizar.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "De onde vem o tipo de cada coisa",
+        "secao": "ESSENCIAL",
+        "codigo": "const origens = [\n  ['embutido no TS', 'Array, Promise, Map, JSON', 'a opção `lib` do tsconfig'],\n  ['dentro do pacote', 'zod, prisma, express 5', 'o campo `types` do package.json'],\n  ['pacote separado', 'lodash, jsonwebtoken', 'npm i -D @types/lodash'],\n  ['escrito por você', 'lib antiga sem tipos', 'um arquivo .d.ts no projeto'],\n  ['nenhum', 'o resto', 'tudo vira `any`, e o tsc para de ajudar'],\n];\n\nconst largura = [20, 28, 36];\nconst linha = (colunas: string[]) => colunas.map((c, i) => c.padEnd(largura[i])).join('');\nconsole.log(linha(['DE ONDE VEM', 'EXEMPLO', 'COMO CHEGA']));\nconsole.log(linha(['─'.repeat(18), '─'.repeat(26), '─'.repeat(34)]));\nfor (const o of origens) console.log(linha(o));\n\nconsole.log('\\nO teste rápido: se o editor não completa nada, o tipo não chegou. Antes de');\nconsole.log('escrever um `.d.ts`, procure `@types/<pacote>` — quase sempre já existe.');",
+        "codigoJs": "const origens = [\n    [\n        'embutido no TS',\n        'Array, Promise, Map, JSON',\n        'a opção `lib` do tsconfig'\n    ],\n    [\n        'dentro do pacote',\n        'zod, prisma, express 5',\n        'o campo `types` do package.json'\n    ],\n    [\n        'pacote separado',\n        'lodash, jsonwebtoken',\n        'npm i -D @types/lodash'\n    ],\n    [\n        'escrito por você',\n        'lib antiga sem tipos',\n        'um arquivo .d.ts no projeto'\n    ],\n    [\n        'nenhum',\n        'o resto',\n        'tudo vira `any`, e o tsc para de ajudar'\n    ]\n];\nconst largura = [\n    20,\n    28,\n    36\n];\nconst linha = (colunas)=>colunas.map((c, i)=>c.padEnd(largura[i])).join('');\nconsole.log(linha([\n    'DE ONDE VEM',\n    'EXEMPLO',\n    'COMO CHEGA'\n]));\nconsole.log(linha([\n    '─'.repeat(18),\n    '─'.repeat(26),\n    '─'.repeat(34)\n]));\nfor (const o of origens)console.log(linha(o));\nconsole.log('\\nO teste rápido: se o editor não completa nada, o tipo não chegou. Antes de');\nconsole.log('escrever um `.d.ts`, procure `@types/<pacote>` — quase sempre já existe.');\n"
+       },
+       {
+        "n": 2,
+        "titulo": "`declare`: descrever sem implementar",
+        "secao": "ESSENCIAL",
+        "codigo": "// Isto é o conteúdo de um `.d.ts`: só assinatura, nenhum corpo. Some ao compilar.\ndeclare function formatarCpf(bruto: string): string;\ndeclare const VERSAO_DA_LIB: string;\n\n// A implementação de verdade viria da biblioteca. Aqui ela é montada na mão para o\n// exemplo rodar — é exatamente o papel que o JavaScript da lib cumpriria.\nconst global = globalThis as unknown as { formatarCpf: (b: string) => string; VERSAO_DA_LIB: string };\nglobal.formatarCpf = (bruto) => bruto.replace(/\\D/g, '').replace(/(\\d{3})(\\d{3})(\\d{3})(\\d{2})/, '$1.$2.$3-$4');\nglobal.VERSAO_DA_LIB = '2.1.0';\n\nconsole.log('versão   :', VERSAO_DA_LIB);\nconsole.log('formatado:', formatarCpf('52998224725'));\n\ntry {\n  // @ts-expect-error — Argument of type 'number' is not assignable to parameter of type 'string'.\n  console.log(formatarCpf(52998224725));\n} catch (erro) {\n  console.log('com número:', (erro as Error).message, '← o tsc já tinha avisado');\n}\n\nconsole.log('\\n`declare` é uma promessa: \"isto existe rodando, confie em mim\". Se a promessa');\nconsole.log('for falsa, o erro só aparece na execução — como com `as`.');",
+        "codigoJs": "const global = globalThis;\nglobal.formatarCpf = (bruto)=>bruto.replace(/\\D/g, '').replace(/(\\d{3})(\\d{3})(\\d{3})(\\d{2})/, '$1.$2.$3-$4');\nglobal.VERSAO_DA_LIB = '2.1.0';\nconsole.log('versão   :', VERSAO_DA_LIB);\nconsole.log('formatado:', formatarCpf('52998224725'));\ntry {\n    console.log(formatarCpf(52998224725));\n} catch (erro) {\n    console.log('com número:', erro.message, '← o tsc já tinha avisado');\n}\nconsole.log('\\n`declare` é uma promessa: \"isto existe rodando, confie em mim\". Se a promessa');\nconsole.log('for falsa, o erro só aparece na execução — como com `as`.');\n"
+       },
+       {
+        "n": 3,
+        "titulo": "Tipar uma biblioteca sem tipos, só no que você usa",
+        "secao": "ESSENCIAL",
+        "codigo": "// Suponha um pacote antigo, JavaScript puro, sem @types. Ele existe rodando:\nconst bibliotecaCrua = {\n  slugify: (texto: unknown) => String(texto).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),\n  truncar: (texto: unknown, tamanho: unknown) => String(texto).slice(0, Number(tamanho)),\n  versao: '1.0.0',\n};\n\n// O `.d.ts` que você escreveria é este tipo: só o que o seu código chama.\ntype TextoUtils = {\n  slugify(texto: string): string;\n  truncar(texto: string, tamanho: number): string;\n};\n\nconst texto: TextoUtils = bibliotecaCrua as TextoUtils;\n\nconsole.log('slug    :', texto.slugify('Caneca Branca 300ml'));\nconsole.log('truncado:', texto.truncar('Caderno universitário 200 folhas', 20) + '…');\n\n// @ts-expect-error — Property 'versao' does not exist on type 'TextoUtils'.\nconsole.log(texto.versao);\n\nconsole.log('\\nA biblioteca tem `versao`, e o seu tipo não. Isso não é defeito: é o contrato');\nconsole.log('reduzido ao que você realmente usa — menos superfície para manter.');",
+        "codigoJs": "const bibliotecaCrua = {\n    slugify: (texto)=>String(texto).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),\n    truncar: (texto, tamanho)=>String(texto).slice(0, Number(tamanho)),\n    versao: '1.0.0'\n};\nconst texto = bibliotecaCrua;\nconsole.log('slug    :', texto.slugify('Caneca Branca 300ml'));\nconsole.log('truncado:', texto.truncar('Caderno universitário 200 folhas', 20) + '…');\nconsole.log(texto.versao);\nconsole.log('\\nA biblioteca tem `versao`, e o seu tipo não. Isso não é defeito: é o contrato');\nconsole.log('reduzido ao que você realmente usa — menos superfície para manter.');\n"
+       },
+       {
+        "n": 4,
+        "titulo": "Acrescentar campo a um tipo de terceiro",
+        "secao": "NA PRÁTICA",
+        "codigo": "// O caso do Express: o `loginRequired` põe `usuarioId` no request, e o tipo original não sabe.\ntype RequestOriginal = { url: string; headers: Record<string, string> };\n\n// Em projeto de verdade isto vira `declare global { namespace Express { interface Request { ... } } }`\n// num arquivo `types/express.d.ts`. O efeito é este:\ntype Request = RequestOriginal & { usuarioId?: number };\n\nfunction loginRequired(pedido: Request): boolean {\n  const [, token] = (pedido.headers['authorization'] ?? '').split(' ');\n  if (!token) return false;\n  pedido.usuarioId = Number(token);           // só compila porque o tipo foi estendido\n  return true;\n}\n\nconst pedido: Request = { url: '/alunos', headers: { authorization: 'Bearer 7' } };\nconsole.log('autenticou:', loginRequired(pedido), '· usuário', pedido.usuarioId);\n\nconst semToken: Request = { url: '/alunos', headers: {} };\nconsole.log('autenticou:', loginRequired(semToken), '· usuário', semToken.usuarioId ?? '(nenhum)');\n\nconsole.log('\\nÉ o declaration merging do tema 03 usado de propósito: a interface `Request` do');\nconsole.log('Express é reaberta pelo seu arquivo e ganha o campo que o seu middleware põe.');",
+        "codigoJs": "function loginRequired(pedido) {\n    const [, token] = (pedido.headers['authorization'] ?? '').split(' ');\n    if (!token) return false;\n    pedido.usuarioId = Number(token);\n    return true;\n}\nconst pedido = {\n    url: '/alunos',\n    headers: {\n        authorization: 'Bearer 7'\n    }\n};\nconsole.log('autenticou:', loginRequired(pedido), '· usuário', pedido.usuarioId);\nconst semToken = {\n    url: '/alunos',\n    headers: {}\n};\nconsole.log('autenticou:', loginRequired(semToken), '· usuário', semToken.usuarioId ?? '(nenhum)');\nconsole.log('\\nÉ o declaration merging do tema 03 usado de propósito: a interface `Request` do');\nconsole.log('Express é reaberta pelo seu arquivo e ganha o campo que o seu middleware põe.');\n"
+       },
+       {
+        "n": 5,
+        "titulo": "`unknown` na borda, tipo no miolo",
+        "secao": "NA PRÁTICA",
+        "codigo": "// O jeito honesto de consumir uma biblioteca sem tipos: valide na entrada, tipe daí para dentro.\ntype Cep = { cep: string; logradouro: string; localidade: string; uf: string };\n\nfunction lerCep(bruto: unknown): Cep | null {\n  if (typeof bruto !== 'object' || bruto === null) return null;\n  const dado = bruto as Record<string, unknown>;\n  const campos = ['cep', 'logradouro', 'localidade', 'uf'] as const;\n  if (campos.some((c) => typeof dado[c] !== 'string')) return null;\n  return { cep: String(dado['cep']), logradouro: String(dado['logradouro']),\n           localidade: String(dado['localidade']), uf: String(dado['uf']) };\n}\n\nconst respostas: unknown[] = [\n  { cep: '30110-012', logradouro: 'Av. Afonso Pena', localidade: 'Belo Horizonte', uf: 'MG' },\n  { cep: '00000-000', erro: true },\n  'não é json',\n];\n\nfor (const resposta of respostas) {\n  const cep = lerCep(resposta);\n  console.log(cep ? `✓ ${cep.logradouro}, ${cep.localidade}/${cep.uf}` : '✕ resposta inválida');\n}\n\nconsole.log('\\nUma função de validação na borda, e o resto do sistema trabalha com `Cep` de');\nconsole.log('verdade. É a mesma ideia do type guard (tema 05), aplicada ao mundo lá fora.');",
+        "codigoJs": "function lerCep(bruto) {\n    if (typeof bruto !== 'object' || bruto === null) return null;\n    const dado = bruto;\n    const campos = [\n        'cep',\n        'logradouro',\n        'localidade',\n        'uf'\n    ];\n    if (campos.some((c)=>typeof dado[c] !== 'string')) return null;\n    return {\n        cep: String(dado['cep']),\n        logradouro: String(dado['logradouro']),\n        localidade: String(dado['localidade']),\n        uf: String(dado['uf'])\n    };\n}\nconst respostas = [\n    {\n        cep: '30110-012',\n        logradouro: 'Av. Afonso Pena',\n        localidade: 'Belo Horizonte',\n        uf: 'MG'\n    },\n    {\n        cep: '00000-000',\n        erro: true\n    },\n    'não é json'\n];\nfor (const resposta of respostas){\n    const cep = lerCep(resposta);\n    console.log(cep ? `✓ ${cep.logradouro}, ${cep.localidade}/${cep.uf}` : '✕ resposta inválida');\n}\nconsole.log('\\nUma função de validação na borda, e o resto do sistema trabalha com `Cep` de');\nconsole.log('verdade. É a mesma ideia do type guard (tema 05), aplicada ao mundo lá fora.');\n"
+       },
+       {
+        "n": 6,
+        "titulo": "`.d.ts` errado é pior do que `.d.ts` nenhum",
+        "secao": "PEGADINHAS",
+        "codigo": "// A declaração diz que devolve number. A biblioteca devolve string. Ninguém confere.\ndeclare function somarDaLib(a: number, b: number): number;\n\nconst globalDaLib = globalThis as unknown as { somarDaLib: (a: number, b: number) => unknown };\nglobalDaLib.somarDaLib = (a, b) => `${a + b}`;      // a realidade: devolve texto\n\nconst total = somarDaLib(2, 3);\nconsole.log('o tipo diz : number');\nconsole.log('a realidade:', typeof total, JSON.stringify(total));\ntry {\n  console.log(total.toFixed(2));\n} catch (erro) {\n  console.log('e estourou :', (erro as Error).message);\n}\n\nconsole.log('\\nSem tipo nenhum, `any` pelo menos avisa você que ali não há garantia. Um `.d.ts`');\nconsole.log('desatualizado dá a garantia errada — e é confiando nela que o código quebra.');\nconsole.log('Quando escrever um, escreva pouco, e confira contra a documentação da versão.');",
+        "codigoJs": "const globalDaLib = globalThis;\nglobalDaLib.somarDaLib = (a, b)=>`${a + b}`;\nconst total = somarDaLib(2, 3);\nconsole.log('o tipo diz : number');\nconsole.log('a realidade:', typeof total, JSON.stringify(total));\ntry {\n    console.log(total.toFixed(2));\n} catch (erro) {\n    console.log('e estourou :', erro.message);\n}\nconsole.log('\\nSem tipo nenhum, `any` pelo menos avisa você que ali não há garantia. Um `.d.ts`');\nconsole.log('desatualizado dá a garantia errada — e é confiando nela que o código quebra.');\nconsole.log('Quando escrever um, escreva pouco, e confira contra a documentação da versão.');\n"
+       }
+      ],
+      "resumo": [
+       "Tipo de biblioteca vem embutido, de `@types/<pacote>`, ou de um `.d.ts` seu.",
+       "`.d.ts` é declaração pura: sem corpo, sem nada que rode, some ao compilar.",
+       "Declare só o que você usa — não a biblioteca inteira.",
+       "Para acrescentar campo a um tipo de terceiro, reabra a interface num `.d.ts` do projeto.",
+       "Dado que chega de fora: `unknown` na borda, valide, e tipe daí para dentro.",
+       "`.d.ts` errado é pior que nenhum: ele promete uma garantia que não existe."
+      ]
+     }
+    ]
+   }
+  ]
  }
 ];

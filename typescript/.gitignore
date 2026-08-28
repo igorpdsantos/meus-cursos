@@ -1,0 +1,2 @@
+# Dependências: só o typescript, para o `npm run check`. Para trazer de volta: npm install
+node_modules/

@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    // O curso roda com `node arquivo.ts`, que só APAGA os tipos. Quem confere é o `tsc`,
+    // e é por isso que ele nunca escreve arquivo nenhum: `noEmit`.
+    "noEmit": true,
+    "target": "ES2022",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+
+    // Sem `import`/`export`, o TypeScript trataria cada arquivo como script global — e aí
+    // dois tópicos que declarem `pedido` brigariam entre si. `force` diz: cada arquivo é um
+    // módulo, com escopo próprio. É também como o `node arquivo.ts` já enxerga cada um.
+    "moduleDetection": "force",
+    "lib": ["ES2022", "DOM"],
+
+    // A linha que importa. Sem `strict`, metade do que este curso ensina fica desligada:
+    // `null` passa em tudo, parâmetro sem tipo vira `any` calado e o erro só aparece rodando.
+    "strict": true,
+
+    // `node arquivo.ts` apaga os tipos um arquivo por vez, sem olhar os outros. Estas duas
+    // avisam quando o código escrito depende de algo que só um compilador de verdade faria.
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}

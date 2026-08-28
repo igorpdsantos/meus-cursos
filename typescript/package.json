@@ -1,0 +1,12 @@
+{
+  "name": "typescript-estudos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Estudos de TypeScript: um arquivo por tópico, exemplos resolvidos.",
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}

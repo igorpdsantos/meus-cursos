@@ -1,0 +1,82 @@
+# Histórico — TypeScript
+
+Log cronológico das sessões de estudo. Sessão é o número que aparece no cabeçalho de cada arquivo.
+O curso entrou de uma vez, com base no repositório
+[luizomf/cursojstypescript](https://github.com/luizomf/cursojstypescript), então as oito
+sessões abaixo foram registradas na mesma data.
+
+## Sessão 1 — 28/08/2026
+
+O que o TypeScript acrescenta ao JavaScript, como ele roda sem build e o que o `strict` cobra.
+
+- `01-primeiros-passos/01-por-que-typescript.ts` — Por que TypeScript
+- `01-primeiros-passos/02-anotacao-e-inferencia.ts` — Anotação e inferência
+- `01-primeiros-passos/03-tsconfig-e-strict.ts` — tsconfig e o modo strict
+
+## Sessão 2 — 28/08/2026
+
+O vocabulário básico: os tipos que descrevem valor e os quatro que não descrevem.
+
+- `02-tipos-basicos/01-primitivos-e-array.ts` — Primitivos e array
+- `02-tipos-basicos/02-tupla-e-objeto.ts` — Tupla e tipo de objeto
+- `02-tipos-basicos/03-any-unknown-void-never.ts` — any, unknown, void e never
+- `02-tipos-basicos/04-null-e-opcional.ts` — null, undefined e opcional
+
+## Sessão 3 — 28/08/2026
+
+Combinar tipos: união, literal, alias, interface, intersection e enum.
+
+- `03-montar-tipos/01-union-e-literais.ts` — União e tipos literais
+- `03-montar-tipos/02-alias-e-interface.ts` — type alias e interface
+- `03-montar-tipos/03-intersection-e-enum.ts` — Intersection e enum
+
+## Sessão 4 — 28/08/2026
+
+O contrato de uma função escrito por inteiro.
+
+- `04-funcoes/01-parametros-e-retorno.ts` — Parâmetros e retorno
+- `04-funcoes/02-overload-e-this.ts` — Sobrecarga e o this tipado
+
+## Sessão 5 — 28/08/2026
+
+Sair de um tipo largo para o certo — e a diferença entre conferir e afirmar.
+
+- `05-estreitar-tipos/01-type-guards.ts` — Type guards
+- `05-estreitar-tipos/02-assertions-e-structural.ts` — Type assertions e tipagem estrutural
+
+## Sessão 6 — 28/08/2026
+
+As classes do JavaScript com o que o TypeScript acrescenta a elas.
+
+- `06-classes/01-modificadores-de-acesso.ts` — Modificadores de acesso
+- `06-classes/02-heranca-e-abstract.ts` — Herança e classe abstrata
+- `06-classes/03-implements-e-interface.ts` — implements e interface na classe
+- `06-classes/04-static-e-getters.ts` — static, getters e construtor privado
+
+## Sessão 7 — 28/08/2026
+
+Tipo virando parâmetro, e os tipos que se derivam de outros.
+
+- `07-generics/01-o-basico.ts` — Generics: o básico
+- `07-generics/02-restricoes-com-extends.ts` — Restrições com extends
+- `07-generics/03-keyof-e-typeof.ts` — keyof, typeof e tipos indexados
+- `07-generics/04-utility-types.ts` — Utility types
+
+## Sessão 8 — 28/08/2026
+
+Fora da trilha, mas aparece em projeto de verdade.
+
+- `08-extras/01-decorators.ts` — Decorators
+- `08-extras/02-bibliotecas-e-types.ts` — Bibliotecas de fora e declaration files
+
+## Infraestrutura acrescentada nesta leva
+
+O `docs/` aprendeu a lidar com `.ts` sem ganhar dependência nenhuma:
+
+- `docs/build.mjs` lê `.ts` além de `.js`, grava junto de cada bloco a versão sem tipos
+  (feita pelo mesmo removedor que o `node arquivo.ts` usa) e descobre sozinho quais arquivos
+  precisam da flag `--experimental-transform-types` no comando do cabeçalho.
+- `docs/app.js` ganhou um removedor de tipos próprio, para o código **editado** no navegador —
+  o único caso em que não há build a consultar.
+- `docs/testar.mjs` roda todo bloco de TypeScript pelos dois caminhos e compara a saída, de
+  modo que uma divergência entre o removedor do site e o do Node aparece antes de ir para o ar.

@@ -6,10 +6,18 @@
  * e escreve docs/content.js. O código dos .js continua sendo a única fonte da verdade.
  */
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
+import { stripTypeScriptTypes } from 'node:module';
 import { join, dirname, basename, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+// `stripTypeScriptTypes` é a mesma peça que o `node arquivo.ts` usa, e ainda avisa que é
+// experimental a cada chamada. O aviso não acrescenta nada aqui: a saída é só um build.
+const avisar = process.emitWarning;
+process.emitWarning = (aviso, ...resto) =>
+  String(aviso).includes('stripTypeScriptTypes') || String(resto[0]) === 'ExperimentalWarning'
+    ? undefined : avisar.call(process, aviso, ...resto);
 
 // ─── Os cursos, na ordem em que se estuda ───
 // A trilha é sequencial: Node só faz sentido depois de JavaScript, porque Node É JavaScript
@@ -37,6 +45,18 @@ const CURSOS = {
     exigencia: 'Continua o curso de JavaScript. A linguagem é a mesma — o que muda é onde ' +
       'ela roda e o que ela passa a alcançar: disco, rede e banco de dados.',
   },
+  typescript: {
+    titulo: 'TypeScript',
+    selo: 'TS',
+    subtitulo: 'JavaScript com tipos',
+    ordem: 3,
+    cor: '#79c0ff',
+    resumo: 'O mesmo JavaScript, com um contrato escrito: o editor avisa o erro antes de ' +
+      'rodar. Tipos, interface, classe tipada e generics.',
+    depoisDe: 'node',
+    exigencia: 'TypeScript não é outra linguagem: é JavaScript mais uma camada de tipos que ' +
+      'some na hora de rodar. Sem saber função, objeto, array e classe, não há o que tipar.',
+  },
 };
 
 // ─── Aparência de cada tema (só cosmético; tema novo cai no padrão) ───
@@ -60,6 +80,15 @@ const TEMAS = {
   'node/08-sequelize':          { titulo: 'Sequelize',          icone: '▦', cor: '#7fd1c1', resumo: 'Banco SQL sem escrever SQL: model, migration e associação.' },
   'node/09-api-e-autenticacao': { titulo: 'API e Autenticação', icone: '⚷', cor: '#ffb86c', resumo: 'Responder JSON, guardar senha com bcrypt, entrar com token e receber arquivo.' },
   'node/07-extras':             { titulo: 'Extras',             icone: '◇', cor: '#8b95a8', resumo: 'Bom conhecer: fora da trilha do curso.' },
+
+  'typescript/01-primeiros-passos': { titulo: 'Primeiros Passos', icone: '◆', cor: '#79c0ff', resumo: 'O que o TypeScript acrescenta, como ele roda e o que o strict cobra.' },
+  'typescript/02-tipos-basicos':    { titulo: 'Tipos Básicos',    icone: '▤', cor: '#5ec8d8', resumo: 'Primitivo, array, tupla, objeto e os tipos especiais.' },
+  'typescript/03-montar-tipos':     { titulo: 'Montar Tipos',     icone: '⧉', cor: '#f2c14e', resumo: 'Combinar tipos: união, literal, alias, interface e enum.' },
+  'typescript/04-funcoes':          { titulo: 'Funções Tipadas',  icone: 'ƒ', cor: '#6ee7a8', resumo: 'Parâmetro, retorno, sobrecarga e o this tipado.' },
+  'typescript/05-estreitar-tipos':  { titulo: 'Estreitar Tipos',  icone: '⇲', cor: '#b48ef0', resumo: 'De um tipo largo para o certo: type guard e assertion.' },
+  'typescript/06-classes':          { titulo: 'Classes Tipadas',  icone: '⬢', cor: '#f78fb3', resumo: 'private, herança, abstract e implements.' },
+  'typescript/07-generics':         { titulo: 'Generics',         icone: '⌇', cor: '#ffb86c', resumo: 'Tipo que vira parâmetro: reaproveitar sem perder o tipo.' },
+  'typescript/08-extras':           { titulo: 'Extras',           icone: '◇', cor: '#8b95a8', resumo: 'Decorator e o tipo das bibliotecas de fora.' },
 };
 
 const PADRAO = { icone: '●', cor: '#8b95a8' };
@@ -81,8 +110,29 @@ function campo(linhas, chave) {
   return txt.replace(/\s+/g, ' ').trim();
 }
 
+/**
+ * Tira os tipos de um trecho de TypeScript e devolve o JavaScript que sobra.
+ * É o mesmo removedor que o `node arquivo.ts` usa por dentro, então o que o site roda
+ * é exatamente o que o terminal roda. `transform` (e não `strip-only`) porque `enum` e
+ * propriedade de parâmetro não somem: viram código de verdade.
+ */
+function tirarTipos(codigo) {
+  try {
+    return stripTypeScriptTypes(codigo, { mode: 'transform' });
+  } catch {
+    return null;                                  // sintaxe que o removedor não engole
+  }
+}
+
+/** `node arquivo.ts` só engole o que o removedor apaga sem deixar rastro. */
+const precisaDeFlag = (codigo) => {
+  try { stripTypeScriptTypes(codigo, { mode: 'strip' }); return false; }
+  catch { return true; }
+};
+
 function parseArquivo(caminhoAbs, cursoDir) {
   const bruto = readFileSync(caminhoAbs, 'utf8');
+  const ehTs = caminhoAbs.endsWith('.ts');
   const fim = bruto.indexOf('*/');
   const cabecalho = bruto.slice(0, fim);
   const corpo = bruto.slice(fim + 2).replace(/^\n+/, '');
@@ -124,13 +174,24 @@ function parseArquivo(caminhoAbs, cursoDir) {
       continue;
     }
     const m = p.titulo.match(/^(\d+)\)\s*(.+)$/);
-    blocos.push({ n: m ? Number(m[1]) : blocos.length + 1, titulo: m ? m[2] : p.titulo, secao: p.secao, codigo });
+    const bloco = { n: m ? Number(m[1]) : blocos.length + 1, titulo: m ? m[2] : p.titulo, secao: p.secao, codigo };
+    if (ehTs) {
+      // O navegador não sabe TypeScript. Guardamos junto a versão sem tipos, que é o que o
+      // sandbox executa — o que aparece na tela continua sendo o código com os tipos.
+      bloco.codigoJs = tirarTipos(codigo);
+      if (bloco.codigoJs === null)
+        console.warn(`⚠ ${basename(caminhoAbs)} · bloco ${bloco.n}: não dá para tirar os tipos.`);
+    }
+    blocos.push(bloco);
   }
 
+  // `enum` e propriedade de parâmetro viram código: o `node` puro recusa e pede a flag.
+  const flag = ehTs && precisaDeFlag(corpo) ? '--experimental-transform-types ' : '';
+
   return {
-    slug: basename(caminhoAbs, '.js'),
+    slug: basename(caminhoAbs).replace(/\.[jt]s$/, ''),
     arquivo: relative(ROOT, caminhoAbs),
-    comando: `node ${relative(cursoDir, caminhoAbs)}`,
+    comando: `node ${flag}${relative(cursoDir, caminhoAbs)}`,
     titulo, sessao,
     oQueE: campo(linhas, 'O QUE É'),
     quandoUsar: campo(linhas, 'QUANDO USAR'),
@@ -151,7 +212,7 @@ for (const cursoSlug of readdirSync(ROOT).sort()) {
     .map((temaSlug) => {
       const meta = TEMAS[`${cursoSlug}/${temaSlug}`] ?? TEMAS[temaSlug] ?? { ...PADRAO, titulo: titulizar(temaSlug) };
       const topicos = readdirSync(join(src, temaSlug)).sort()
-        .filter((f) => f.endsWith('.js'))
+        .filter((f) => f.endsWith('.js') || f.endsWith('.ts'))
         .map((f) => parseArquivo(join(src, temaSlug, f), join(ROOT, cursoSlug)));
         return { slug: temaSlug, ...meta, titulo: meta.titulo ?? titulizar(temaSlug), topicos };
     })

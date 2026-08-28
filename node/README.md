@@ -1,6 +1,6 @@
 # Node
 
-> Trilha 2 de 2. Vem depois de **[JavaScript](../javascript/README.md)** — Node não é outra linguagem,
+> Trilha 2 de 3. Vem depois de **[JavaScript](../javascript/README.md)** — Node não é outra linguagem,
 > é o mesmo JavaScript rodando fora do navegador. Função, objeto, array, `async/await` e
 > desestruturação são exatamente os de lá.
 
@@ -179,3 +179,8 @@ Fora da trilha, bom conhecer.
 - Cada bloco de exemplo é autossuficiente: declara os próprios dados e roda copiado e colado.
 - `ESSENCIAL` tem 3 blocos, `NA PRÁTICA` até 4, `PEGADINHAS` até 2. Máximo de 8 por tópico.
 - O padrão completo está em [CLAUDE.md](../CLAUDE.md).
+
+---
+
+A trilha continua em **[TypeScript](../typescript/README.md)**: a mesma linguagem, agora com
+um contrato escrito. O que você fez aqui em `.js` passa a ser conferido antes de rodar.

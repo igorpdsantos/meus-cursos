@@ -145,8 +145,9 @@ com exemplo. Sem parágrafo longo, sem repetir o que o código já mostra.
 Documentação interativa em HTML puro, sem build e sem dependência. Abre com duplo clique
 em `docs/index.html`. Cada exemplo roda no próprio navegador, com terminal e código editável.
 
-Os cursos aparecem em sequência (JavaScript → Node), porque a trilha é sequencial: Node é a
-mesma linguagem rodando fora do navegador. O sandbox do site imita `require`, `path`, `fs`,
+Os cursos aparecem em sequência (JavaScript → Node → TypeScript), porque a trilha é
+sequencial: Node é a mesma linguagem rodando fora do navegador, e TypeScript é a mesma
+linguagem com tipos. O sandbox do site imita `require`, `path`, `fs`,
 `os`, `http`, `express`, `ejs`, `express-session`, `connect-flash`, `mongoose`, `sequelize`,
 `bcryptjs`, `jsonwebtoken` e `multer` (com `FormData`, `Blob` e `Buffer`), então os
 exemplos de servidor, de banco e de upload rodam ali mesmo. Exemplo que dependa de algo que o navegador não tem
@@ -161,3 +162,28 @@ node docs/build.mjs
 ```
 
 Só `docs/content.js` é gerado; o resto (`index.html`, `style.css`, `app.js`) é escrito à mão.
+
+### Tópico em TypeScript (`.ts`)
+
+O `build.mjs` lê `.ts` do mesmo jeito que lê `.js`, com três diferenças que ele resolve sozinho:
+
+- grava junto de cada bloco o `codigoJs` — a versão sem tipos, feita pelo removedor do próprio
+  Node (`stripTypeScriptTypes`). É essa que o site executa; a que aparece na tela tem os tipos;
+- descobre se o arquivo precisa de `--experimental-transform-types` e põe a flag no comando do
+  cabeçalho. Precisam disso os arquivos com `enum` ou propriedade de parâmetro no construtor —
+  os dois viram código, e o modo padrão do `node` só sabe apagar;
+- para o código **editado** no navegador não há build a consultar: quem tira os tipos ali é a
+  função `tirarTipos` do `app.js`. O `docs/testar.mjs` roda todo bloco pelos dois caminhos e
+  compara a saída, então divergência entre os dois aparece antes de ir para o site.
+
+Regras de escrita que valem só para `.ts`:
+
+- **Erro de tipo demonstrado leva `// @ts-expect-error` com a mensagem do compilador ao lado.**
+  O `cd typescript && npm run check` tem que passar — e ele só passa se todo erro anotado for
+  erro de verdade. Ele também acusa a marcação que sobrou depois que o erro deixou de existir.
+- **O arquivo tem que rodar limpo mesmo assim.** Quando a linha com erro de tipo também
+  estouraria na execução, envolva num `try/catch` e imprima a mensagem: fica visível o que o
+  `tsc` acusa antes de salvar e o que o JavaScript só descobre chegando na linha.
+- Cada bloco continua autossuficiente, e os nomes declarados no topo (inclusive `type`,
+  `interface` e `class`) precisam ser únicos **no arquivo inteiro** — os blocos são
+  concatenados no "Rodar tudo", e o `tsc` confere o arquivo todo de uma vez.
