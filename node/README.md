@@ -50,11 +50,12 @@ Os nove sobem e respondem em `http://localhost:3000` (o `07-api-rest` usa a 3001
 | [04-views](04-views/) | páginas renderizadas no servidor com EJS, em vez de HTML escrito na mão. | express · ejs |
 | [05-conteudos-estaticos](05-conteudos-estaticos/) | CSS, imagem e JS servidos crus pela pasta `public/`. | express · ejs · static |
 | [06-webpack-e-middleware](06-webpack-e-middleware/) | a virada: middlewares, MongoDB, sessão, flash e build de frontend. | express · mongoose · session · webpack |
-| [07-api-rest](07-api-rest/) | uma API que devolve JSON, com ESLint e a estrutura MVC separada. Único que escreve `import`/`export`, transpilado pelo sucrase. | express · eslint · sucrase |
+| [07-api-rest](07-api-rest/) | API de escola em JSON: banco SQL com Sequelize, login por JWT, CRUD de alunos e usuários e upload de fotos. Único que escreve `import`/`export`, transpilado pelo sucrase. | express · sequelize · mariadb · jsonwebtoken · bcryptjs · multer · sucrase |
 | [08-projeto-agenda](08-projeto-agenda/) | **projeto final** — cadastro, login com senha criptografada, CRUD de contatos e proteção contra CSRF. | express · mongoose · bcryptjs · csurf · helmet · webpack |
 
 Os projetos que falam com banco precisam de um `.env`. Cada um traz um `.env.example`:
-copie para `.env` e preencha com a sua string de conexão do MongoDB.
+copie para `.env` e preencha — string de conexão do MongoDB nos que usam Mongoose, usuário
+e senha do MariaDB no `07-api-rest`.
 
 ```bash
 cp .env.example .env
