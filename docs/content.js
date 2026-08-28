@@ -4084,6 +4084,471 @@ window.CONTEUDO = [
       ]
      }
     ]
+   },
+   {
+    "slug": "08-sequelize",
+    "titulo": "Sequelize",
+    "icone": "▦",
+    "cor": "#7fd1c1",
+    "resumo": "Banco SQL sem escrever SQL: model, migration e associação.",
+    "topicos": [
+     {
+      "slug": "01-conexao-e-model",
+      "arquivo": "node/src/08-sequelize/01-conexao-e-model.js",
+      "comando": "node src/08-sequelize/01-conexao-e-model.js",
+      "titulo": "Conexão e Model com Sequelize",
+      "sessao": 5,
+      "oQueE": "o tradutor entre objeto JavaScript e tabela SQL — você descreve a tabela uma vez e chama métodos em vez de escrever SQL na mão.",
+      "quandoUsar": "quando o dado tem formato fixo e se relaciona com outro — aluno, matrícula, nota.",
+      "quandoNaoUsar": "em relatório com muita junção e soma, onde o SQL escrito à mão é mais claro e mais rápido. Aí a saída é `sequelize.query('SELECT ...')`.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "src/configs/database.js",
+        "secao": "ESSENCIAL",
+        "codigo": "const { Sequelize } = require('sequelize');\n(async () => {\n  // O objeto é o mesmo para qualquer banco: só mudam dialect, host e credenciais.\n  // Em produção: { dialect: 'mariadb', host: process.env.DATABASE_HOST, ... }\n  const conexao = new Sequelize({\n    dialect: 'sqlite',\n    storage: ':memory:',      // banco que vive na memória: some quando o processo fecha\n    logging: false,           // true mostra no console todo SQL que o Sequelize gera\n  });\n\n  await conexao.authenticate();     // só aqui o Sequelize realmente fala com o banco\n  console.log('Conectado?', true, '— dialeto:', conexao.getDialect());\n\n  // Banco fora do ar, senha errada, host errado: tudo estoura aqui, no authenticate.\n  const inacessivel = new Sequelize({\n    dialect: 'sqlite', storage: '/pasta/que/nao/existe/escola.sqlite',\n    logging: false, retry: { max: 0 },\n  });\n  try {\n    await inacessivel.authenticate();\n  } catch (erro) {\n    console.log('Banco inacessível :', erro.message);\n  }\n  console.log('Por isso o server.js só sobe o Express DEPOIS que o authenticate passa.');\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 2,
+        "titulo": "src/models/Aluno.js",
+        "secao": "ESSENCIAL",
+        "codigo": "const { Sequelize: SequelizeORM, DataTypes: Tipos } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeORM({ dialect: 'sqlite', storage: ':memory:', logging: false });\n\n  const Aluno = conexao.define('Aluno', {\n    nome: { type: Tipos.STRING, allowNull: false },\n    email: { type: Tipos.STRING, allowNull: false, unique: true },\n    idade: { type: Tipos.INTEGER },\n  }, {\n    tableName: 'alunos',        // sem isto o Sequelize pluraliza em inglês: \"Alunos\"\n    timestamps: true,           // ganha created_at e updated_at de graça\n    underscored: true,          // nome_completo no banco, nomeCompleto no JavaScript\n  });\n\n  console.log('Model   :', Aluno.name, '— singular, inicial maiúscula');\n  console.log('Tabela  :', Aluno.getTableName());\n  console.log('Colunas :', Object.keys(Aluno.getAttributes()).join(', '));\n  await conexao.close();\n})();\n// O model não cria a tabela: ele descreve a que deve existir. Quem cria é a migration."
+       },
+       {
+        "n": 3,
+        "titulo": "Criar a tabela e gravar a primeira linha",
+        "secao": "ESSENCIAL",
+        "codigo": "const { Sequelize: SequelizeSQL, DataTypes: Coluna } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeSQL({ dialect: 'sqlite', storage: ':memory:', logging: false });\n\n  const Produto = conexao.define('Produto', {\n    nome: { type: Coluna.STRING, allowNull: false },\n    preco: { type: Coluna.DECIMAL(10, 2), allowNull: false },\n  }, { tableName: 'produtos', timestamps: false });\n\n  await conexao.sync();                       // CREATE TABLE IF NOT EXISTS produtos (...)\n\n  const teclado = await Produto.create({ nome: 'Teclado', preco: 199.9 });\n  console.log('id gerado pelo banco:', teclado.id);\n  console.log('nome                :', teclado.nome);\n\n  const todos = await Produto.findAll();\n  console.log('linhas na tabela    :', todos.length);\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 4,
+        "titulo": "As duas validações: a do banco e a do JavaScript",
+        "secao": "NA PRÁTICA",
+        "codigo": "const { Sequelize: SequelizeBD, DataTypes: Campo } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeBD({ dialect: 'sqlite', storage: ':memory:', logging: false });\n\n  const Cliente = conexao.define('Cliente', {\n    nome: {\n      type: Campo.STRING,\n      allowNull: false,                       // vira NOT NULL na tabela\n      validate: {                             // roda no Node, ANTES de mandar o INSERT\n        len: { args: [3, 60], msg: 'Nome deve ter entre 3 e 60 caracteres.' },\n      },\n    },\n    email: {\n      type: Campo.STRING,\n      validate: { isEmail: { msg: 'E-mail inválido.' } },\n    },\n  }, { tableName: 'clientes', timestamps: false });\n\n  await conexao.sync();\n\n  try {\n    await Cliente.create({ nome: 'Jo', email: 'nao-e-email' });\n  } catch (erro) {\n    console.log(erro.name);\n    for (const e of erro.errors) console.log(' -', e.path + ':', e.message);\n  }\n  await conexao.close();\n})();\n// `validate` junta TODOS os erros num array e nem chega a viajar até o banco. É dele que\n// sai a lista de mensagens que a API devolve em `{ errors: [...] }`."
+       },
+       {
+        "n": 5,
+        "titulo": "Os tipos que se usa de verdade",
+        "secao": "NA PRÁTICA",
+        "codigo": "const { DataTypes: tipos } = require('sequelize');\n\nconst usados = [\n  ['STRING', 'VARCHAR(255)', 'nome, e-mail, título'],\n  ['TEXT', 'TEXT', 'descrição longa, comentário'],\n  ['INTEGER', 'INTEGER', 'idade, quantidade'],\n  ['DECIMAL(10,2)', 'DECIMAL', 'dinheiro — nunca FLOAT'],\n  ['BOOLEAN', 'TINYINT(1)', 'ativo, pago'],\n  ['DATE', 'DATETIME', 'data com hora'],\n  ['DATEONLY', 'DATE', 'aniversário, vencimento'],\n  ['VIRTUAL', '— não existe no banco', 'senha em texto, url montada'],\n];\n\nfor (const [tipo, coluna, quando] of usados)\n  console.log(`DataTypes.${tipo}`.padEnd(24), coluna.padEnd(22), quando);\n\nconsole.log('\\nExistem mesmo?', usados.every(([t]) => tipos[t.split('(')[0]] !== undefined));\nconsole.log('FLOAT para dinheiro erra no centavo: 0.1 + 0.2 =', 0.1 + 0.2);"
+       },
+       {
+        "n": 6,
+        "titulo": "O que o Sequelize inventa quando você não diz nada",
+        "secao": "NA PRÁTICA",
+        "codigo": "const { Sequelize: SequelizeBase, DataTypes: Tipo } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeBase({ dialect: 'sqlite', storage: ':memory:', logging: false });\n\n  const Padrao = conexao.define('Fornecedor', { nomeFantasia: Tipo.STRING });\n  const Meu = conexao.define('FornecedorMeu', { nomeFantasia: Tipo.STRING }, {\n    tableName: 'fornecedores', timestamps: false, underscored: true,\n  });\n\n  console.log('sem opções :', Padrao.getTableName().padEnd(13), Object.keys(Padrao.getAttributes()).join(', '));\n  console.log('com opções :', Meu.getTableName().padEnd(13), Object.keys(Meu.getAttributes()).join(', '));\n  console.log('\\nO pluralizador é inglês: \"Fornecedor\" virou \"Fornecedors\".');\n  console.log('`id` aparece nos dois: a chave primária o Sequelize põe sozinho.');\n  console.log('E `underscored` muda só a COLUNA — no JavaScript o nome continua o mesmo:');\n  console.log('  nomeFantasia →', Meu.getAttributes().nomeFantasia.field);\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 7,
+        "titulo": "sync({ force: true }) apaga a tabela inteira",
+        "secao": "PEGADINHAS",
+        "codigo": "const { Sequelize: SequelizeDados, DataTypes: Formato } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeDados({ dialect: 'sqlite', storage: ':memory:', logging: false });\n  const Nota = conexao.define('Nota', { valor: Formato.INTEGER }, { tableName: 'notas', timestamps: false });\n\n  await conexao.sync();\n  await Nota.create({ valor: 10 });\n  console.log('antes do force :', await Nota.count(), 'linha(s)');\n\n  await conexao.sync({ force: true });        // DROP TABLE notas; CREATE TABLE notas (...)\n  console.log('depois do force:', await Nota.count(), 'linha(s) ← os dados foram embora');\n\n  console.log('\\nÉ o ddl-auto: create-drop do Spring. Ótimo para estudar, porque cada boot');\n  console.log('devolve o mesmo estado. Em banco que você não pode perder, é destruição total.');\n  console.log('Fora do estudo: sync() sem force, ou nem isso — só as migrations.');\n  await conexao.close();\n})();"
+       }
+      ],
+      "resumo": [
+       "Uma conexão só, num arquivo só (`src/configs/database.js`), lida do `.env`.",
+       "`define` descreve a tabela; ele não cria nada — quem cria é a migration.",
+       "`tableName`, `timestamps` e `underscored` explícitos: o padrão pluraliza em inglês.",
+       "`allowNull` é regra do banco; `validate` é regra do Node e junta os erros num array.",
+       "Dinheiro é DECIMAL, nunca FLOAT. `VIRTUAL` é campo que existe só em memória.",
+       "`sync({ force: true })` derruba e recria: só em banco de estudo."
+      ]
+     },
+     {
+      "slug": "02-migrations",
+      "arquivo": "node/src/08-sequelize/02-migrations.js",
+      "comando": "node src/08-sequelize/02-migrations.js",
+      "titulo": "Migrations",
+      "sessao": 5,
+      "oQueE": "um arquivo com data no nome que descreve UMA mudança no banco — criar tabela, acrescentar coluna — e sabe desfazê-la.",
+      "quandoUsar": "sempre que a estrutura do banco mudar. É o histórico versionado do banco, que sobe junto com o código e roda igual na sua máquina e no servidor.",
+      "quandoNaoUsar": "para dado, não. Linha de exemplo é seed; migration mexe em estrutura.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "src/database/migrations/20260826203722-alunos.js",
+        "secao": "ESSENCIAL",
+        "codigo": "const { Sequelize, DataTypes } = require('sequelize');\n(async () => {\n  const conexao = new Sequelize({ dialect: 'sqlite', storage: ':memory:', logging: false });\n\n  // Uma migration é só um objeto com `up` e `down`. O sequelize-cli entrega o queryInterface.\n  const migration = {\n    async up(queryInterface) {\n      await queryInterface.createTable('alunos', {\n        id: { type: DataTypes.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },\n        nome: { type: DataTypes.STRING, allowNull: false },\n        email: { type: DataTypes.STRING, allowNull: false, unique: true },\n        created_at: { type: DataTypes.DATE, allowNull: false },\n        updated_at: { type: DataTypes.DATE, allowNull: false },\n      });\n    },\n    async down(queryInterface) {\n      await queryInterface.dropTable('alunos');\n    },\n  };\n\n  await migration.up(conexao.getQueryInterface());\n  const colunas = await conexao.getQueryInterface().describeTable('alunos');\n  for (const [nome, def] of Object.entries(colunas))\n    console.log(nome.padEnd(12), def.type.padEnd(14), def.primaryKey ? 'chave primária' : def.allowNull ? 'aceita nulo' : 'NOT NULL');\n  await conexao.close();\n})();\n// O nome começa com a data (20260826203722) porque é ela que define a ORDEM de execução."
+       },
+       {
+        "n": 2,
+        "titulo": "O `down` existe para desfazer",
+        "secao": "ESSENCIAL",
+        "codigo": "const { Sequelize: SequelizeORM, DataTypes: Tipos } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeORM({ dialect: 'sqlite', storage: ':memory:', logging: false });\n  const qi = conexao.getQueryInterface();\n\n  const criarCursos = {\n    up: (q) => q.createTable('cursos', {\n      id: { type: Tipos.INTEGER, autoIncrement: true, primaryKey: true },\n      nome: { type: Tipos.STRING, allowNull: false },\n    }),\n    down: (q) => q.dropTable('cursos'),\n  };\n\n  await criarCursos.up(qi);\n  console.log('depois do up  :', (await qi.showAllTables()).join(', ') || '(nenhuma tabela)');\n\n  await criarCursos.down(qi);                 // é isto que `db:migrate:undo` chama\n  console.log('depois do down:', (await qi.showAllTables()).join(', ') || '(nenhuma tabela)');\n\n  console.log('\\nMigration sem `down` é migration que não dá para voltar atrás.');\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 3,
+        "titulo": "Mudou de ideia? Migration NOVA, nunca editar a antiga",
+        "secao": "ESSENCIAL",
+        "codigo": "const { Sequelize: SequelizeSQL, DataTypes: Coluna } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeSQL({ dialect: 'sqlite', storage: ':memory:', logging: false });\n  const qi = conexao.getQueryInterface();\n\n  await qi.createTable('alunos', {\n    id: { type: Coluna.INTEGER, autoIncrement: true, primaryKey: true },\n    nome: { type: Coluna.STRING, allowNull: false },\n  });\n  console.log('v1:', Object.keys(await qi.describeTable('alunos')).join(', '));\n\n  // 20260827100000-adiciona-idade-em-alunos.js — o arquivo seguinte, não o de cima editado\n  const adicionaIdade = {\n    up: (q) => q.addColumn('alunos', 'idade', { type: Coluna.INTEGER, allowNull: true }),\n    down: (q) => q.removeColumn('alunos', 'idade'),\n  };\n\n  await adicionaIdade.up(qi);\n  console.log('v2:', Object.keys(await qi.describeTable('alunos')).join(', '));\n\n  console.log('\\nO servidor já rodou a v1. Editar a v1 não muda nada lá — o banco dele já');\n  console.log('a marcou como executada. Só uma migration nova chega ao banco de produção.');\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 4,
+        "titulo": "Os comandos do sequelize-cli",
+        "secao": "NA PRÁTICA",
+        "codigo": "const comandos = [\n  ['npx sequelize migration:create --name alunos', 'cria o arquivo com a data no nome'],\n  ['npx sequelize db:migrate', 'roda as pendentes, na ordem da data'],\n  ['npx sequelize db:migrate:undo', 'desfaz a última'],\n  ['npx sequelize db:migrate:undo:all', 'desfaz todas'],\n  ['npx sequelize seed:generate --name alunos', 'cria um arquivo de seed'],\n  ['npx sequelize db:seed:all', 'roda as seeds'],\n];\n\nfor (const [comando, oQueFaz] of comandos) console.log(comando.padEnd(46), oQueFaz);\n\n// O .sequelizerc é o que diz ao cli onde estão as coisas — sem ele, ele procura em `config/`\n// e não acha nada:\n//   const { resolve } = require('path');\n//   module.exports = {\n//     config: resolve(__dirname, 'src', 'configs', 'database.js'),\n//     'migrations-path': resolve(__dirname, 'src', 'database', 'migrations'),\n//     'seeders-path': resolve(__dirname, 'src', 'database', 'seeds'),\n//   };\nconsole.log('\\nO cli lê o .sequelizerc na raiz do projeto para achar config, migrations e seeds.');"
+       },
+       {
+        "n": 5,
+        "titulo": "Chave estrangeira: a migration que amarra duas tabelas",
+        "secao": "NA PRÁTICA",
+        "codigo": "const { Sequelize: SequelizeBD, DataTypes: Campo } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeBD({ dialect: 'sqlite', storage: ':memory:', logging: false });\n  const qi = conexao.getQueryInterface();\n\n  await qi.createTable('alunos', {\n    id: { type: Campo.INTEGER, autoIncrement: true, primaryKey: true },\n    nome: { type: Campo.STRING, allowNull: false },\n  });\n  await qi.createTable('fotos', {\n    id: { type: Campo.INTEGER, autoIncrement: true, primaryKey: true },\n    arquivo: { type: Campo.STRING, allowNull: false },\n    aluno_id: {\n      type: Campo.INTEGER,\n      references: { model: 'alunos', key: 'id' },   // nome da TABELA, não do model\n      onDelete: 'CASCADE',                          // apagou o aluno, some a foto junto\n      onUpdate: 'CASCADE',\n    },\n  });\n\n  const fotos = await qi.describeTable('fotos');\n  console.log('colunas de fotos:', Object.keys(fotos).join(', '));\n  console.log('aluno_id aponta para alunos.id, com ON DELETE CASCADE');\n  console.log('\\nSem a FK o banco aceita foto de aluno que não existe — e um dia');\n  console.log('a tela quebra tentando mostrar o nome de ninguém.');\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 6,
+        "titulo": "Migration ou sync?",
+        "secao": "NA PRÁTICA",
+        "codigo": "const situacoes = [\n  ['Estudo, banco descartável', 'sync({ force: true })', 'boot devolve estado conhecido'],\n  ['Time, com outra pessoa', 'migrations', 'ela roda db:migrate e chega no mesmo banco'],\n  ['Produção', 'migrations', 'histórico, revisão e volta atrás'],\n  ['Teste automatizado', 'sync({ force: true })', 'banco zerado a cada rodada'],\n];\n\nfor (const [quando, o_que, porque] of situacoes)\n  console.log(quando.padEnd(26), o_que.padEnd(22), porque);\n\nconsole.log('\\nsync olha o MODEL e tenta deixar o banco parecido. Migration é um roteiro');\nconsole.log('explícito e versionado. Só o roteiro dá para revisar num pull request.');"
+       },
+       {
+        "n": 7,
+        "titulo": "A tabela SequelizeMeta guarda o que já rodou",
+        "secao": "PEGADINHAS",
+        "codigo": "const { Sequelize: SequelizeBase, DataTypes: Tipo } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeBase({ dialect: 'sqlite', storage: ':memory:', logging: false });\n  const qi = conexao.getQueryInterface();\n\n  // É esta tabela que o cli cria sozinho e consulta antes de rodar qualquer coisa.\n  await qi.createTable('SequelizeMeta', { name: { type: Tipo.STRING, primaryKey: true } });\n  await qi.bulkInsert('SequelizeMeta', [\n    { name: '20260826203722-alunos.js' },\n    { name: '20260826210500-users.js' },\n  ]);\n\n  const jaRodaram = (await conexao.query('SELECT name FROM SequelizeMeta', { type: 'SELECT' }))\n    .map((l) => l.name);\n  console.log('já rodaram:', jaRodaram.join('\\n            '));\n\n  const naPasta = ['20260826203722-alunos.js', '20260826210500-users.js', '20260828120000-fotos.js'];\n  console.log('\\npendentes :', naPasta.filter((m) => !jaRodaram.includes(m)).join(', '));\n  console.log('\\nÉ só isso: `db:migrate` roda o que está na pasta e não está nesta tabela.');\n  console.log('Por isso editar arquivo antigo não tem efeito — o nome dele já está aqui.');\n  await conexao.close();\n})();"
+       }
+      ],
+      "resumo": [
+       "Migration é uma mudança de ESTRUTURA, versionada: `up` faz, `down` desfaz.",
+       "A data no nome do arquivo é a ordem de execução — não mexa nela.",
+       "Mudou de ideia depois de rodar? Migration nova. Editar a antiga não chega em produção.",
+       "`references` + `onDelete: 'CASCADE'` amarra as tabelas e limpa o que ficou órfão.",
+       "`db:migrate` compara a pasta com a tabela SequelizeMeta e roda só o que falta.",
+       "sync({ force }) é para banco descartável; migration é para banco que tem dono."
+      ]
+     },
+     {
+      "slug": "03-crud-e-associacoes",
+      "arquivo": "node/src/08-sequelize/03-crud-e-associacoes.js",
+      "comando": "node src/08-sequelize/03-crud-e-associacoes.js",
+      "titulo": "CRUD e Associações",
+      "sessao": 5,
+      "oQueE": "os métodos do model que gravam, buscam, atualizam e apagam, e o jeito de dizer que uma tabela pertence a outra.",
+      "quandoUsar": "em todo controller. É o que substitui o INSERT, o SELECT e o UPDATE na mão.",
+      "quandoNaoUsar": "quando a consulta vira três junções e um GROUP BY. Aí o SQL direto, em `sequelize.query`, é mais curto e mais honesto.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "Criar e buscar",
+        "secao": "ESSENCIAL",
+        "codigo": "const { Sequelize, DataTypes } = require('sequelize');\n(async () => {\n  const conexao = new Sequelize({ dialect: 'sqlite', storage: ':memory:', logging: false });\n  const Aluno = conexao.define('Aluno', {\n    nome: DataTypes.STRING, email: DataTypes.STRING, idade: DataTypes.INTEGER,\n  }, { tableName: 'alunos', timestamps: false });\n  await conexao.sync();\n\n  await Aluno.create({ nome: 'Ana Paula', email: 'ana@escola.dev', idade: 22 });\n  await Aluno.bulkCreate([                       // vários de uma vez, num INSERT só\n    { nome: 'Bruno Dias', email: 'bruno@escola.dev', idade: 31 },\n    { nome: 'Carla Reis', email: 'carla@escola.dev', idade: 27 },\n  ]);\n\n  const todos = await Aluno.findAll();\n  console.log('findAll   :', todos.map((a) => a.nome).join(', '));\n  console.log('findByPk 2:', (await Aluno.findByPk(2)).nome);\n  console.log('findOne   :', (await Aluno.findOne({ where: { email: 'carla@escola.dev' } })).nome);\n  console.log('não achou :', await Aluno.findByPk(999), '← null, não é erro');\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 2,
+        "titulo": "Atualizar e apagar",
+        "secao": "ESSENCIAL",
+        "codigo": "const { Sequelize: SequelizeORM, DataTypes: Tipos } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeORM({ dialect: 'sqlite', storage: ':memory:', logging: false });\n  const Produto = conexao.define('Produto', {\n    nome: Tipos.STRING, estoque: Tipos.INTEGER,\n  }, { tableName: 'produtos', timestamps: false });\n  await conexao.sync();\n  await Produto.bulkCreate([\n    { nome: 'Teclado', estoque: 4 }, { nome: 'Monitor', estoque: 0 },\n  ]);\n\n  // O caminho do controller: busca, confere se existe, atualiza a instância.\n  const teclado = await Produto.findByPk(1);\n  await teclado.update({ estoque: 10 });\n  console.log('depois do update:', teclado.nome, '→', teclado.estoque, 'em estoque');\n\n  const monitor = await Produto.findByPk(2);\n  await monitor.destroy();\n  console.log('sobraram        :', (await Produto.findAll()).map((p) => p.nome).join(', '));\n  console.log('o apagado ainda existe em memória:', monitor.nome, '← dá para devolver na resposta');\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 3,
+        "titulo": "Filtrar, ordenar e escolher as colunas",
+        "secao": "ESSENCIAL",
+        "codigo": "const { Sequelize: SequelizeSQL, DataTypes: Coluna } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeSQL({ dialect: 'sqlite', storage: ':memory:', logging: false });\n  const Venda = conexao.define('Venda', {\n    vendedor: Coluna.STRING, valor: Coluna.INTEGER, regiao: Coluna.STRING,\n  }, { tableName: 'vendas', timestamps: false });\n  await conexao.sync();\n  await Venda.bulkCreate([\n    { vendedor: 'Ana', valor: 800, regiao: 'sul' },\n    { vendedor: 'Bruno', valor: 1500, regiao: 'sul' },\n    { vendedor: 'Carla', valor: 1200, regiao: 'norte' },\n    { vendedor: 'Diego', valor: 300, regiao: 'sul' },\n  ]);\n\n  const top = await Venda.findAll({\n    where: { regiao: 'sul' },                    // WHERE regiao = 'sul'\n    order: [['valor', 'DESC']],                  // ORDER BY valor DESC\n    limit: 2,                                    // LIMIT 2\n    attributes: ['vendedor', 'valor'],           // SELECT vendedor, valor\n  });\n\n  for (const v of top) console.log(v.vendedor.padEnd(8), 'R$', v.valor);\n  console.log('veio a coluna regiao?', top[0].regiao, '← attributes cortou fora');\n  console.log('total do sul:', await Venda.count({ where: { regiao: 'sul' } }), 'vendas');\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 4,
+        "titulo": "Uma tabela que pertence a outra",
+        "secao": "NA PRÁTICA",
+        "codigo": "const { Sequelize: SequelizeBD, DataTypes: Campo } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeBD({ dialect: 'sqlite', storage: ':memory:', logging: false });\n\n  const Aluno = conexao.define('Aluno', { nome: Campo.STRING },\n    { tableName: 'alunos', timestamps: false });\n  const Foto = conexao.define('Foto', { arquivo: Campo.STRING, aluno_id: Campo.INTEGER },\n    { tableName: 'fotos', timestamps: false });\n\n  // Os dois lados: quem guarda a chave é quem \"pertence\".\n  Foto.belongsTo(Aluno, { foreignKey: 'aluno_id', as: 'aluno' });\n  Aluno.hasMany(Foto, { foreignKey: 'aluno_id', as: 'fotos' });\n\n  await conexao.sync();\n  const ana = await Aluno.create({ nome: 'Ana Paula' });\n  await Foto.bulkCreate([\n    { arquivo: 'ana-1.png', aluno_id: ana.id }, { arquivo: 'ana-2.png', aluno_id: ana.id },\n  ]);\n\n  // include = JOIN: traz o aluno e as fotos dele num pedido só ao banco.\n  const comFotos = await Aluno.findByPk(ana.id, { include: { association: 'fotos' } });\n  console.log(comFotos.nome, 'tem', comFotos.fotos.length, 'fotos:',\n    comFotos.fotos.map((f) => f.arquivo).join(', '));\n\n  const daFoto = await Foto.findByPk(1, { include: { association: 'aluno' } });\n  console.log('a foto', daFoto.arquivo, 'é de', daFoto.aluno.nome);\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 5,
+        "titulo": "Buscar por parecido, por faixa e por lista",
+        "secao": "NA PRÁTICA",
+        "codigo": "const { Sequelize: SequelizeBase, DataTypes: Tipo, Op: OpFiltro } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeBase({ dialect: 'sqlite', storage: ':memory:', logging: false });\n  const Aluno = conexao.define('Aluno', { nome: Tipo.STRING, idade: Tipo.INTEGER },\n    { tableName: 'alunos', timestamps: false });\n  await conexao.sync();\n  await Aluno.bulkCreate([\n    { nome: 'Ana Paula', idade: 22 }, { nome: 'Ana Clara', idade: 35 },\n    { nome: 'Bruno Dias', idade: 31 }, { nome: 'Carla Reis', idade: 17 },\n  ]);\n\n  const busca = (r) => r.map((a) => a.nome).join(', ');\n  console.log('nome com \"Ana\"   :', busca(await Aluno.findAll({ where: { nome: { [OpFiltro.like]: 'Ana%' } } })));\n  console.log('maior de idade   :', busca(await Aluno.findAll({ where: { idade: { [OpFiltro.gte]: 18 } } })));\n  console.log('entre 20 e 32    :', busca(await Aluno.findAll({ where: { idade: { [OpFiltro.between]: [20, 32] } } })));\n  console.log('Bruno ou Carla   :', busca(await Aluno.findAll({ where: { nome: { [OpFiltro.in]: ['Bruno Dias', 'Carla Reis'] } } })));\n  console.log('\\nSem OpFiltro, `where: { idade: 22 }` só sabe comparar por igual.');\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 6,
+        "titulo": "Página de resultados",
+        "secao": "NA PRÁTICA",
+        "codigo": "const { Sequelize: SequelizeDados, DataTypes: Formato } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeDados({ dialect: 'sqlite', storage: ':memory:', logging: false });\n  const Pedido = conexao.define('Pedido', { cliente: Formato.STRING },\n    { tableName: 'pedidos', timestamps: false });\n  await conexao.sync();\n  await Pedido.bulkCreate(Array.from({ length: 23 }, (_, i) => ({ cliente: `Cliente ${i + 1}` })));\n\n  const porPagina = 10;\n  const pagina = 3;                                        // veio de /pedidos?pagina=3\n\n  const { count, rows } = await Pedido.findAndCountAll({   // conta o total E traz a fatia\n    order: [['id', 'ASC']],\n    limit: porPagina,\n    offset: (pagina - 1) * porPagina,\n  });\n\n  console.log('total no banco :', count);\n  console.log('páginas        :', Math.ceil(count / porPagina));\n  console.log(`página ${pagina}       :`, rows.map((p) => p.cliente).join(', '));\n  console.log('\\nfindAll traria as 23 linhas para a memória só para mostrar 10.');\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 7,
+        "titulo": "Model.update não devolve a linha atualizada",
+        "secao": "PEGADINHAS",
+        "codigo": "const { Sequelize: SequelizeMotor, DataTypes: Valor } = require('sequelize');\n(async () => {\n  const conexao = new SequelizeMotor({ dialect: 'sqlite', storage: ':memory:', logging: false });\n  const Aluno = conexao.define('Aluno', { nome: Valor.STRING, ativo: Valor.BOOLEAN },\n    { tableName: 'alunos', timestamps: false });\n  await conexao.sync();\n  await Aluno.bulkCreate([{ nome: 'Ana', ativo: true }, { nome: 'Bruno', ativo: true }]);\n\n  const resposta = await Aluno.update({ ativo: false }, { where: { nome: 'Ana' } });\n  console.log('Aluno.update devolveu:', JSON.stringify(resposta), '← quantas linhas mudaram');\n  console.log('res.json(resposta) mandaria isto para o cliente. Não é o aluno.');\n\n  const aluno = await Aluno.findByPk(1);          // busca, confere, atualiza a instância\n  await aluno.update({ ativo: true });\n  console.log('\\ninstancia.update devolve:', aluno.nome, '— o objeto, pronto para a resposta');\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 8,
+        "titulo": "Uma consulta vira N+1 sem você ver",
+        "secao": "PEGADINHAS",
+        "codigo": "const { Sequelize: SequelizeLoja, DataTypes: Dado } = require('sequelize');\n(async () => {\n  let consultas = 0;\n  const conexao = new SequelizeLoja({\n    dialect: 'sqlite', storage: ':memory:', logging: () => { consultas++; },\n  });\n  const Aluno = conexao.define('Aluno', { nome: Dado.STRING }, { tableName: 'alunos', timestamps: false });\n  const Foto = conexao.define('Foto', { arquivo: Dado.STRING, aluno_id: Dado.INTEGER },\n    { tableName: 'fotos', timestamps: false });\n  Aluno.hasMany(Foto, { foreignKey: 'aluno_id', as: 'fotos' });\n  await conexao.sync();\n  await Aluno.bulkCreate([{ nome: 'Ana' }, { nome: 'Bruno' }, { nome: 'Carla' }]);\n  await Foto.bulkCreate([1, 2, 3].map((id) => ({ arquivo: `${id}.png`, aluno_id: id })));\n\n  consultas = 0;\n  for (const aluno of await Aluno.findAll()) await aluno.getFotos();   // 1 + 3\n  console.log('um por um :', consultas, 'consultas ao banco');\n\n  consultas = 0;\n  await Aluno.findAll({ include: { association: 'fotos' } });\n  console.log('com include:', consultas, 'consulta');\n\n  console.log('\\nCom 3 alunos ninguém percebe. Com 3 mil, a tela leva 20 segundos.');\n  await conexao.close();\n})();"
+       }
+      ],
+      "resumo": [
+       "create, findAll, findByPk, findOne — e `null` quando não acha, não exceção.",
+       "Busque, confira se existe, e chame `.update()`/`.destroy()` NA INSTÂNCIA.",
+       "`Model.update` em massa devolve contagem, não a linha: nunca mande na resposta.",
+       "where + order + limit + attributes é o SELECT inteiro, em objeto.",
+       "belongsTo/hasMany nos dois lados, e `include` para trazer tudo num pedido só.",
+       "Comparação que não é \"igual\" precisa de `Op`: like, gte, between, in."
+      ]
+     }
+    ]
+   },
+   {
+    "slug": "09-api-e-autenticacao",
+    "titulo": "API e Autenticação",
+    "icone": "⚷",
+    "cor": "#ffb86c",
+    "resumo": "Responder JSON, guardar senha com bcrypt, entrar com token e receber arquivo.",
+    "topicos": [
+     {
+      "slug": "01-api-rest-em-json",
+      "arquivo": "node/src/09-api-e-autenticacao/01-api-rest-em-json.js",
+      "comando": "node src/09-api-e-autenticacao/01-api-rest-em-json.js",
+      "titulo": "API REST em JSON",
+      "sessao": 5,
+      "oQueE": "um servidor que responde dado em JSON em vez de página pronta — quem monta a tela é o cliente (React, aplicativo, outro serviço).",
+      "quandoUsar": "quando a mesma informação atende mais de uma tela, ou quando o front é um projeto separado.",
+      "quandoNaoUsar": "em site simples que só mostra páginas. Aí `res.render` entrega tudo de uma vez, sem um front inteiro no meio.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "A rota que devolve JSON",
+        "secao": "ESSENCIAL",
+        "codigo": "const express = require('express');\n(async () => {\n  const app = express();\n  app.use(express.json());              // sem esta linha, req.body chega undefined\n\n  const alunos = [{ id: 1, nome: 'Ana Paula' }];\n\n  app.get('/alunos', (req, res) => res.json(alunos));\n  app.post('/alunos', (req, res) => {\n    const novo = { id: alunos.length + 1, nome: req.body.nome };\n    alunos.push(novo);\n    res.status(201).json(novo);         // 201 = criado, e devolve o que criou\n  });\n\n  const servidor = app.listen(0, async () => {\n    const url = `http://localhost:${servidor.address().port}/alunos`;\n    const criado = await fetch(url, {\n      method: 'POST',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ nome: 'Bruno Dias' }),\n    });\n    console.log('POST →', criado.status, JSON.stringify(await criado.json()));\n    console.log('GET  →', JSON.stringify(await fetch(url).then((r) => r.json())));\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 2,
+        "titulo": "O status code faz parte da resposta",
+        "secao": "ESSENCIAL",
+        "codigo": "const expresso = require('express');\n(async () => {\n  const app = expresso();\n  app.use(expresso.json());\n\n  app.get('/alunos/:id', (req, res) => {\n    if (Number.isNaN(Number(req.params.id))) return res.status(400).json({ errors: ['Id inválido.'] });\n    if (req.params.id !== '1') return res.status(404).json({ errors: ['Aluno não existe.'] });\n    return res.json({ id: 1, nome: 'Ana Paula' });\n  });\n\n  const servidor = app.listen(0, async () => {\n    const url = `http://localhost:${servidor.address().port}/alunos/`;\n    for (const [caminho, oQueE] of [['1', 'achou'], ['99', 'não existe'], ['abc', 'id sem sentido']]) {\n      const r = await fetch(url + caminho);\n      console.log(`GET /alunos/${caminho}`.padEnd(16), r.status, String(oQueE).padEnd(15), await r.text());\n    }\n    console.log('\\n200 achei · 201 criei · 400 seu pedido está errado · 404 não existe');\n    console.log('Devolver 200 com { erro: \"não achei\" } obriga o cliente a ler o corpo para');\n    console.log('saber se deu certo. O número já diz.');\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 3,
+        "titulo": "O CRUD inteiro em quatro rotas",
+        "secao": "ESSENCIAL",
+        "codigo": "const expr = require('express');\n(async () => {\n  const app = expr();\n  app.use(expr.json());\n\n  const banco = new Map([[1, { id: 1, nome: 'Teclado', preco: 199.9 }]]);\n  let proximoId = 2;\n\n  app.get('/produtos', (req, res) => res.json([...banco.values()]));\n  app.post('/produtos', (req, res) => {\n    const novo = { id: proximoId++, nome: req.body.nome, preco: req.body.preco };\n    banco.set(novo.id, novo);\n    res.status(201).json(novo);\n  });\n  app.put('/produtos/:id', (req, res) => {\n    const item = banco.get(Number(req.params.id));\n    if (!item) return res.status(404).json({ errors: ['Produto não existe.'] });\n    Object.assign(item, { nome: req.body.nome, preco: req.body.preco });\n    return res.json(item);\n  });\n  app.delete('/produtos/:id', (req, res) => {\n    const item = banco.get(Number(req.params.id));\n    if (!item) return res.status(404).json({ errors: ['Produto não existe.'] });\n    banco.delete(item.id);\n    return res.json(item);              // devolve o que apagou, para o cliente poder desfazer\n  });\n\n  const servidor = app.listen(0, async () => {\n    const url = `http://localhost:${servidor.address().port}/produtos`;\n    const json = (m, c, b) => fetch(url + c, {\n      method: m, headers: { 'Content-Type': 'application/json' },\n      body: b && JSON.stringify(b),\n    }).then(async (r) => `${r.status} ${JSON.stringify(await r.json())}`);\n\n    console.log('POST   /produtos   →', await json('POST', '', { nome: 'Monitor', preco: 899 }));\n    console.log('PUT    /produtos/2 →', await json('PUT', '/2', { nome: 'Monitor 27\"', preco: 999 }));\n    console.log('DELETE /produtos/1 →', await json('DELETE', '/1'));\n    console.log('GET    /produtos   →', await json('GET', ''));\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 4,
+        "titulo": "PUT manda tudo; PATCH manda só o que mudou",
+        "secao": "NA PRÁTICA",
+        "codigo": "const web = require('express');\n(async () => {\n  const app = web();\n  app.use(web.json());\n\n  const aluno = { id: 1, nome: 'Ana Paula', email: 'ana@escola.dev', idade: 22 };\n  const CAMPOS = ['nome', 'email', 'idade'];\n\n  app.put('/alunos/1', (req, res) => {\n    const faltando = CAMPOS.filter((c) => req.body[c] === undefined);\n    if (faltando.length) return res.status(400).json({ errors: [`Faltam: ${faltando.join(', ')}`] });\n    for (const c of CAMPOS) aluno[c] = req.body[c];\n    return res.json(aluno);\n  });\n\n  app.patch('/alunos/1', (req, res) => {\n    for (const c of CAMPOS) if (req.body[c] !== undefined) aluno[c] = req.body[c];\n    return res.json(aluno);\n  });\n\n  const servidor = app.listen(0, async () => {\n    const url = `http://localhost:${servidor.address().port}/alunos/1`;\n    const enviar = (m, b) => fetch(url, {\n      method: m, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b),\n    }).then(async (r) => `${r.status} ${JSON.stringify(await r.json())}`);\n\n    console.log('PATCH { idade: 23 }        →', await enviar('PATCH', { idade: 23 }));\n    console.log('PUT   { idade: 24 }        →', await enviar('PUT', { idade: 24 }));\n    console.log('PUT   { tudo }             →', await enviar('PUT', { nome: 'Ana P. Souza', email: 'ana@escola.dev', idade: 24 }));\n    console.log('\\nPUT substitui o recurso inteiro: campo que faltou é 400, não \"deixa como está\".');\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 5,
+        "titulo": "Todo erro sai no mesmo formato",
+        "secao": "NA PRÁTICA",
+        "codigo": "const framework = require('express');\n(async () => {\n  const app = framework();\n  app.use(framework.json());\n\n  // Um formato só — { errors: [...] } — para o cliente ter um jeito só de mostrar erro.\n  app.post('/alunos', (req, res) => {\n    const errors = [];\n    if (!req.body.nome) errors.push('Nome é obrigatório.');\n    if (!/^[^@]+@[^@]+$/.test(req.body.email || '')) errors.push('E-mail inválido.');\n    if (errors.length) return res.status(400).json({ errors });\n    return res.status(201).json({ id: 1, nome: req.body.nome });\n  });\n\n  const servidor = app.listen(0, async () => {\n    const url = `http://localhost:${servidor.address().port}/alunos`;\n    const r = await fetch(url, {\n      method: 'POST', headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ email: 'nao-e-email' }),\n    });\n    console.log(r.status, JSON.stringify(await r.json()));\n    console.log('\\nDevolva TODOS os erros de uma vez: um por vez faz o usuário mandar');\n    console.log('o formulário quatro vezes para descobrir os quatro problemas.');\n    console.log('O array do Sequelize encaixa direto: erro.errors.map((e) => e.message).');\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 6,
+        "titulo": "A resposta é uma lista fixa de campos",
+        "secao": "NA PRÁTICA",
+        "codigo": "const servidorWeb = require('express');\n(async () => {\n  const app = servidorWeb();\n\n  // O que veio do banco: tem coisa que nunca pode sair daqui.\n  const doBanco = {\n    id: 1, nome: 'Ana Paula', email: 'ana@escola.dev',\n    password_hash: '$2b$08$K3jd...', token_reset: 'a1b2c3', created_at: '2026-08-26',\n  };\n\n  const PUBLICOS = ['id', 'nome', 'email'];\n  const publico = (linha) => Object.fromEntries(PUBLICOS.map((c) => [c, linha[c]]));\n\n  app.get('/errado', (req, res) => res.json(doBanco));       // devolve o registro inteiro\n  app.get('/certo', (req, res) => res.json(publico(doBanco)));\n\n  const servidor = app.listen(0, async () => {\n    const url = `http://localhost:${servidor.address().port}`;\n    for (const rota of ['/errado', '/certo']) {\n      const corpo = await fetch(url + rota).then((r) => r.json());\n      console.log(rota.padEnd(9), Object.keys(corpo).join(', '));\n    }\n    console.log('\\nLista fixa de saída: a coluna que alguém acrescentar no model amanhã');\n    console.log('não vaza sozinha para a internet.');\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 7,
+        "titulo": "Sem express.json(), req.body chega undefined",
+        "secao": "PEGADINHAS",
+        "codigo": "const aplicacao = require('express');\n(async () => {\n  const app = aplicacao();\n  // Faltou o app.use(express.json()) aqui de propósito.\n\n  app.post('/alunos', (req, res) => res.json({ recebido: req.body ?? null }));\n\n  const servidor = app.listen(0, async () => {\n    const url = `http://localhost:${servidor.address().port}/alunos`;\n    const r = await fetch(url, {\n      method: 'POST', headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ nome: 'Ana Paula' }),\n    });\n    console.log('o cliente mandou : {\"nome\":\"Ana Paula\"}');\n    console.log('o servidor viu   :', JSON.stringify(await r.json()));\n    console.log('\\nO corpo chega como fluxo de bytes; alguém precisa juntar e converter.');\n    console.log('É o que express.json() faz — e ele tem que vir ANTES das rotas.');\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 8,
+        "titulo": "Aceitar o corpo inteiro deixa o cliente virar administrador",
+        "secao": "PEGADINHAS",
+        "codigo": "const apiWeb = require('express');\n(async () => {\n  const app = apiWeb();\n  app.use(apiWeb.json());\n\n  const conta = { id: 7, nome: 'Ana', email: 'ana@escola.dev', admin: false };\n\n  app.patch('/errado', (req, res) => {\n    Object.assign(conta, req.body);                 // confia em tudo que chegou\n    res.json(conta);\n  });\n\n  const PERMITIDOS = ['nome', 'email'];             // id e admin ficam de fora de propósito\n  app.patch('/certo', (req, res) => {\n    for (const c of PERMITIDOS) if (req.body[c] !== undefined) conta[c] = req.body[c];\n    res.json(conta);\n  });\n\n  const servidor = app.listen(0, async () => {\n    const url = `http://localhost:${servidor.address().port}`;\n    const atacar = (rota) => fetch(url + rota, {\n      method: 'PATCH', headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ nome: 'Ana', admin: true, id: 999 }),\n    }).then((r) => r.json());\n\n    console.log('/errado →', JSON.stringify(await atacar('/errado')));\n    Object.assign(conta, { id: 7, admin: false });\n    console.log('/certo  →', JSON.stringify(await atacar('/certo')));\n    console.log('\\nO formulário só tem dois campos, mas o pedido é escrito à mão em');\n    console.log('qualquer terminal. Lista de entrada fixa, sempre.');\n    servidor.close();\n  });\n})();"
+       }
+      ],
+      "resumo": [
+       "`express.json()` antes das rotas; sem ele não existe `req.body`.",
+       "O status conta a história: 200, 201 criado, 400 pedido errado, 404 não existe.",
+       "CRUD é GET/POST/PUT/DELETE no mesmo caminho — o método já diz o que fazer.",
+       "PUT exige o recurso inteiro; PATCH aplica só o que veio.",
+       "Um formato só de erro (`{ errors: [...] }`) e todos os erros de uma vez.",
+       "Lista fixa na saída e na entrada: nada vaza e nada entra sem você ter escrito."
+      ]
+     },
+     {
+      "slug": "02-senha-com-bcrypt",
+      "arquivo": "node/src/09-api-e-autenticacao/02-senha-com-bcrypt.js",
+      "comando": "node src/09-api-e-autenticacao/02-senha-com-bcrypt.js",
+      "titulo": "Senha com bcrypt",
+      "sessao": 5,
+      "oQueE": "uma função que transforma a senha num hash de mão única — dá para conferir se a senha bate, mas não dá para voltar do hash para a senha.",
+      "quandoUsar": "em toda senha, sem exceção. Vazou o banco, vazaram os hashes, não as senhas.",
+      "quandoNaoUsar": "em dado que você precisa ler de volta (CPF, e-mail, cartão). Aí é criptografia com chave, que desfaz — não hash.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "Guardar o hash, conferir depois",
+        "secao": "ESSENCIAL",
+        "codigo": "const bcryptjs = require('bcryptjs');\n(async () => {\n  const digitadaNoCadastro = '123456';\n  const hash = await bcryptjs.hash(digitadaNoCadastro, 8);   // é ISTO que vai para o banco\n\n  console.log('formato do hash :', hash.slice(0, 7) + '...', '(' + hash.length + ' caracteres)');\n  console.log('senha certa     :', await bcryptjs.compare('123456', hash));\n  console.log('senha errada    :', await bcryptjs.compare('12345', hash));\n  console.log('\\nO banco nunca vê \"123456\". E ninguém desfaz o hash para descobrir.');\n})();"
+       },
+       {
+        "n": 2,
+        "titulo": "O mesmo \"123456\" gera hashes diferentes",
+        "secao": "ESSENCIAL",
+        "codigo": "const bcrypt = require('bcryptjs');\n(async () => {\n  const um = await bcrypt.hash('123456', 8);\n  const dois = await bcrypt.hash('123456', 8);\n\n  console.log('hashes iguais?      ', um === dois, '← cada um leva um sal sorteado na hora');\n  console.log('os dois conferem?   ', await bcrypt.compare('123456', um),\n    await bcrypt.compare('123456', dois));\n  console.log('o sal fica no hash  :', um.slice(0, 29).length, 'caracteres — versão, custo e sal');\n\n  console.log('\\nÉ por isso que a comparação é `compare`, nunca `===`: duas contas com a');\n  console.log('mesma senha têm hashes diferentes, e olhar o banco não denuncia isso.');\n})();"
+       },
+       {
+        "n": 3,
+        "titulo": "src/models/User.js: o campo VIRTUAL e o hook",
+        "secao": "ESSENCIAL",
+        "codigo": "const { Sequelize, DataTypes } = require('sequelize');\nconst cripto = require('bcryptjs');\n(async () => {\n  const conexao = new Sequelize({ dialect: 'sqlite', storage: ':memory:', logging: false });\n\n  const User = conexao.define('User', {\n    email: { type: DataTypes.STRING, allowNull: false },\n    password_hash: { type: DataTypes.STRING },      // a coluna que existe no banco\n    password: {\n      type: DataTypes.VIRTUAL,                      // só em memória: não vira coluna\n      validate: { len: { args: [6, 50], msg: 'Senha deve ter entre 6 e 50 caracteres.' } },\n    },\n  }, { tableName: 'users', timestamps: false });\n\n  // Roda no create E no update: a senha nunca chega ao banco em texto.\n  User.beforeSave(async (user) => {\n    if (user.password) user.password_hash = await cripto.hash(user.password, 8);\n  });\n\n  await conexao.sync();\n  const ana = await User.create({ email: 'ana@escola.dev', password: '123456' });\n\n  const [linha] = await conexao.query('SELECT * FROM users', { type: 'SELECT' });\n  console.log('colunas no banco   :', Object.keys(linha).join(', '), '← password não está aqui');\n  console.log('o que ficou gravado:', linha.password_hash.slice(0, 7) + '...');\n  console.log('em memória         :', ana.password, '← existe só durante o pedido');\n\n  try {\n    await User.create({ email: 'bruno@escola.dev', password: '123' });\n  } catch (erro) {\n    console.log('senha curta        :', erro.errors[0].message);\n  }\n  await conexao.close();\n})();"
+       },
+       {
+        "n": 4,
+        "titulo": "O custo: por que 8 e não 4",
+        "secao": "NA PRÁTICA",
+        "codigo": "const bc = require('bcryptjs');\n(async () => {\n  for (const custo of [4, 8, 10]) {\n    const hash = await bc.hash('123456', custo);\n    console.log(`custo ${custo}`.padEnd(9), hash.slice(0, 7), '← o custo fica escrito no hash');\n  }\n\n  console.log('\\nCada ponto DOBRA o trabalho: 10 é 64 vezes mais caro que 4.');\n  console.log('Isso é de propósito. Lento para você é aceitável (uma vez por login);');\n  console.log('lento para quem roubou o banco é a diferença entre horas e séculos.');\n  console.log('8 a 12 é a faixa de uso. Menos que isso não protege nada.');\n})();"
+       },
+       {
+        "n": 5,
+        "titulo": "O login que não conta quem existe",
+        "secao": "NA PRÁTICA",
+        "codigo": "const hasher = require('bcryptjs');\n(async () => {\n  const banco = [{ id: 1, email: 'ana@escola.dev', password_hash: await hasher.hash('123456', 8) }];\n\n  async function entrar(email, senha) {\n    const user = banco.find((u) => u.email === email);\n    // Mesma resposta para \"não existe\" e para \"senha errada\", de propósito.\n    if (!user || !(await hasher.compare(senha, user.password_hash)))\n      return { status: 401, corpo: { errors: ['Usuário ou senha inválidos.'] } };\n    return { status: 200, corpo: { id: user.id, email: user.email } };\n  }\n\n  for (const [email, senha, caso] of [\n    ['ana@escola.dev', '123456', 'tudo certo'],\n    ['ana@escola.dev', 'errada', 'senha errada'],\n    ['ninguem@escola.dev', '123456', 'não existe'],\n  ]) {\n    const r = await entrar(email, senha);\n    console.log(caso.padEnd(14), r.status, JSON.stringify(r.corpo));\n  }\n\n  console.log('\\n\"E-mail não cadastrado\" parece prestativo e é uma lista de clientes de graça:');\n  console.log('dá para descobrir quem tem conta testando e-mails, um por um.');\n})();"
+       },
+       {
+        "n": 6,
+        "titulo": "Não gravou hash nenhum? A comparação não te avisa",
+        "secao": "PEGADINHAS",
+        "codigo": "const senhaLib = require('bcryptjs');\n(async () => {\n  // Conta antiga, importada de outro sistema, que ficou sem password_hash.\n  const semHash = { email: 'antigo@escola.dev', password_hash: null };\n\n  console.log('compare com null :', await senhaLib.compare('qualquer-coisa', semHash.password_hash || ''));\n  console.log('compare com \"\"   :', await senhaLib.compare('', ''));\n\n  const hash = await senhaLib.hash('123456', 8);\n  console.log('comparando com ===:', hash === '123456', '← nunca funciona, e parece um bug');\n\n  console.log('\\nDuas travas que valem a pena:');\n  console.log('1. `password` obrigatório no cadastro — conta sem hash não deveria nascer.');\n  console.log('2. Se o password_hash estiver vazio, recuse o login em vez de comparar.');\n})();"
+       }
+      ],
+      "resumo": [
+       "Grave o hash, nunca a senha. `bcryptjs.hash(senha, 8)` no cadastro.",
+       "Confira com `bcryptjs.compare(digitada, hash)` — `===` nunca vai bater.",
+       "O sal sorteado faz o mesmo \"123456\" virar hashes diferentes a cada conta.",
+       "No model: `password` VIRTUAL, `password_hash` coluna, e o hook `beforeSave` no meio.",
+       "O custo (8 a 12) é lentidão de propósito, e ela protege quem roubou o banco de você.",
+       "Login errado responde 401 com mensagem única: não diga quem tem conta."
+      ]
+     },
+     {
+      "slug": "03-token-jwt",
+      "arquivo": "node/src/09-api-e-autenticacao/03-token-jwt.js",
+      "comando": "node src/09-api-e-autenticacao/03-token-jwt.js",
+      "titulo": "Autenticação com JWT",
+      "sessao": 5,
+      "oQueE": "um crachá assinado pelo servidor. O cliente guarda e manda em todo pedido; o servidor confere a assinatura e sabe quem é, sem guardar nada.",
+      "quandoUsar": "em API consumida por aplicativo, front separado ou outro serviço — coisas que não têm cookie de navegador para chamar de suas.",
+      "quandoNaoUsar": "em site com páginas renderizadas no servidor. Sessão com cookie é mais simples e dá para derrubar na hora, coisa que o token não permite.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "src/controllers/TokenController.js",
+        "secao": "ESSENCIAL",
+        "codigo": "const jwt = require('jsonwebtoken');\nconst bcryptjs = require('bcryptjs');\n(async () => {\n  const SEGREDO = process.env.TOKEN_SECRET || 'segredo-longo-e-aleatorio-do-.env';\n  const banco = [{ id: 1, email: 'ana@escola.dev', password_hash: await bcryptjs.hash('123456', 8) }];\n\n  async function store(email, senha) {\n    const user = banco.find((u) => u.email === email);\n    if (!user || !(await bcryptjs.compare(senha, user.password_hash)))\n      return { status: 401, corpo: { errors: ['Usuário ou senha inválidos.'] } };\n\n    // Só id e e-mail: o token viaja em todo pedido e é lido por qualquer um.\n    const token = jwt.sign({ id: user.id, email: user.email }, SEGREDO, { expiresIn: '7d' });\n    return { status: 200, corpo: { token } };\n  }\n\n  const ok = await store('ana@escola.dev', '123456');\n  console.log('login certo :', ok.status, '· token com', ok.corpo.token.split('.').length, 'partes');\n  const nao = await store('ana@escola.dev', 'errada');\n  console.log('login errado:', nao.status, JSON.stringify(nao.corpo));\n})();"
+       },
+       {
+        "n": 2,
+        "titulo": "O token não é segredo: é assinado, não escondido",
+        "secao": "ESSENCIAL",
+        "codigo": "const jsonwebtoken = require('jsonwebtoken');\n(() => {\n  const token = jsonwebtoken.sign({ id: 1, email: 'ana@escola.dev' }, 'segredo', { expiresIn: '7d' });\n  const [cabecalho, dados, assinatura] = token.split('.');\n  const ler = (parte) => JSON.parse(Buffer.from(parte, 'base64url').toString());\n\n  console.log('1. cabeçalho :', JSON.stringify(ler(cabecalho)));\n  console.log('2. dados     :', JSON.stringify({ ...ler(dados), iat: '...', exp: '...' }));\n  console.log('3. assinatura:', assinatura.length, 'caracteres — só quem tem o segredo produz');\n\n  console.log('\\nQualquer pessoa lê os dados: é base64, não criptografia. Nunca ponha');\n  console.log('senha, CPF ou cartão aí dentro. O que a assinatura garante é outra coisa:');\n  console.log('que ninguém trocou o id por outro sem o servidor perceber.');\n})();"
+       },
+       {
+        "n": 3,
+        "titulo": "verify: o que pode dar errado",
+        "secao": "ESSENCIAL",
+        "codigo": "const jwtLib = require('jsonwebtoken');\n(() => {\n  const token = jwtLib.sign({ id: 1 }, 'segredo-certo', { expiresIn: '7d' });\n  const expirado = jwtLib.sign({ id: 1 }, 'segredo-certo', { expiresIn: '-1s' });\n\n  const conferir = (t, segredo, caso) => {\n    try {\n      const dados = jwtLib.verify(t, segredo);\n      console.log(caso.padEnd(22), '✓ id =', dados.id);\n    } catch (erro) {\n      console.log(caso.padEnd(22), '✕', erro.name + ':', erro.message);\n    }\n  };\n\n  conferir(token, 'segredo-certo', 'token bom');\n  conferir(token, 'outro-segredo', 'segredo trocado');\n  conferir(token.slice(0, -3) + 'aaa', 'segredo-certo', 'assinatura adulterada');\n  conferir(expirado, 'segredo-certo', 'passou da validade');\n  conferir('isso-nao-e-token', 'segredo-certo', 'lixo no lugar do token');\n\n  console.log('\\nverify LANÇA em vez de devolver false: o middleware sempre usa try/catch.');\n})();"
+       },
+       {
+        "n": 4,
+        "titulo": "src/middlewares/loginRequired.js",
+        "secao": "NA PRÁTICA",
+        "codigo": "const express = require('express');\nconst cracha = require('jsonwebtoken');\n(async () => {\n  const SEGREDO = 'segredo-do-.env';\n\n  const loginRequired = (req, res, next) => {\n    const { authorization } = req.headers;\n    if (!authorization) return res.status(401).json({ errors: ['Login obrigatório.'] });\n\n    const [, token] = authorization.split(' ');          // \"Bearer eyJhbGci...\"\n    try {\n      req.userId = cracha.verify(token, SEGREDO).id;        // o resto da rota lê daqui\n      return next();\n    } catch {\n      return res.status(401).json({ errors: ['Token expirado ou inválido.'] });\n    }\n  };\n\n  const app = express();\n  app.get('/alunos', loginRequired, (req, res) => res.json({ alunos: ['Ana', 'Bruno'], visto_por: req.userId }));\n  app.get('/', (req, res) => res.json({ ok: 'rota aberta' }));\n\n  const servidor = app.listen(0, async () => {\n    const url = `http://localhost:${servidor.address().port}`;\n    const pedir = (cabecalhos) => fetch(url + '/alunos', { headers: cabecalhos })\n      .then(async (r) => `${r.status} ${JSON.stringify(await r.json())}`);\n\n    console.log('sem cabeçalho :', await pedir({}));\n    console.log('token inventado:', await pedir({ Authorization: 'Bearer nao-e-token' }));\n    const token = cracha.sign({ id: 7 }, SEGREDO, { expiresIn: '7d' });\n    console.log('token bom      :', await pedir({ Authorization: `Bearer ${token}` }));\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 5,
+        "titulo": "O id sai do token, não da URL",
+        "secao": "NA PRÁTICA",
+        "codigo": "const expresso = require('express');\nconst assinador = require('jsonwebtoken');\n(async () => {\n  const SEGREDO = 'segredo-do-.env';\n\n  const contas = { 1: { id: 1, nome: 'Ana' }, 2: { id: 2, nome: 'Bruno' } };\n  const app = expresso();\n\n  app.use((req, res, next) => {                    // loginRequired encurtado\n    const [, token] = (req.headers.authorization || '').split(' ');\n    try { req.userId = assinador.verify(token, SEGREDO).id; next(); }\n    catch { res.status(401).json({ errors: ['Login obrigatório.'] }); }\n  });\n\n  app.delete('/errado/:id', (req, res) => res.json({ apagou: contas[req.params.id] }));\n  app.delete('/certo', (req, res) => res.json({ apagou: contas[req.userId] }));\n\n  const servidor = app.listen(0, async () => {\n    const url = `http://localhost:${servidor.address().port}`;\n    const token = assinador.sign({ id: 1 }, SEGREDO);    // token da Ana\n    const chamar = (rota) => fetch(url + rota, {\n      method: 'DELETE', headers: { Authorization: `Bearer ${token}` },\n    }).then((r) => r.json());\n\n    console.log('DELETE /errado/2 →', JSON.stringify(await chamar('/errado/2')), '← a Ana apagou o Bruno');\n    console.log('DELETE /certo    →', JSON.stringify(await chamar('/certo')), '← só a própria conta');\n    console.log('\\nPor isso PUT, PATCH e DELETE de /users não recebem :id na 07-api-rest.');\n    console.log('Trocar um número na URL é a coisa mais fácil do mundo.');\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 6,
+        "titulo": "Sessão ou token?",
+        "secao": "NA PRÁTICA",
+        "codigo": "const comparacao = [\n  ['Onde fica o estado', 'no servidor', 'no próprio token'],\n  ['O cliente guarda', 'um cookie com o id', 'o token inteiro'],\n  ['Servir aplicativo', 'desajeitado', 'natural'],\n  ['Vários servidores', 'precisa de Redis compartilhado', 'qualquer um confere sozinho'],\n  ['Derrubar o acesso', 'apaga a sessão, cai na hora', 'só quando o token expira'],\n];\n\nconst largura = [22, 30, 30];\nconst linha = (cs) => cs.map((c, i) => c.padEnd(largura[i])).join(' ');\nconsole.log(linha(['', 'SESSÃO (06-sessao)', 'TOKEN (aqui)']));\nconsole.log(linha(['─'.repeat(20), '─'.repeat(28), '─'.repeat(28)]));\nfor (const l of comparacao) console.log(linha(l));\n\nconsole.log('\\nA última linha é a que dói: token roubado vale até expirar. Por isso a');\nconsole.log('validade é curta e o middleware ainda confere o usuário no banco.');"
+       },
+       {
+        "n": 7,
+        "titulo": "O token vale mesmo depois de apagar o usuário",
+        "secao": "PEGADINHAS",
+        "codigo": "const jwtToken = require('jsonwebtoken');\n(async () => {\n  const SEGREDO = 'segredo-do-.env';\n\n  let banco = [{ id: 1, email: 'ana@escola.dev' }];\n  const token = jwtToken.sign({ id: 1, email: 'ana@escola.dev' }, SEGREDO, { expiresIn: '7d' });\n\n  banco = banco.filter((u) => u.id !== 1);           // a conta foi apagada agora\n\n  const soAssinatura = jwtToken.verify(token, SEGREDO);\n  console.log('verify ainda passa   : id', soAssinatura.id, '← a assinatura continua boa');\n\n  const noBanco = banco.find((u) => u.id === soAssinatura.id);\n  console.log('existe no banco?     :', Boolean(noBanco), '← aqui a fraude aparece');\n\n  console.log('\\nO token é uma FOTO de quando foi emitido. Se a conta foi apagada, ou se a');\n  console.log('pessoa deixou de ser administradora, ele não sabe: continua dizendo o antigo.');\n  console.log('Por isso o loginRequired busca o usuário e confere id e e-mail antes do next().');\n})();"
+       }
+      ],
+      "resumo": [
+       "`jwt.sign({ id, email }, segredo, { expiresIn })` no login; o cliente guarda o token.",
+       "O token é legível por qualquer um: assinado, não escondido. Nada de sigiloso dentro.",
+       "`jwt.verify` lança — o middleware é try/catch e responde 401.",
+       "`Authorization: Bearer <token>` no cabeçalho de todo pedido protegido.",
+       "O id do dono sai do token (`req.userId`), nunca da URL.",
+       "Token é foto do passado: confira o usuário no banco e use validade curta."
+      ]
+     },
+     {
+      "slug": "04-upload-com-multer",
+      "arquivo": "node/src/09-api-e-autenticacao/04-upload-com-multer.js",
+      "comando": "node src/09-api-e-autenticacao/04-upload-com-multer.js",
+      "titulo": "Upload de arquivo com Multer",
+      "sessao": 6,
+      "oQueE": "o middleware que entende `multipart/form-data` — o formato que o navegador usa para mandar arquivo — e grava o que chegou no disco.",
+      "quandoUsar": "foto de perfil, anexo, planilha importada. Qualquer coisa que vem como arquivo.",
+      "quandoNaoUsar": "para o arquivo em si em produção séria — disco de servidor não sobrevive a um deploy. O Multer grava; depois se manda para S3 ou parecido.",
+      "preambulo": "",
+      "blocos": [
+       {
+        "n": 1,
+        "titulo": "src/configs/multerConfig.js",
+        "secao": "ESSENCIAL",
+        "codigo": "const multer = require('multer');\nconst path = require('node:path');\nconst os = require('node:os');\n(() => {\n  const config = {\n    fileFilter: (req, file, cb) => {\n      if (!['image/png', 'image/jpeg'].includes(file.mimetype))\n        return cb(new multer.MulterError('TIPO_ERRADO'));   // vira erro no req.file\n      return cb(null, true);\n    },\n    limits: { fileSize: 2 * 1024 * 1024 },                  // 2 MB, em bytes\n    storage: multer.diskStorage({\n      destination: (req, file, cb) => cb(null, path.resolve(os.tmpdir(), 'uploads')),\n      // Nome gerado: dois arquivos \"foto.png\" de pessoas diferentes não podem se atropelar.\n      filename: (req, file, cb) => cb(null, `${Date.now()}_${Math.random().toString(36).slice(2)}${path.extname(file.originalname)}`),\n    }),\n  };\n\n  console.log('tipos aceitos :', 'image/png, image/jpeg');\n  console.log('tamanho máximo:', config.limits.fileSize / 1024 / 1024, 'MB');\n  console.log('nome gerado   : 1787942081234_k3jd9f.png ← data + sorteio + extensão original');\n  console.log('\\nO nome que o usuário mandou nunca vira nome de arquivo no seu disco:');\n  console.log('\"../../.env\" seria um nome perfeitamente válido para ele escolher.');\n})();"
+       },
+       {
+        "n": 2,
+        "titulo": "A rota de upload e o req.file",
+        "secao": "ESSENCIAL",
+        "codigo": "const express = require('express');\nconst multerLib = require('multer');\nconst fs = require('node:fs');\nconst caminho = require('node:path');\nconst sistema = require('node:os');\n(async () => {\n  const pasta = caminho.resolve(sistema.tmpdir(), 'uploads-exemplo-2');\n  fs.mkdirSync(pasta, { recursive: true });\n\n  const upload = multerLib({ dest: pasta });\n  const app = express();\n\n  // 'foto' é o nome do campo no formulário — tem que bater com o que o cliente manda.\n  app.post('/fotos', upload.single('foto'), (req, res) => {\n    const { originalname, filename, size, mimetype } = req.file;\n    res.status(201).json({ originalname, filename, size, mimetype });\n  });\n\n  const servidor = app.listen(0, async () => {\n    const formulario = new FormData();\n    formulario.append('foto', new Blob([Buffer.alloc(1234)], { type: 'image/png' }), 'ana-perfil.png');\n\n    const r = await fetch(`http://localhost:${servidor.address().port}/fotos`, {\n      method: 'POST', body: formulario,\n    });\n    const corpo = await r.json();\n    console.log('status          :', r.status);\n    console.log('originalname    :', corpo.originalname, '← o nome do computador dele');\n    console.log('mimetype        :', corpo.mimetype);\n    console.log('size            :', corpo.size, 'bytes');\n    console.log('gravado no disco:', fs.existsSync(caminho.resolve(pasta, corpo.filename)));\n\n    fs.rmSync(pasta, { recursive: true, force: true });\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 3,
+        "titulo": "Recusar o que não deve entrar",
+        "secao": "ESSENCIAL",
+        "codigo": "const expresso = require('express');\nconst uploadLib = require('multer');\nconst so = require('node:os');\nconst montar = require('node:path');\nconst disco = require('node:fs');\n(async () => {\n  const pasta = montar.resolve(so.tmpdir(), 'uploads-exemplo-3');\n  disco.mkdirSync(pasta, { recursive: true });\n\n  const upload = uploadLib({\n    dest: pasta,\n    limits: { fileSize: 1024 },                            // 1 KB, para caber no exemplo\n    fileFilter: (req, file, cb) =>\n      cb(null, ['image/png', 'image/jpeg'].includes(file.mimetype)),   // false = recusa calado\n  });\n\n  const app = expresso();\n  app.post('/fotos', upload.single('foto'), (req, res) => {\n    if (!req.file) return res.status(400).json({ errors: ['Envie uma imagem PNG ou JPG.'] });\n    return res.status(201).json({ aceito: req.file.mimetype });\n  });\n  // O erro do Multer (tamanho, por exemplo) chega aqui, no middleware de erro de 4 argumentos.\n  app.use((erro, req, res, proximo) => res.status(400).json({ errors: [erro.code || erro.message] }));\n\n  const servidor = app.listen(0, async () => {\n    const url = `http://localhost:${servidor.address().port}/fotos`;\n    const enviar = async (bytes, tipo, nome) => {\n      const f = new FormData();\n      f.append('foto', new Blob([Buffer.alloc(bytes)], { type: tipo }), nome);\n      const r = await fetch(url, { method: 'POST', body: f });\n      return `${r.status} ${JSON.stringify(await r.json()).slice(0, 60)}`;\n    };\n\n    console.log('png de 500 bytes:', await enviar(500, 'image/png', 'ok.png'));\n    console.log('pdf de 500 bytes:', await enviar(500, 'application/pdf', 'contrato.pdf'));\n    console.log('png de 5 KB     :', await enviar(5000, 'image/png', 'grande.png'));\n\n    disco.rmSync(pasta, { recursive: true, force: true });\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 4,
+        "titulo": "Gravar no disco é metade: falta a URL",
+        "secao": "NA PRÁTICA",
+        "codigo": "const expr = require('express');\nconst arquivos = require('node:fs');\nconst pth = require('node:path');\nconst osLib = require('node:os');\n(async () => {\n  const pasta = pth.resolve(osLib.tmpdir(), 'uploads-exemplo-4');\n  arquivos.mkdirSync(pasta, { recursive: true });\n  arquivos.writeFileSync(pth.resolve(pasta, '1787942081_k3jd.png'), 'bytes de uma imagem');\n\n  const app = expr();\n  app.use('/uploads', expr.static(pasta));      // a pasta vira endereço público\n\n  // O banco guarda só o nome do arquivo; a URL é montada na hora de responder.\n  const linha = { id: 1, filename: '1787942081_k3jd.png', aluno_id: 3 };\n  app.get('/fotos/1', (req, res) => res.json({\n    id: linha.id,\n    url: `${process.env.APP_URL || 'http://localhost:3001'}/uploads/${linha.filename}`,\n  }));\n\n  const servidor = app.listen(0, async () => {\n    const url = `http://localhost:${servidor.address().port}`;\n    console.log('GET /fotos/1 →', JSON.stringify(await fetch(url + '/fotos/1').then((r) => r.json())));\n    const arquivo = await fetch(`${url}/uploads/${linha.filename}`);\n    console.log('a imagem abre?', arquivo.status, await arquivo.text());\n    console.log('\\nGuardar a URL inteira no banco quebra no dia em que o domínio mudar.');\n    console.log('Guarde o nome; monte a URL com APP_URL na resposta.');\n\n    arquivos.rmSync(pasta, { recursive: true, force: true });\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 5,
+        "titulo": "Apagou o registro, apague o arquivo",
+        "secao": "NA PRÁTICA",
+        "codigo": "const fsPromessas = require('node:fs/promises');\nconst caminhos = require('node:path');\nconst os5 = require('node:os');\n(async () => {\n  const pasta = caminhos.resolve(os5.tmpdir(), 'uploads-exemplo-5');\n  await fsPromessas.mkdir(pasta, { recursive: true });\n  await fsPromessas.writeFile(caminhos.resolve(pasta, 'foto-antiga.png'), 'bytes');\n\n  let banco = [{ id: 1, filename: 'foto-antiga.png' }];\n\n  async function destroy(id) {\n    const foto = banco.find((f) => f.id === id);\n    if (!foto) return { status: 404, corpo: { errors: ['Foto não existe.'] } };\n\n    banco = banco.filter((f) => f.id !== id);\n    // O arquivo pode já ter sumido (deploy, limpeza manual): isso não é motivo de erro 500.\n    await fsPromessas.unlink(caminhos.resolve(pasta, foto.filename)).catch(() => {});\n    return { status: 200, corpo: foto };\n  }\n\n  console.log('antes  :', await fsPromessas.readdir(pasta));\n  console.log('DELETE :', JSON.stringify(await destroy(1)));\n  console.log('depois :', await fsPromessas.readdir(pasta), '← sem arquivo órfão ocupando disco');\n  console.log('de novo:', JSON.stringify(await destroy(1)));\n\n  await fsPromessas.rm(pasta, { recursive: true, force: true });\n})();"
+       },
+       {
+        "n": 6,
+        "titulo": "A validação falhou DEPOIS de o arquivo já estar no disco",
+        "secao": "NA PRÁTICA",
+        "codigo": "const web = require('express');\nconst envio = require('multer');\nconst fsSync = require('node:fs');\nconst path6 = require('node:path');\nconst os6 = require('node:os');\n(async () => {\n  const pasta = path6.resolve(os6.tmpdir(), 'uploads-exemplo-6');\n  fsSync.mkdirSync(pasta, { recursive: true });\n  const app = web();\n  const upload = envio({ dest: pasta });\n\n  app.post('/fotos', upload.single('foto'), (req, res) => {\n    if (!req.body.aluno_id) {\n      // O Multer gravou antes de a rota rodar. Sem esta linha, sobra lixo no disco.\n      fsSync.unlinkSync(req.file.path);\n      return res.status(400).json({ errors: ['Informe o aluno_id.'] });\n    }\n    return res.status(201).json({ filename: req.file.filename });\n  });\n\n  const servidor = app.listen(0, async () => {\n    const f = new FormData();\n    f.append('foto', new Blob([Buffer.alloc(100)], { type: 'image/png' }), 'sem-dono.png');\n\n    const r = await fetch(`http://localhost:${servidor.address().port}/fotos`, { method: 'POST', body: f });\n    console.log('resposta        :', r.status, JSON.stringify(await r.json()));\n    console.log('sobrou no disco :', fsSync.readdirSync(pasta).length, 'arquivo(s)');\n    console.log('\\nO Multer roda ANTES da sua rota: quando a validação falha, o arquivo já');\n    console.log('existe. Todo caminho de erro depois do upload tem que apagar o arquivo.');\n\n    fsSync.rmSync(pasta, { recursive: true, force: true });\n    servidor.close();\n  });\n})();"
+       },
+       {
+        "n": 7,
+        "titulo": "Em multipart, req.body só existe depois do Multer",
+        "secao": "PEGADINHAS",
+        "codigo": "const framework = require('express');\nconst arquivosLib = require('multer');\nconst os7 = require('node:os');\nconst path7 = require('node:path');\nconst sistemaDeArquivos = require('node:fs');\n(async () => {\n  const pasta = path7.resolve(os7.tmpdir(), 'uploads-exemplo-7');\n  sistemaDeArquivos.mkdirSync(pasta, { recursive: true });\n  const app = framework();\n  app.use(framework.json());                        // não entende multipart, e tudo bem\n  const upload = arquivosLib({ dest: pasta });\n\n  app.post('/antes', (req, res, proximo) => {\n    console.log('antes do multer :', JSON.stringify(req.body), '← o corpo ainda nem foi lido');\n    proximo();\n  }, upload.single('foto'), (req, res) => {\n    console.log('depois do multer:', JSON.stringify(req.body), '← os campos de texto chegaram');\n    res.json({ ok: true });\n  });\n\n  const servidor = app.listen(0, async () => {\n    const f = new FormData();\n    f.append('aluno_id', '3');\n    f.append('foto', new Blob([Buffer.alloc(50)], { type: 'image/png' }), 'ana.png');\n    await fetch(`http://localhost:${servidor.address().port}/antes`, { method: 'POST', body: f });\n\n    console.log('\\nQuem quiser ler `aluno_id` tem que vir DEPOIS do upload.single().');\n    console.log('E `express.json()` não ajuda em nada aqui: o formato é outro.');\n    sistemaDeArquivos.rmSync(pasta, { recursive: true, force: true });\n    servidor.close();\n  });\n})();"
+       }
+      ],
+      "resumo": [
+       "`upload.single('foto')` põe o arquivo em `req.file` e os campos de texto em `req.body`.",
+       "Nome de arquivo é sempre gerado por você — o do usuário é texto de entrada, não caminho.",
+       "`fileFilter` e `limits` recusam tipo e tamanho antes de o disco encher.",
+       "Guarde o nome no banco e monte a URL com APP_URL; sirva a pasta com `express.static`.",
+       "Apagou o registro, apague o arquivo — e ignore o arquivo que já não estava lá.",
+       "Falhou depois do upload? Apague o que o Multer gravou, senão sobra órfão para sempre."
+      ]
+     }
+    ]
    }
   ]
  }

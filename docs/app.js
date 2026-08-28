@@ -281,6 +281,7 @@ function moduloFs(path) {
     mkdir: async (...a) => fs.mkdirSync(...a),
     readdir: async (...a) => fs.readdirSync(...a),
     rm: async (...a) => fs.rmSync(...a),
+    unlink: async (...a) => fs.unlinkSync(...a),
     stat: async (...a) => fs.statSync(...a),
   };
 
@@ -330,9 +331,16 @@ function moduloHttp(agendar) {
       method: (opcoes.method || 'GET').toUpperCase(),
       url: url.pathname + url.search,
       headers: cabecalhosPedido,
-      corpoBruto: opcoes.body ? String(opcoes.body) : '',   // o parser do Express lê daqui
+      corpoBruto: '',                            // o parser do Express lê daqui
       on: () => req,
     };
+    if (opcoes.body && typeof opcoes.body._serializar === 'function') {
+      const { corpo, tipo } = opcoes.body._serializar();   // FormData vira multipart
+      req.corpoBruto = corpo;
+      if (!cabecalhosPedido['content-type']) cabecalhosPedido['content-type'] = tipo;
+    } else if (opcoes.body) {
+      req.corpoBruto = String(opcoes.body);
+    }
     let corpo = '';
     const cabecalhos = {};
     const res = {
@@ -364,6 +372,656 @@ function moduloHttp(agendar) {
   });
 
   return { http, buscar };
+}
+
+/* ═══ Bibliotecas de banco e de autenticação, dentro do navegador ══════════════ */
+/* O curso de Node usa bcryptjs, jsonwebtoken e Sequelize nos exemplos das sessões 5 e 6.
+   Nenhum dos três roda no navegador como está: dois dependem de criptografia do Node e o
+   terceiro fala com um banco de verdade. Estas imitações reproduzem o COMPORTAMENTO que os
+   exemplos ensinam — formato do hash, assinatura que confere, validação, tabela em memória
+   — para que o aprendiz veja a mesma saída aqui e no terminal. */
+
+/** bcryptjs: hash com sal sorteado e comparação, no mesmo formato de 60 caracteres. */
+function moduloBcrypt() {
+  const ALFABETO = './ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const sortear = (n) => Array.from({ length: n },
+    () => ALFABETO[Math.floor(Math.random() * ALFABETO.length)]).join('');
+
+  // Resumo determinístico: o bcrypt de verdade é outra conta, mas a propriedade que os
+  // exemplos usam é a mesma — mesma senha + mesmo sal dão sempre o mesmo resultado.
+  const resumir = (texto, tamanho) => {
+    let saida = '';
+    for (let i = 0; saida.length < tamanho; i++) {
+      let h = 0x811c9dc5 ^ i;
+      for (const c of texto) h = Math.imul(h ^ c.charCodeAt(0), 0x01000193) >>> 0;
+      saida += ALFABETO[h % ALFABETO.length] + ALFABETO[(h >>> 8) % ALFABETO.length]
+             + ALFABETO[(h >>> 16) % ALFABETO.length] + ALFABETO[(h >>> 24) % ALFABETO.length];
+    }
+    return saida.slice(0, tamanho);
+  };
+
+  const montar = (senha, custo, sal) =>
+    `$2b$${String(custo).padStart(2, '0')}$${sal}${resumir(sal + ':' + senha, 31)}`;
+
+  const hashSync = (senha, custo = 10) => montar(String(senha), custo, sortear(22));
+  const compareSync = (senha, hash) => {
+    if (typeof hash !== 'string') return false;
+    const m = /^\$2[aby]\$(\d{2})\$(.{22})/.exec(hash);
+    if (!m) return false;
+    return montar(String(senha), Number(m[1]), m[2]) === hash;
+  };
+
+  return {
+    hash: async (senha, custo) => hashSync(senha, custo),
+    compare: async (senha, hash) => compareSync(senha, hash),
+    hashSync, compareSync,
+    genSaltSync: (custo = 10) => `$2b$${String(custo).padStart(2, '0')}$${sortear(22)}`,
+  };
+}
+
+/** jsonwebtoken: as três partes, a validade e os erros com os nomes de verdade. */
+function moduloJwt() {
+  const b64url = (texto) => btoa(unescape(encodeURIComponent(texto)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+  const assinar = (conteudo, segredo) => {
+    let saida = '';
+    for (let i = 0; saida.length < 43; i++) {
+      let h = 0x811c9dc5 ^ i;
+      for (const c of conteudo + '|' + segredo) h = Math.imul(h ^ c.charCodeAt(0), 0x01000193) >>> 0;
+      saida += b64url(String(h)).slice(0, 6);
+    }
+    return saida.slice(0, 43);
+  };
+
+  const SEGUNDOS = { s: 1, m: 60, h: 3600, d: 86400 };
+  const emSegundos = (v) => {
+    if (typeof v === 'number') return v;
+    const m = /^(-?\d+)([smhd])$/.exec(String(v));
+    return m ? Number(m[1]) * SEGUNDOS[m[2]] : 0;
+  };
+
+  const erro = (nome, mensagem) => Object.assign(new Error(mensagem), { name: nome });
+
+  return {
+    sign(dados, segredo, opcoes = {}) {
+      const agora = Math.floor(Date.now() / 1000);
+      const corpo = { ...dados, iat: agora };
+      if (opcoes.expiresIn !== undefined) corpo.exp = agora + emSegundos(opcoes.expiresIn);
+      const cabecalho = b64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+      const meio = b64url(JSON.stringify(corpo));
+      return `${cabecalho}.${meio}.${assinar(cabecalho + '.' + meio, segredo)}`;
+    },
+    verify(token, segredo) {
+      const partes = String(token).split('.');
+      if (partes.length !== 3) throw erro('JsonWebTokenError', 'jwt malformed');
+      const [cabecalho, meio, assinatura] = partes;
+      let corpo;
+      try { corpo = JSON.parse(decodeURIComponent(escape(atob(meio.replace(/-/g, '+').replace(/_/g, '/'))))); }
+      catch { throw erro('JsonWebTokenError', 'invalid token'); }
+      if (assinar(cabecalho + '.' + meio, segredo) !== assinatura)
+        throw erro('JsonWebTokenError', 'invalid signature');
+      if (corpo.exp !== undefined && corpo.exp < Math.floor(Date.now() / 1000))
+        throw erro('TokenExpiredError', 'jwt expired');
+      return corpo;
+    },
+    decode(token) {
+      const meio = String(token).split('.')[1];
+      try { return JSON.parse(decodeURIComponent(escape(atob(meio.replace(/-/g, '+').replace(/_/g, '/'))))); }
+      catch { return null; }
+    },
+  };
+}
+
+/** Sequelize: tabela em memória, com validação, hooks, associação e queryInterface. */
+function moduloSequelize(path) {
+  const erroDe = (nome, mensagem, extras = {}) =>
+    Object.assign(new Error(mensagem), { name: nome, ...extras });
+
+  // ── Tipos ──
+  const tipo = (chave, sql) => Object.assign(
+    (...args) => ({ key: chave, sql: args.length ? `${chave}(${args.join(',')})` : sql }),
+    { key: chave, sql },
+  );
+  const DataTypes = {
+    STRING: tipo('STRING', 'VARCHAR(255)'),
+    TEXT: tipo('TEXT', 'TEXT'),
+    INTEGER: tipo('INTEGER', 'INTEGER'),
+    BIGINT: tipo('BIGINT', 'BIGINT'),
+    FLOAT: tipo('FLOAT', 'FLOAT'),
+    DECIMAL: tipo('DECIMAL', 'DECIMAL'),
+    BOOLEAN: tipo('BOOLEAN', 'TINYINT(1)'),
+    DATE: tipo('DATE', 'DATETIME'),
+    DATEONLY: tipo('DATEONLY', 'DATE'),
+    VIRTUAL: tipo('VIRTUAL', 'VIRTUAL'),
+    UUID: tipo('UUID', 'UUID'),
+  };
+  const sqlDo = (t) => (t && (t.sql || (t.key && DataTypes[t.key] && DataTypes[t.key].sql))) || 'VARCHAR(255)';
+
+  // ── Operadores ──
+  const Op = {};
+  for (const nome of ['eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'like', 'notLike', 'in', 'notIn', 'between', 'or', 'and'])
+    Op[nome] = Symbol('Op.' + nome);
+
+  const combina = (valor, regra) => {
+    if (regra === null || typeof regra !== 'object' || Array.isArray(regra)) return valor === regra;
+    for (const chave of Object.getOwnPropertySymbols(regra)) {
+      const alvo = regra[chave];
+      const texto = String(valor);
+      if (chave === Op.eq && !(valor === alvo)) return false;
+      if (chave === Op.ne && !(valor !== alvo)) return false;
+      if (chave === Op.gt && !(valor > alvo)) return false;
+      if (chave === Op.gte && !(valor >= alvo)) return false;
+      if (chave === Op.lt && !(valor < alvo)) return false;
+      if (chave === Op.lte && !(valor <= alvo)) return false;
+      if (chave === Op.in && !alvo.includes(valor)) return false;
+      if (chave === Op.notIn && alvo.includes(valor)) return false;
+      if (chave === Op.between && !(valor >= alvo[0] && valor <= alvo[1])) return false;
+      if (chave === Op.like || chave === Op.notLike) {
+        const re = new RegExp('^' + String(alvo).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          .replace(/%/g, '.*').replace(/_/g, '.') + '$');
+        if (re.test(texto) !== (chave === Op.like)) return false;
+      }
+    }
+    return true;
+  };
+  const filtra = (linha, where = {}) =>
+    Object.entries(where).every(([campo, regra]) => combina(linha[campo], regra));
+
+  // ── Uma conexão ──
+  class Sequelize {
+    constructor(a, b, c, d) {
+      const opcoes = typeof a === 'object' && a !== null ? a : (d || {});
+      this.options = { dialect: 'sqlite', storage: ':memory:', ...opcoes };
+      this.tabelas = new Map();       // nome → { colunas, linhas, proximoId }
+      this.models = new Map();
+      this._contar = typeof this.options.logging === 'function' ? this.options.logging : null;
+    }
+
+    _log(sql) { if (this._contar) this._contar(sql); }
+
+    _tabela(nome) {
+      if (!this.tabelas.has(nome)) this.tabelas.set(nome, { colunas: new Map(), linhas: [], proximoId: 1 });
+      return this.tabelas.get(nome);
+    }
+
+    getDialect() { return this.options.dialect; }
+
+    async authenticate() {
+      const { storage, dialect } = this.options;
+      if (dialect === 'sqlite' && storage && storage !== ':memory:') {
+        const pasta = path.dirname(storage);
+        throw erroDe('Error', `ENOENT: no such file or directory, mkdir '${pasta}'`, { code: 'ENOENT' });
+      }
+      return this;
+    }
+
+    async close() { return undefined; }
+
+    define(nome, atributos, opcoes = {}) {
+      const model = criarModel(this, nome, atributos, opcoes);
+      this.models.set(nome, model);
+      return model;
+    }
+
+    async sync(opcoes = {}) {
+      for (const model of this.models.values()) {
+        const tabela = this._tabela(model.getTableName());
+        if (opcoes.force) { tabela.linhas = []; tabela.proximoId = 1; }
+        tabela.colunas = new Map(model._colunas.map((c) => [c.nome, c]));
+        this._log('CREATE TABLE ' + model.getTableName());
+      }
+      return this;
+    }
+
+    getQueryInterface() { return criarQueryInterface(this); }
+
+    async query(sql, opcoes = {}) {
+      const m = /^\s*select\s+(.+?)\s+from\s+["'`]?(\w+)["'`]?/i.exec(String(sql));
+      if (!m) return [[], {}];
+      const tabela = this._tabela(m[2]);
+      const colunas = m[1].trim() === '*' ? [...tabela.colunas.keys()] : m[1].split(',').map((c) => c.trim());
+      this._log(sql);
+      const linhas = tabela.linhas.map((l) => Object.fromEntries(colunas.map((c) => [c, l[c] ?? null])));
+      return opcoes.type === 'SELECT' || opcoes.type === 'select' ? linhas : [linhas, {}];
+    }
+  }
+
+  // ── Validação ──
+  const validar = (model, valores, apenas) => {
+    const erros = [];
+    for (const coluna of model._todasColunas) {
+      if (apenas && !(coluna.nome in valores)) continue;
+      const valor = valores[coluna.nome];
+      const nulo = valor === undefined || valor === null || valor === '';
+      if (coluna.allowNull === false && nulo && !coluna.autoIncrement && !coluna.primaryKey)
+        erros.push({ path: coluna.nome, message: `${model.name}.${coluna.nome} cannot be null` });
+      const regras = coluna.validate || {};
+      if (nulo) continue;
+      for (const [regra, cfg] of Object.entries(regras)) {
+        const msg = cfg && cfg.msg;
+        const args = cfg && cfg.args !== undefined ? cfg.args : cfg;
+        let falhou = false;
+        if (regra === 'len') falhou = String(valor).length < args[0] || String(valor).length > args[1];
+        else if (regra === 'isEmail') falhou = !/^[^@\s]+@[^@\s]+\.?[^@\s]*$/.test(String(valor));
+        else if (regra === 'isInt') falhou = !Number.isInteger(Number(valor));
+        else if (regra === 'min') falhou = Number(valor) < args;
+        else if (regra === 'max') falhou = Number(valor) > args;
+        else if (regra === 'notEmpty') falhou = String(valor).trim() === '';
+        if (falhou) erros.push({ path: coluna.nome, message: msg || `Validation ${regra} on ${coluna.nome} failed` });
+      }
+    }
+    if (erros.length) throw erroDe(
+      'SequelizeValidationError',
+      `${model.name} validation failed: ` + erros.map((e) => `${e.path}: ${e.message}`).join(',\n'),
+      { errors: erros },
+    );
+  };
+
+  // ── Um model ──
+  function criarModel(conexao, nome, atributos, opcoes) {
+    const pluralizar = (n) => n.replace(/y$/, 'ie') + 's';
+    const paraColuna = (n) => (opcoes.underscored ? n.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase() : n);
+    const comTimestamp = opcoes.timestamps !== false;
+
+    const colunas = [{ nome: 'id', field: 'id', tipo: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, allowNull: true }];
+    for (const [campo, bruto] of Object.entries(atributos)) {
+      const def = (bruto && (bruto.type || bruto.key)) ? (bruto.type ? bruto : { type: bruto }) : { type: bruto };
+      colunas.push({
+        nome: campo, field: def.field || paraColuna(campo), tipo: def.type,
+        allowNull: def.allowNull, unique: def.unique, defaultValue: def.defaultValue,
+        validate: def.validate, virtual: (def.type && def.type.key) === 'VIRTUAL',
+      });
+    }
+    if (comTimestamp)
+      for (const campo of ['createdAt', 'updatedAt'])
+        colunas.push({ nome: campo, field: paraColuna(campo), tipo: DataTypes.DATE, allowNull: false });
+
+    const tabela = opcoes.tableName || pluralizar(nome);
+    const hooks = { beforeSave: [] };
+    const associacoes = new Map();
+
+    class Instancia {
+      constructor(valores) { Object.assign(this, valores); }
+
+      async update(mudancas) {
+        Object.assign(this, mudancas);
+        validar(Model, this, true);
+        for (const fn of hooks.beforeSave) await fn(this);
+        const linha = Model._linhas().find((l) => l.id === this.id);
+        if (linha) for (const c of Model._colunas) if (!c.virtual) linha[c.nome] = this[c.nome];
+        conexao._log('UPDATE ' + tabela);
+        return this;
+      }
+
+      async destroy() {
+        const alvo = conexao._tabela(tabela);
+        alvo.linhas = alvo.linhas.filter((l) => l.id !== this.id);
+        conexao._log('DELETE FROM ' + tabela);
+        return this;
+      }
+
+      async validate() { validar(Model, this); }
+      get(campo) { return campo ? this[campo] : { ...this }; }
+      toJSON() { return { ...this }; }
+      toObject() { return { ...this }; }
+    }
+
+    const Model = Instancia;
+    Model._colunas = colunas.filter((c) => !c.virtual);
+    Model._todasColunas = colunas;
+    Model._linhas = () => conexao._tabela(tabela).linhas;
+    Object.defineProperty(Model, 'name', { value: nome });
+    Model.getTableName = () => tabela;
+    Model.getAttributes = () => Object.fromEntries(colunas.map((c) => [c.nome, {
+      type: c.tipo, field: c.field, allowNull: c.allowNull !== false,
+      primaryKey: Boolean(c.primaryKey), autoIncrement: Boolean(c.autoIncrement),
+    }]));
+    Model.rawAttributes = Model.getAttributes();
+    Model.beforeSave = (fn) => hooks.beforeSave.push(fn);
+    Model.addHook = (evento, fn) => { (hooks[evento] = hooks[evento] || []).push(fn); };
+    Model.sync = (o) => conexao.sync(o);
+
+    const montarInstancia = (linha, opcoesBusca = {}) => {
+      const inst = new Instancia(linha);
+      for (const [apelido, assoc] of associacoes) {
+        const metodo = 'get' + apelido[0].toUpperCase() + apelido.slice(1);
+        inst[metodo] = async () => {
+          conexao._log('SELECT ' + assoc.alvo.getTableName());
+          return assoc.tipo === 'hasMany'
+            ? assoc.alvo._linhas().filter((l) => l[assoc.chave] === inst.id).map((l) => new assoc.alvo(l))
+            : (assoc.alvo._linhas().find((l) => l.id === inst[assoc.chave]) || null);
+        };
+      }
+      const inclui = opcoesBusca.include
+        ? (Array.isArray(opcoesBusca.include) ? opcoesBusca.include : [opcoesBusca.include]) : [];
+      for (const item of inclui) {
+        const apelido = typeof item === 'string' ? item : item.association;
+        const assoc = associacoes.get(apelido);
+        if (!assoc) continue;
+        inst[apelido] = assoc.tipo === 'hasMany'
+          ? assoc.alvo._linhas().filter((l) => l[assoc.chave] === inst.id).map((l) => new assoc.alvo(l))
+          : (assoc.alvo._linhas().find((l) => l.id === inst[assoc.chave]) || null);
+      }
+      return inst;
+    };
+
+    const preparar = async (dados) => {
+      const inst = new Instancia({});
+      for (const c of Model._todasColunas) {
+        if (c.nome === 'id') continue;
+        if (dados[c.nome] !== undefined) inst[c.nome] = dados[c.nome];
+        else if (c.defaultValue !== undefined)
+          inst[c.nome] = typeof c.defaultValue === 'function' ? c.defaultValue() : c.defaultValue;
+      }
+      validar(Model, inst);
+      for (const fn of hooks.beforeSave) await fn(inst);
+      return inst;
+    };
+
+    const gravar = (inst) => {
+      const alvo = conexao._tabela(tabela);
+      const linha = { id: alvo.proximoId++ };
+      for (const c of Model._colunas) if (c.nome !== 'id') linha[c.nome] = inst[c.nome] ?? null;
+      alvo.linhas.push(linha);
+      inst.id = linha.id;
+      return inst;
+    };
+
+    Model.create = async (dados = {}) => {
+      const inst = await preparar(dados);
+      conexao._log('INSERT INTO ' + tabela);
+      return gravar(inst);
+    };
+
+    Model.bulkCreate = async (lista) => {
+      const prontos = [];
+      for (const dados of lista) prontos.push(gravar(await preparar(dados)));
+      conexao._log('INSERT INTO ' + tabela);
+      return prontos;
+    };
+
+    Model.findAll = async (o = {}) => {
+      conexao._log('SELECT FROM ' + tabela);
+      let linhas = Model._linhas().filter((l) => filtra(l, o.where));
+      for (const [campo, direcao] of (o.order || []).slice().reverse())
+        linhas = linhas.slice().sort((a, b) => (a[campo] > b[campo] ? 1 : a[campo] < b[campo] ? -1 : 0)
+          * (String(direcao).toUpperCase() === 'DESC' ? -1 : 1));
+      if (o.offset) linhas = linhas.slice(o.offset);
+      if (o.limit !== undefined) linhas = linhas.slice(0, o.limit);
+      return linhas.map((l) => montarInstancia(
+        o.attributes ? Object.fromEntries(o.attributes.map((c) => [c, l[c]])) : l, o));
+    };
+
+    Model.findByPk = async (id, o = {}) => {
+      conexao._log('SELECT FROM ' + tabela);
+      const linha = Model._linhas().find((l) => l.id === Number(id));
+      return linha ? montarInstancia(linha, o) : null;
+    };
+
+    Model.findOne = async (o = {}) => {
+      conexao._log('SELECT FROM ' + tabela);
+      const linha = Model._linhas().find((l) => filtra(l, o.where));
+      return linha ? montarInstancia(linha, o) : null;
+    };
+
+    Model.count = async (o = {}) => {
+      conexao._log('SELECT COUNT FROM ' + tabela);
+      return Model._linhas().filter((l) => filtra(l, o.where)).length;
+    };
+
+    Model.findAndCountAll = async (o = {}) => ({
+      count: Model._linhas().filter((l) => filtra(l, o.where)).length,
+      rows: await Model.findAll(o),
+    });
+
+    Model.update = async (valores, o = {}) => {
+      const alvos = Model._linhas().filter((l) => filtra(l, o.where));
+      for (const linha of alvos) Object.assign(linha, valores);
+      conexao._log('UPDATE ' + tabela);
+      return [alvos.length];
+    };
+
+    Model.destroy = async (o = {}) => {
+      const alvo = conexao._tabela(tabela);
+      const antes = alvo.linhas.length;
+      alvo.linhas = alvo.linhas.filter((l) => !filtra(l, o.where));
+      conexao._log('DELETE FROM ' + tabela);
+      return antes - alvo.linhas.length;
+    };
+
+    Model.belongsTo = (alvo, o = {}) => {
+      associacoes.set(o.as || alvo.name.toLowerCase(), { tipo: 'belongsTo', alvo, chave: o.foreignKey });
+    };
+    Model.hasMany = (alvo, o = {}) => {
+      associacoes.set(o.as || pluralizar(alvo.name).toLowerCase(), { tipo: 'hasMany', alvo, chave: o.foreignKey });
+    };
+    Model.hasOne = (alvo, o = {}) => {
+      associacoes.set(o.as || alvo.name.toLowerCase(), { tipo: 'hasOne', alvo, chave: o.foreignKey });
+    };
+    Model.associate = () => {};
+
+    return Model;
+  }
+
+  // ── queryInterface: o que as migrations usam ──
+  function criarQueryInterface(conexao) {
+    const descrever = (def) => ({
+      type: sqlDo(def && (def.type || def)),
+      allowNull: !(def && def.allowNull === false) && !(def && def.primaryKey),
+      primaryKey: Boolean(def && def.primaryKey),
+      defaultValue: (def && def.defaultValue) ?? null,
+    });
+
+    return {
+      async createTable(nome, definicoes) {
+        const tabela = conexao._tabela(nome);
+        tabela.colunas = new Map(Object.entries(definicoes).map(([c, def]) => [c, def]));
+        conexao._log('CREATE TABLE ' + nome);
+      },
+      async dropTable(nome) { conexao.tabelas.delete(nome); conexao._log('DROP TABLE ' + nome); },
+      async addColumn(tabelaNome, coluna, def) { conexao._tabela(tabelaNome).colunas.set(coluna, def); },
+      async removeColumn(tabelaNome, coluna) { conexao._tabela(tabelaNome).colunas.delete(coluna); },
+      async describeTable(nome) {
+        const tabela = conexao.tabelas.get(nome);
+        if (!tabela) throw erroDe('Error', `No description found for "${nome}" table.`);
+        return Object.fromEntries([...tabela.colunas].map(([c, def]) => [c, descrever(def)]));
+      },
+      async showAllTables() { return [...conexao.tabelas.keys()]; },
+      async bulkInsert(nome, linhas) {
+        const tabela = conexao._tabela(nome);
+        for (const linha of linhas) tabela.linhas.push({ id: tabela.proximoId++, ...linha });
+      },
+      async bulkDelete(nome) { conexao._tabela(nome).linhas = []; },
+    };
+  }
+
+  Sequelize.DataTypes = DataTypes;
+  Sequelize.Op = Op;
+  return { Sequelize, DataTypes, Op, default: Sequelize };
+}
+
+/* ═══ Envio de arquivo: FormData, Blob, Buffer e o Multer ══════════════ */
+/* O navegador tem FormData e Blob de verdade, mas o `fetch` daqui é de mentira: ele entrega
+   o pedido a um servidor que vive na memória. Estas imitações fazem o caminho inteiro —
+   montar o multipart, mandar, o Multer separar os pedaços e gravar no disco de mentira. */
+
+function moduloMultipart(fs, path) {
+  const CRLF = String.fromCharCode(13, 10);
+
+  const conteudoDe = (parte) => {
+    if (parte == null) return '';
+    if (typeof parte === 'string') return parte;
+    if (parte._texto !== undefined) return parte._texto;
+    if (typeof parte.length === 'number') return ' '.repeat(parte.length);
+    return String(parte);
+  };
+
+  class Blob {
+    constructor(partes = [], opcoes = {}) {
+      this._texto = partes.map(conteudoDe).join('');
+      this.size = this._texto.length;
+      this.type = opcoes.type || '';
+    }
+    async text() { return this._texto; }
+  }
+
+  class FormData {
+    constructor() { this._campos = []; }
+    append(nome, valor, nomeArquivo) {
+      this._campos.push({ nome, valor, nomeArquivo: nomeArquivo ?? (valor instanceof Blob ? 'blob' : undefined) });
+    }
+    get(nome) { const c = this._campos.find((x) => x.nome === nome); return c ? c.valor : null; }
+    getAll(nome) { return this._campos.filter((x) => x.nome === nome).map((x) => x.valor); }
+    has(nome) { return this._campos.some((x) => x.nome === nome); }
+    delete(nome) { this._campos = this._campos.filter((x) => x.nome !== nome); }
+    entries() { return this._campos.map((c) => [c.nome, c.valor])[Symbol.iterator](); }
+    _serializar() { return serializar(this); }
+    [Symbol.iterator]() { return this.entries(); }
+  }
+
+  const decodificar64 = (texto, url) => {
+    const b64 = url ? String(texto).replace(/-/g, '+').replace(/_/g, '/') : String(texto);
+    const completo = b64 + '==='.slice((b64.length + 3) % 4);
+    return decodeURIComponent(escape(atob(completo)));
+  };
+
+  const embrulhar = (texto) => ({
+    _texto: texto,
+    length: texto.length,
+    byteLength: texto.length,
+    toString: (cod) => (cod === 'base64' ? btoa(unescape(encodeURIComponent(texto))) : texto),
+  });
+
+  const Buffer = {
+    from: (dado, cod) => embrulhar(
+      cod === 'base64url' ? decodificar64(dado, true)
+        : cod === 'base64' ? decodificar64(dado, false)
+          : String(dado),
+    ),
+    alloc: (tamanho, preencher = ' ') => embrulhar(String(preencher).repeat(tamanho)),
+    isBuffer: (v) => Boolean(v && v._texto !== undefined),
+    byteLength: (v) => conteudoDe(v).length,
+  };
+
+  const LIMITE = '----SandboxFormBoundary7MA4YWxkTrZu0gW';
+
+  /** FormData vira o corpo `multipart/form-data` que o Multer sabe ler. */
+  const serializar = (formulario) => {
+    let corpo = '';
+    for (const campo of formulario._campos) {
+      corpo += `--${LIMITE}${CRLF}Content-Disposition: form-data; name="${campo.nome}"`;
+      if (campo.nomeArquivo !== undefined) {
+        corpo += `; filename="${campo.nomeArquivo}"${CRLF}`;
+        corpo += `Content-Type: ${(campo.valor && campo.valor.type) || 'application/octet-stream'}${CRLF}`;
+      } else {
+        corpo += CRLF;
+      }
+      corpo += `${CRLF}${conteudoDe(campo.valor)}${CRLF}`;
+    }
+    return { corpo: `${corpo}--${LIMITE}--${CRLF}`, tipo: `multipart/form-data; boundary=${LIMITE}` };
+  };
+
+  const analisar = (bruto, contentType) => {
+    const limite = /boundary=([^;]+)/.exec(String(contentType || ''))?.[1];
+    if (!limite || !bruto) return [];
+    return String(bruto).split(`--${limite}`).slice(1, -1).map((pedaco) => {
+      const [cabecalhos, ...resto] = pedaco.replace(new RegExp('^' + CRLF), '').split(CRLF + CRLF);
+      const valor = resto.join(CRLF + CRLF).replace(new RegExp(CRLF + '$'), '');
+      const nome = /name="([^"]*)"/.exec(cabecalhos)?.[1];
+      const nomeArquivo = /filename="([^"]*)"/.exec(cabecalhos)?.[1];
+      const tipo = /Content-Type: *([^\r\n]+)/i.exec(cabecalhos)?.[1] || 'application/octet-stream';
+      return { nome, nomeArquivo, tipo, valor };
+    }).filter((p) => p.nome);
+  };
+
+  /** Multer: separa os pedaços, aplica filtro e limite, e grava no disco de mentira. */
+  function criarMulter() {
+    const MENSAGENS = {
+      LIMIT_FILE_SIZE: 'File too large',
+      LIMIT_FILE_COUNT: 'Too many files',
+      LIMIT_UNEXPECTED_FILE: 'Unexpected field',
+    };
+    class MulterError extends Error {
+      constructor(codigo, campo) {
+        super(MENSAGENS[codigo] || codigo);
+        this.name = 'MulterError';
+        this.code = codigo;
+        if (campo) this.field = campo;
+      }
+    }
+
+    const sortearNome = () => Array.from({ length: 32 },
+      () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('');
+
+    const multer = (opcoes = {}) => {
+      const guardar = (req, file, conteudo, pronto) => {
+        const armazem = opcoes.storage;
+        const escolher = (fn, padrao) => new Promise((resolver) => {
+          if (typeof fn !== 'function') return resolver(padrao);
+          return fn(req, file, (erro, valor) => resolver(erro ? padrao : valor));
+        });
+        Promise.all([
+          escolher(armazem && armazem.destination, opcoes.dest || '/tmp'),
+          escolher(armazem && armazem.filename, sortearNome()),
+        ]).then(([destino, nome]) => {
+          fs.mkdirSync(destino, { recursive: true });
+          const caminho = path.join(destino, nome);
+          fs.writeFileSync(caminho, conteudo);
+          Object.assign(file, { destination: destino, filename: nome, path: caminho });
+          pronto();
+        });
+      };
+
+      const receber = (campos, umSo) => (req, res, next) => {
+        const partes = analisar(req.corpoBruto, req.headers['content-type']);
+        req.body = {};
+        for (const p of partes) if (p.nomeArquivo === undefined) req.body[p.nome] = p.valor;
+
+        const arquivos = partes.filter((p) => p.nomeArquivo !== undefined
+          && (campos === null || campos.includes(p.nome)));
+        if (!arquivos.length) return next();
+
+        const pendentes = [];
+        for (const parte of arquivos) {
+          const file = {
+            fieldname: parte.nome, originalname: parte.nomeArquivo, encoding: '7bit',
+            mimetype: parte.tipo, size: parte.valor.length,
+          };
+          if (opcoes.limits && opcoes.limits.fileSize !== undefined && file.size > opcoes.limits.fileSize)
+            return next(new MulterError('LIMIT_FILE_SIZE', parte.nome));
+          if (typeof opcoes.fileFilter === 'function') {
+            let recusa = null;
+            let aceito = true;
+            opcoes.fileFilter(req, file, (erro, ok) => { recusa = erro; aceito = ok !== false; });
+            if (recusa) return next(recusa);
+            if (!aceito) continue;
+          }
+          pendentes.push(new Promise((ok) => guardar(req, file, parte.valor, () => ok(file))));
+        }
+        if (!pendentes.length) return next();
+        return Promise.all(pendentes).then((prontos) => {
+          if (umSo) req.file = prontos[0]; else req.files = prontos;
+          next();
+        });
+      };
+
+      return {
+        single: (campo) => receber([campo], true),
+        array: (campo) => receber([campo], false),
+        fields: (lista) => receber(lista.map((c) => c.name), false),
+        any: () => receber(null, false),
+        none: () => receber([], false),
+      };
+    };
+
+    multer.diskStorage = (cfg) => ({ ...cfg, _tipo: 'disco' });
+    multer.memoryStorage = () => ({ _tipo: 'memoria' });
+    multer.MulterError = MulterError;
+    return multer;
+  }
+
+  return { Blob, FormData, Buffer, serializar, multer: criarMulter() };
 }
 
 /** `require` do sandbox: módulos internos imitados + arquivos do disco de mentira. */
@@ -582,8 +1240,11 @@ function moduloExpress(http, path, fs, ejs) {
     next();
   };
   api.json = () => (req, res, next) => {
+    // Igual ao de verdade: corpo que não é JSON ele nem olha, e req.body segue undefined.
+    const tipo = String(req.headers['content-type'] || '');
+    if (tipo && !tipo.includes('json')) return next();
     try { req.body = req.corpoBruto ? JSON.parse(req.corpoBruto) : {}; } catch { req.body = {}; }
-    next();
+    return next();
   };
   api.static = (pasta) => (req, res, next) => {
     const alvo = path.join(pasta, decodeURIComponent(req.caminho));
@@ -869,12 +1530,17 @@ function executar(codigo, aoLinha, aoFim, contexto = {}) {
   };
   const { http, buscar } = moduloHttp(caixa.setTimeout);
   const ejs = moduloEjs(fs);
+  const envio = moduloMultipart(fs, path);
   const bibliotecas = {
     ejs,
     express: moduloExpress(http, path, fs, ejs),
     'express-session': moduloSessao(),
     'connect-flash': moduloFlash(),
     mongoose: moduloMongoose(),
+    bcryptjs: moduloBcrypt(),
+    jsonwebtoken: moduloJwt(),
+    sequelize: moduloSequelize(path),
+    multer: envio.multer,
   };
   const requerir = criarRequire(caixa, path, fs, os, http, bibliotecas, path.dirname(arquivoAbs));
 
@@ -883,11 +1549,11 @@ function executar(codigo, aoLinha, aoFim, contexto = {}) {
     // dependem disso (Object.freeze que falha calado, `this` quando se esquece o `new`).
     const fn = new Function(
       'console', 'process', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval', 'queueMicrotask',
-      'Promise', 'require', '__dirname', '__filename', 'fetch', codigo,
+      'Promise', 'require', '__dirname', '__filename', 'fetch', 'FormData', 'Blob', 'Buffer', codigo,
     );
     fn(caixa.console, caixa.process, caixa.setTimeout, caixa.setInterval, caixa.clearTimeout,
        caixa.clearInterval, caixa.queueMicrotask, caixa.Promise,
-       requerir, path.dirname(arquivoAbs), arquivoAbs, buscar);
+       requerir, path.dirname(arquivoAbs), arquivoAbs, buscar, envio.FormData, envio.Blob, envio.Buffer);
     descarregar();
   } catch (e) {
     descarregar();

@@ -147,8 +147,9 @@ em `docs/index.html`. Cada exemplo roda no próprio navegador, com terminal e c�
 
 Os cursos aparecem em sequência (JavaScript → Node), porque a trilha é sequencial: Node é a
 mesma linguagem rodando fora do navegador. O sandbox do site imita `require`, `path`, `fs`,
-`os`, `http`, `express`, `ejs`, `express-session`, `connect-flash` e `mongoose`, então os
-exemplos de servidor rodam ali mesmo. Exemplo que dependa de algo que o navegador não tem
+`os`, `http`, `express`, `ejs`, `express-session`, `connect-flash`, `mongoose`, `sequelize`,
+`bcryptjs`, `jsonwebtoken` e `multer` (com `FormData`, `Blob` e `Buffer`), então os
+exemplos de servidor, de banco e de upload rodam ali mesmo. Exemplo que dependa de algo que o navegador não tem
 (`child_process`, por exemplo) avisa para rodar no terminal.
 
 O site **lê** os arquivos de `<CURSO>/src/**` — nunca o contrário. O padrão de cabeçalho e de

@@ -50,25 +50,26 @@ Aula `07-api-rest`: a virada de banco e de formato. Sai MongoDB, entra SQL com
 Sequelize; sai HTML renderizado, entra JSON. Autenticação deixa de ser sessão e
 passa a ser token.
 
-- `07-api-rest/src/configs/database.js` — conexão MariaDB com Sequelize
-- `07-api-rest/src/models/` — Aluno e User (campo `VIRTUAL` + hash no `beforeSave`)
-- `07-api-rest/src/database/migrations/` — `alunos` e `users`
-- `07-api-rest/src/controllers/` — CRUD de alunos e usuários, com PUT × PATCH
-- `07-api-rest/src/controllers/TokenController.js` — login que devolve JWT
-- `07-api-rest/src/middlewares/loginRequired.js` — valida assinatura, validade e
-  se o usuário do token ainda existe
+- `08-sequelize/01-conexao-e-model.js` — Conexão e Model com Sequelize
+- `08-sequelize/02-migrations.js` — Migrations
+- `08-sequelize/03-crud-e-associacoes.js` — CRUD e Associações
+- `09-api-e-autenticacao/01-api-rest-em-json.js` — API REST em JSON
+- `09-api-e-autenticacao/02-senha-com-bcrypt.js` — Senha com bcrypt
+- `09-api-e-autenticacao/03-token-jwt.js` — Autenticação com JWT
+
+No projeto `07-api-rest`: conexão MariaDB, models Aluno e User (campo `VIRTUAL` +
+hash no `beforeSave`), migrations de `alunos` e `users`, CRUD com PUT × PATCH,
+`TokenController` e o middleware `loginRequired`.
 
 ## Sessão 6 — 28/08/2026
 
 Fecha a `07-api-rest`: upload de arquivo e as travas de segurança da API.
 
-- `07-api-rest/src/configs/multerConfig.js` — destino, nome gerado, filtro de
-  tipo e limite de 2 MB
-- `07-api-rest/src/models/Foto.js` — dono polimórfico (aluno **ou** usuário), FK
-  com `ON DELETE CASCADE`
-- `07-api-rest/src/controllers/FotoController.js` — upload, listagem e remoção do
-  banco e do disco
-- `07-api-rest/src/database/seeds/` — estado conhecido a cada boot com
-  `sync({ force: true })`
-- Listas fixas de entrada e de saída nos controllers: campo novo no model não
-  vaza sozinho, e `id`/`password_hash` no corpo do pedido não mudam nada
+- `09-api-e-autenticacao/04-upload-com-multer.js` — Upload de arquivo com Multer
+
+No projeto `07-api-rest`: `multerConfig` (destino, nome gerado, filtro de tipo e
+limite de 2 MB), model `Foto` com dono polimórfico e FK `ON DELETE CASCADE`,
+`FotoController` (upload, listagem e remoção do banco e do disco), seeds com
+`sync({ force: true })` e as listas fixas de entrada e de saída nos controllers —
+campo novo no model não vaza sozinho, e `id`/`password_hash` no corpo do pedido
+não mudam nada.

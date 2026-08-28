@@ -10,7 +10,7 @@ quando não usar, traz os exemplos resolvidos e fecha com um resumo do que levar
 ## Como rodar
 
 ```bash
-cd node && npm install                            # uma vez: express, ejs, mongoose, session, flash
+cd node && npm install                            # uma vez: express, ejs, mongoose, sequelize, jwt, multer
 node src/04-express/01-servidor-e-rotas.js        # um tópico qualquer
 node ../docs/build.mjs                            # atualiza o site depois de mexer em src/
 ```
@@ -124,6 +124,27 @@ Lembrar do visitante entre requisições.
 | [01-sessao-e-cookies.js](src/06-sessao-e-seguranca/01-sessao-e-cookies.js) | o crachá: cookie com o id, dados no servidor. | 4 |
 | [02-mensagens-flash.js](src/06-sessao-e-seguranca/02-mensagens-flash.js) | recado de uso único que sobrevive ao redirect. | 4 |
 
+### 08-sequelize
+
+Banco SQL sem escrever SQL.
+
+| Tópico | O que é | Sessão |
+|---|---|---|
+| [01-conexao-e-model.js](src/08-sequelize/01-conexao-e-model.js) | uma conexão só e o `define` que descreve a tabela. | 5 |
+| [02-migrations.js](src/08-sequelize/02-migrations.js) | a mudança de estrutura versionada: `up` faz, `down` desfaz. | 5 |
+| [03-crud-e-associacoes.js](src/08-sequelize/03-crud-e-associacoes.js) | create/find/update/destroy, `where` com `Op` e `include`. | 5 |
+
+### 09-api-e-autenticacao
+
+Responder JSON e saber quem está do outro lado.
+
+| Tópico | O que é | Sessão |
+|---|---|---|
+| [01-api-rest-em-json.js](src/09-api-e-autenticacao/01-api-rest-em-json.js) | status code, CRUD em quatro rotas e PUT × PATCH. | 5 |
+| [02-senha-com-bcrypt.js](src/09-api-e-autenticacao/02-senha-com-bcrypt.js) | hash de mão única, campo VIRTUAL e o hook `beforeSave`. | 5 |
+| [03-token-jwt.js](src/09-api-e-autenticacao/03-token-jwt.js) | o crachá assinado, o `Bearer` e o middleware `loginRequired`. | 5 |
+| [04-upload-com-multer.js](src/09-api-e-autenticacao/04-upload-com-multer.js) | receber arquivo, recusar o que não deve entrar e não deixar órfão. | 6 |
+
 ### 07-extras
 
 Fora da trilha, bom conhecer.
@@ -145,6 +166,13 @@ Fora da trilha, bom conhecer.
 | "Onde guardar a senha do banco" | [04-variaveis-de-ambiente.js](src/02-npm/04-variaveis-de-ambiente.js) |
 | "É dependency ou devDependency?" | [03-dependencias-e-versoes.js](src/02-npm/03-dependencias-e-versoes.js) |
 | "require ou import?" | [01-commonjs-vs-esm.js](src/01-modulos/01-commonjs-vs-esm.js) |
+| "Migration ou sync({ force })?" | [02-migrations.js](src/08-sequelize/02-migrations.js) (blocos 6 e 7) |
+| "A listagem ficou lenta" | [03-crud-e-associacoes.js](src/08-sequelize/03-crud-e-associacoes.js) (bloco 8, N+1) |
+| "Model.update não devolveu o registro" | [03-crud-e-associacoes.js](src/08-sequelize/03-crud-e-associacoes.js) (bloco 7) |
+| "Qual a diferença de PUT para PATCH" | [01-api-rest-em-json.js](src/09-api-e-autenticacao/01-api-rest-em-json.js) (bloco 4) |
+| "Onde guardar a senha do usuário" | [02-senha-com-bcrypt.js](src/09-api-e-autenticacao/02-senha-com-bcrypt.js) |
+| "O token expirou / não é válido" | [03-token-jwt.js](src/09-api-e-autenticacao/03-token-jwt.js) (blocos 3 e 4) |
+| "req.body vazio no upload" | [04-upload-com-multer.js](src/09-api-e-autenticacao/04-upload-com-multer.js) (bloco 7) |
 
 ## Regras da casa
 

@@ -10,7 +10,7 @@ Dois cursos, em sequência:
 ```
 Trilha 1 · JavaScript   a linguagem: variável, função, lista, objeto, assíncrono, classe
         ↓
-Trilha 2 · Node         a mesma linguagem no servidor: npm, Express, MongoDB, sessão
+Trilha 2 · Node         a mesma linguagem no servidor: npm, Express, banco, sessão, API
 ```
 
 ---
@@ -32,7 +32,7 @@ A linguagem, do zero ao protótipo. Cada arquivo é um tópico fechado.
 | [07-extras](javascript/src/07-extras/) | IIFE, constructor functions, geradoras, `defineProperty`, getters/setters, prototype, herança, mixins |
 | [08-classes](javascript/src/08-classes/) | `class`, `extends`/`super`, sobrescrita de métodos, métodos estáticos |
 
-### [Node](node/README.md) · 18 tópicos · 7 temas · 9 projetos
+### [Node](node/README.md) · 25 tópicos · 9 temas · 9 projetos
 
 A mesma linguagem fora do navegador — disco, rede e banco de dados.
 
@@ -44,6 +44,8 @@ A mesma linguagem fora do navegador — disco, rede e banco de dados.
 | [04-express](node/src/04-express/) | rotas, params/query/body, Router e controllers, views com EJS, estáticos, middlewares |
 | [05-mongodb](node/src/05-mongodb/) | conexão com Mongoose, schema, model e validação |
 | [06-sessao-e-seguranca](node/src/06-sessao-e-seguranca/) | sessão, cookies e mensagens flash |
+| [08-sequelize](node/src/08-sequelize/) | conexão e model, migrations, CRUD, `Op` e associações |
+| [09-api-e-autenticacao](node/src/09-api-e-autenticacao/) | JSON e status code, senha com bcrypt, token JWT, upload com Multer |
 | [07-extras](node/src/07-extras/) | webpack e Babel para empacotar o frontend |
 
 Mais os **[projetos das aulas](node/README.md#projetos-das-aulas)** — do primeiro `app.get`

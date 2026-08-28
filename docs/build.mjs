@@ -57,6 +57,8 @@ const TEMAS = {
   'node/04-express':            { titulo: 'Express',            icone: '⇄', cor: '#b48ef0', resumo: 'Servidor, rotas, views e middlewares.' },
   'node/05-mongodb':            { titulo: 'MongoDB',            icone: '◍', cor: '#79c0ff', resumo: 'Conectar no banco e salvar dados com Model.' },
   'node/06-sessao-e-seguranca': { titulo: 'Sessão e Segurança', icone: '⚿', cor: '#f78fb3', resumo: 'Session, flash, CSRF e Helmet.' },
+  'node/08-sequelize':          { titulo: 'Sequelize',          icone: '▦', cor: '#7fd1c1', resumo: 'Banco SQL sem escrever SQL: model, migration e associação.' },
+  'node/09-api-e-autenticacao': { titulo: 'API e Autenticação', icone: '⚷', cor: '#ffb86c', resumo: 'Responder JSON, guardar senha com bcrypt, entrar com token e receber arquivo.' },
   'node/07-extras':             { titulo: 'Extras',             icone: '◇', cor: '#8b95a8', resumo: 'Bom conhecer: fora da trilha do curso.' },
 };
 

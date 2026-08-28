@@ -51,13 +51,17 @@ mesmo assim, o `app.js` traz uma imitação enxuta dos módulos internos:
 | `ejs` | `<%= %>`, `<%- %>`, `<% %>` e `include` |
 | `express-session`, `connect-flash` | sessão com cookie e id, e o flash lido-uma-vez |
 | `mongoose` | Schema, model, validação, ValidationError e CastError |
+| `sequelize` | conexão, `define`, validação, hooks, associação, `Op` e queryInterface — tabela em memória |
+| `bcryptjs` | hash de 60 caracteres com sal sorteado, e `compare` que confere |
+| `jsonwebtoken` | as três partes, a validade e os erros com os nomes de verdade |
+| `multer`, `FormData`, `Blob`, `Buffer` | multipart montado no envio e separado na chegada; grava no disco de mentira |
 | `require('./arquivo.js')` | carrega arquivo escrito pelo próprio exemplo, com `module.exports` |
 | `__dirname`, `process.cwd()` | caminho de mentira (`/Users/igor/Cursos/...`), só para a saída ficar realista |
 | `Promise` | instrumentada, para o `console.log` imprimir `Promise { 42 }` como o node, e não `{}` |
 
 Não é encenação: `node docs/comparar.mjs` roda cada bloco **duas vezes** — no Node de verdade,
 com as bibliotecas instaladas em `node/`, e aqui no sandbox — e compara as duas saídas. Hoje
-**nenhum dos 446 blocos diverge**. O relatório separa em quatro grupos, porque nem toda
+**nenhum dos 496 blocos diverge**. O relatório separa em quatro grupos, porque nem toda
 diferença é defeito:
 
 | Grupo | O que quer dizer |
