@@ -92,7 +92,48 @@ console.log(navegar('/relatorios'));
 console.log('\nA lista de rotas está escrita UMA vez. O tipo sai dela, e uma rota nova entra');
 console.log('no tipo sozinha. É o uso mais rentável de `as const` que existe.');
 
-// ─── 5) Estrutural é o que faz "dependência" ficar barata ───
+// ─── 5) `satisfies`: confere o formato sem trocar o tipo ───
+type Ambiente = { url: string; timeout: number };
+
+// Com `:`, o valor entra no molde e sai com o tipo do MOLDE. As chaves que você escreveu somem.
+const AMBIENTES_ANOTADOS: Record<string, Ambiente> = {
+  producao: { url: 'https://api.loja.dev', timeout: 5000 },
+  local: { url: 'http://localhost:3000', timeout: 1000 },
+};
+
+// Para o tipo, toda chave existe. O erro de digitação passa e só estoura rodando.
+try {
+  console.log(AMBIENTES_ANOTADOS.homologacao.url);
+} catch (erro) {
+  console.log('com anotação:', (erro as Error).message, '← e o tsc não viu nada');
+}
+
+// Com `satisfies`, o TypeScript confere e vai embora: o tipo continua sendo o do objeto.
+const AMBIENTES = {
+  producao: { url: 'https://api.loja.dev', timeout: 5000 },
+  local: { url: 'http://localhost:3000', timeout: 1000 },
+} satisfies Record<string, Ambiente>;
+
+try {
+  // @ts-expect-error — Property 'homologacao' does not exist on type '{ producao: ...; local: ...; }'.
+  console.log(AMBIENTES.homologacao.url);
+} catch (erro) {
+  console.log('com satisfies:', (erro as Error).message, '← mas o tsc já tinha apontado');
+}
+
+type NomeDeAmbiente = keyof typeof AMBIENTES;          // 'producao' | 'local'
+const ambienteAtual: NomeDeAmbiente = 'local';
+console.log('chaves de verdade:', ambienteAtual, '→', AMBIENTES[ambienteAtual].url);
+
+// E ele continua conferindo o formato — errar o tipo do campo é erro na hora, como no `:`.
+// @ts-expect-error — Type 'string' is not assignable to type 'number'.
+const AMBIENTE_RUIM = { local: { url: 'http://localhost:3000', timeout: '1s' } } satisfies Record<string, Ambiente>;
+console.log('rodando mesmo assim:', JSON.stringify(AMBIENTE_RUIM));
+
+console.log('\n`:` confere e TROCA o tipo. `as` troca SEM conferir. `satisfies` confere e NÃO troca —');
+console.log('é o único dos três que deixa `keyof typeof` enxergar as chaves que você escreveu.');
+
+// ─── 6) Estrutural é o que faz "dependência" ficar barata ───
 // A função só pede o formato de que precisa. Qualquer objeto que o cumpra serve.
 type RegistradorDeLog = { info(mensagem: string): void };
 
@@ -117,7 +158,7 @@ console.log('método certo — e é por isso que testar TypeScript costuma dar p
 
 // ═══ PEGADINHAS ═══
 
-// ─── 6) `as` esconde o erro até a hora errada ───
+// ─── 7) `as` esconde o erro até a hora errada ───
 type UsuarioCompleto = { id: number; nome: string; email: string };
 
 // O servidor devolveu menos campos do que o tipo promete. O `as` engole isso calado.
@@ -135,7 +176,7 @@ console.log('\nO erro não some com `as` — ele muda de lugar, e de hora. Sai d
 console.log('`JSON.parse`, onde seria fácil tratar, e vai para onde alguém usou o campo.');
 console.log('Dado de fora pede type guard (tópico anterior), não asserção.');
 
-// ─── 7) Objeto vazio encaixa em quase tudo ───
+// ─── 8) Objeto vazio encaixa em quase tudo ───
 type Filtros = { termo?: string; ativo?: boolean; limite?: number };
 
 const nenhumFiltro: Filtros = {};                      // todos opcionais: `{}` serve
@@ -162,5 +203,5 @@ console.log('Ela vale para literal escrito na chamada — e some se o objeto vie
 // 2. `as unknown as X` é sinal de que falta uma conversão de verdade.
 // 3. O TypeScript é estrutural: encaixa quem tem o formato, não quem tem o nome.
 // 4. Literal escrito na hora é conferido de perto e recusa chave a mais; variável, não.
-// 5. `as const` num objeto de constantes gera a união de valores sem repetir a lista.
+// 5. `as const` gera a união sem repetir a lista; `satisfies` confere sem alargar o tipo.
 // 6. Para dado que vem de fora, `as` adia o erro — type guard resolve.

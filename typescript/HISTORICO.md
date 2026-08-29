@@ -96,6 +96,27 @@ E quatro explicações que faltavam, acrescentadas em tópicos que já existiam:
   método abstrato como contrato e o bloco novo de atributo abstrato
 - `06-classes/04-static-e-getters.ts` — a convenção `private _preco` com `get preco`/`set preco`
 
+## Sessão 10 — 29/08/2026
+
+Dois buracos fechados a partir de um exercício de enquete: o curso ensinava `as const` e os
+utility types de objeto, mas nada do que filtra tipo sem alargar nem do que filtra união.
+
+- `05-estreitar-tipos/02-assertions-e-structural.ts` — bloco novo de `satisfies`: o contraste
+  entre `:` (confere e troca o tipo), `as` (troca sem conferir) e `satisfies` (confere e não
+  troca), com `keyof typeof` provando quais chaves sobraram
+- `07-generics/04-utility-types.ts` — bloco novo de `Extract` e `Exclude` sobre uma união de
+  eventos de loja, mais `NonNullable`: eles filtram MEMBROS de união, não campos de objeto
+
+Os exercícios soltos saíram de `src/` para `exercicios/`, na raiz do curso — dentro de `src/`
+o `docs/build.mjs` os tratava como um tema da trilha. A pasta ficou registrada onde faltava:
+
+- `tsconfig.json` — `include` passou a ser `["src", "exercicios"]`. Os exercícios também têm
+  `@ts-expect-error`, e marcação que ninguém confere é marcação que envelhece calada.
+- `README.md` — seção "Fora da trilha", com `exercicios/` e `.vscode/` (o botão ▷ da extensão
+  Code Runner, já com a flag `--experimental-transform-types`).
+- `CLAUDE.md` da raiz — `exercicios/` entrou no diagrama de estrutura e virou regra: exercício
+  solto fica na raiz do curso, fora da trilha e fora do site, mas dentro do conferidor de tipos.
+
 ## Infraestrutura acrescentada nesta leva
 
 O `docs/` aprendeu a lidar com `.ts` sem ganhar dependência nenhuma:

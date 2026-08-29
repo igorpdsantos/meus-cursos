@@ -1,0 +1,20 @@
+{
+  // O botão ▷ (extensão Code Runner) usa o `node` do próprio sistema para rodar o .ts.
+  // A flag `--experimental-transform-types` cobre `enum` e propriedade de parâmetro no
+  // construtor, que o modo padrão do node não sabe converter. O `--disable-warning`
+  // esconde o aviso de recurso experimental, para o terminal mostrar só a saída do código.
+  "code-runner.executorMap": {
+    "typescript": "node --disable-warning=ExperimentalWarning --experimental-transform-types",
+    "javascript": "node"
+  },
+
+  // Roda no terminal integrado (com cores e `console.log` ao vivo), não no painel Output.
+  "code-runner.runInTerminal": true,
+
+  // Sempre a partir da raiz do curso, para os caminhos relativos baterem com o README.
+  "code-runner.cwd": "${workspaceFolder}",
+
+  // Salva o arquivo antes de rodar — senão o ▷ executa a versão anterior.
+  "code-runner.saveFileBeforeRun": true,
+  "code-runner.clearPreviousOutput": true
+}

@@ -13,7 +13,7 @@ quando não usar, traz os exemplos resolvidos e fecha com um resumo do que levar
 node src/02-tipos-basicos/01-primitivos-e-array.ts   # um tópico qualquer
 
 cd typescript && npm install                         # uma vez: só o typescript, para o tsc
-npm run check                                        # confere os TIPOS de src/ inteiro
+npm run check                                        # confere os TIPOS de src/ e exercicios/
 
 node ../docs/build.mjs                               # atualiza o site depois de mexer em src/
 ```
@@ -60,10 +60,24 @@ de salvar e o que o JavaScript só descobre quando chega na linha.
 | [04-funcoes](src/04-funcoes/) | 2 | parâmetro e retorno, sobrecarga e `this` tipado |
 | [05-estreitar-tipos](src/05-estreitar-tipos/) | 2 | type guards, `as` e tipagem estrutural |
 | [06-classes](src/06-classes/) | 5 | modificadores de acesso, herança e `abstract`, `implements`, `static` e getters, relações entre classes |
-| [07-generics](src/07-generics/) | 5 | o básico, restrições com `extends`, `keyof`/`typeof`, utility types, generics em interfaces e tipos |
+| [07-generics](src/07-generics/) | 5 | o básico, restrições com `extends`, `keyof`/`typeof`, utility types (`Extract`/`Exclude` inclusos), generics em interfaces e tipos |
 | [08-extras](src/08-extras/) | 5 | decorators (dois tópicos), bibliotecas de fora, módulos e namespaces, do TS ao navegador |
 
 A trilha é sequencial: um tema só depende do que vem antes dele.
+
+## Fora da trilha
+
+| Pasta | O que é |
+|---|---|
+| [exercicios/](exercicios/) | exercícios soltos, escritos para praticar. Não são tópicos: não entram no site nem seguem o padrão de blocos. Ficam aqui, e não em `src/`, porque dentro de `src/` o `docs/build.mjs` os leria como um tema da trilha. |
+| `.vscode/` | configuração do botão ▷ (extensão Code Runner) para rodar `.ts` com o `node` do sistema, já com `--experimental-transform-types`. |
+
+Os exercícios entram no `npm run check` junto com `src/` — quem tem `@ts-expect-error`
+precisa de alguém conferindo. Para rodar um deles:
+
+```bash
+node --experimental-transform-types exercicios/ex-teste-avancado.ts
+```
 
 ## Como este curso foi montado
 

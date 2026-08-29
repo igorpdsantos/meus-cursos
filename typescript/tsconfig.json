@@ -25,5 +25,7 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["src"]
+  // `exercicios/` entra junto: eles também têm `@ts-expect-error`, e marcação que ninguém
+  // confere é marcação que envelhece calada.
+  "include": ["src", "exercicios"]
 }

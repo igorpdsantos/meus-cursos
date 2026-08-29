@@ -149,9 +149,47 @@ try {
 console.log('\nÚtil quando a função é a fonte da verdade e você não quer escrever o tipo do');
 console.log('retorno duas vezes. Também aparece muito com bibliotecas que não exportam o tipo.');
 
+// ─── 6) `Extract` e `Exclude`: filtrar a união, não os campos ───
+type EventoDaLoja =
+  | { tipo: 'pedido.criado'; pedidoId: number; total: number }
+  | { tipo: 'pagamento.aprovado'; pedidoId: number; bandeira: string }
+  | { tipo: 'pedido.cancelado'; pedidoId: number; motivo: string };
+
+// `Extract<U, F>` fica com os MEMBROS de U que encaixam em F.
+type PagamentoAprovado = Extract<EventoDaLoja, { tipo: 'pagamento.aprovado' }>;
+
+// Só um membro entrou, então `bandeira` existe sem precisar de nenhum `if`.
+function registrarPagamento(evento: PagamentoAprovado): string {
+  return `pedido ${evento.pedidoId} pago com ${evento.bandeira}`;
+}
+console.log(registrarPagamento({ tipo: 'pagamento.aprovado', pedidoId: 7, bandeira: 'visa' }));
+
+// @ts-expect-error — Type '"pedido.criado"' is not assignable to type '"pagamento.aprovado"'.
+console.log(registrarPagamento({ tipo: 'pedido.criado', pedidoId: 8, total: 90 }));
+
+// `Exclude<U, F>` faz o contrário: tira os que encaixam.
+type TipoDeEvento = EventoDaLoja['tipo'];
+type EventoDePedido = Exclude<TipoDeEvento, 'pagamento.aprovado'>;
+
+const filaDePedidos: EventoDePedido[] = ['pedido.criado', 'pedido.cancelado'];
+console.log('a fila escuta:', filaDePedidos.join(' · '));
+
+// @ts-expect-error — Argument of type '"pagamento.aprovado"' is not assignable to parameter of type 'EventoDePedido'.
+filaDePedidos.push('pagamento.aprovado');
+console.log('rodando, entrou assim mesmo:', filaDePedidos.length, 'tipos');
+
+// `NonNullable<T>` é `Exclude<T, null | undefined>` com um nome melhor.
+type TalvezDesconto = number | null | undefined;
+const descontoDoBanco: TalvezDesconto = 15;
+const desconto: NonNullable<TalvezDesconto> = descontoDoBanco ?? 0;
+console.log('desconto aplicado:', `${desconto}%`);
+
+console.log('\n`Pick` e `Omit` trabalham nos CAMPOS de um objeto; `Extract` e `Exclude`, nos');
+console.log('MEMBROS de uma união. Trocar um pelo outro é o engano mais comum dos quatro.');
+
 // ═══ PEGADINHAS ═══
 
-// ─── 6) `Partial` some com a garantia, e o resto do código não sabe ───
+// ─── 7) `Partial` some com a garantia, e o resto do código não sabe ───
 type Endereco = { rua: string; numero: number; cidade: string };
 
 // Parece inofensivo: "vou aceitar o endereço incompleto e completo depois".
@@ -179,6 +217,6 @@ console.log('afrouxa todos, e a partir dali ninguém mais sabe o que pode contar
 // 1. `Partial<T>` deixa tudo opcional (o corpo de um PATCH); `Required<T>` faz o contrário.
 // 2. `Pick<T, K>` escolhe campos; `Omit<T, K>` tira — é a defesa contra vazar `senhaHash`.
 // 3. `Record<K, V>` cobra todas as chaves quando `K` é união de literais.
-// 4. Derive os tipos de entrada e de saída do tipo principal: uma fonte, vários usos.
-// 5. `ReturnType<typeof f>` e `Parameters<typeof f>` pegam o tipo a partir da função.
+// 4. `Extract<U, F>` e `Exclude<U, F>` filtram MEMBROS de união — não campos de objeto.
+// 5. Derive tudo de uma fonte só, inclusive da função: `ReturnType`/`Parameters<typeof f>`.
 // 6. `Partial` como remendo afrouxa TUDO — diga quais campos são opcionais.

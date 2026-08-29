@@ -13,6 +13,7 @@ Este arquivo define o padrão que **todo** curso segue. Não altere o padrão se
     NN-<tema>/
       README.md      # teoria do tema: o que é, quando usar, quando não usar, pegadinhas
       NN-<topico>.<ext>
+  exercicios/        # exercícios soltos, de praticar. Opcional. Fora da trilha e fora do site.
   _arquivo/          # anotações antigas/rascunhos. Nunca é referência.
 ```
 
@@ -20,6 +21,11 @@ Este arquivo define o padrão que **todo** curso segue. Não altere o padrão se
 - Um arquivo por tópico. Se um tópico ficar com mais de ~120 linhas, quebre em dois.
 - A numeração das pastas é a **trilha de aprendizado**: um tema só pode depender do que
   vem antes dele. Tópico que não cabe na trilha vai para `07-extras`.
+- Exercício solto — código de praticar, que não é tópico da trilha — vai para `exercicios/`,
+  na raiz do curso. Dentro de `src/` o `docs/build.mjs` o leria como um tema. Ele não segue o
+  padrão de cabeçalho e de blocos, mas continua entrando no conferidor de tipos do curso
+  (no TypeScript, o `include` do `tsconfig.json`), porque `@ts-expect-error` sem ninguém
+  conferindo envelhece calado.
 - Projetos de aula ficam na raiz do curso, numerados na mesma trilha
   (`00-aula-express/`, `07-api-rest/`, `08-projeto-agenda/`). Cada um é um projeto
   independente, com o seu `package.json`, o seu `.gitignore` e o seu `npm install`.
